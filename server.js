@@ -14,16 +14,21 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //mongodb+srv://capstoneDev:<password>@tuneup-dev.pcwc5.mongodb.net/<dbname>?retryWrites=true&w=majority
 //store db values needed for connection
 
-mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }).then(() => {
-    console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
-  }).catch((err) => {
-    throw err;
-  });
 
+//This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
+// mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+//   {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+//   }).then(() => {
+//     console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
+//   }).catch((err) => {
+//     throw err;
+//   });
+
+mongoose.connect('mongodb://mongo:27017').catch(err => {
+  console.log(err)
+})
 
 // Constants
 const PORT = process.env.LOCALPORT;

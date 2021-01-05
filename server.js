@@ -30,7 +30,7 @@ mongoose.connect(`mongodb://mongo:27017`,
     useNewUrlParser: true,
     useUnifiedTopology: true
   }).then(() => {
-    console.log(`Successfully conencted to the ${process.env.DB_NAME_LOCAL} database`)
+    console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
   }).catch((err) => {
     throw err;
   });

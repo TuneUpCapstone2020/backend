@@ -10,7 +10,7 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //  console.log("DB Connected Successfully");
 //})
 
-//test for atlas db
+//format for atlas db
 //mongodb+srv://capstoneDev:<password>@tuneup-dev.pcwc5.mongodb.net/<dbname>?retryWrites=true&w=majority
 //store db values needed for connection
 

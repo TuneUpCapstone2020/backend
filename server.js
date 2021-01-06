@@ -52,7 +52,7 @@ app.get('/ping/', (req, res) => {
 });
 
 app.get('/api/', (req, res) => {
-  res.send('You have eached the api of this server');
+  res.send('You have reached the api of this server');
 });
 
 app.listen(PORT, HOST);

@@ -24,7 +24,7 @@ const clientSchema = new Schema({
     address: {
         type: String
     }
-}, {timestamps: true})
+})
 
 const Client = mongoose.model('Client', clientSchema)
 module.exports = Client

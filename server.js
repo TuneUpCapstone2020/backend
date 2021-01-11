@@ -20,24 +20,40 @@ const app = express();
 
 //This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
 const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-mongoose.connect(dbURI,
+// mongoose.connect(dbURI,
+//   {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+//   }).then(() => {
+//     console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
+//     app.listen(PORT, HOST)
+//     console.log(`Running on http://${HOST}:${PORT}`)
+//   }).catch((err) => {
+//     console.log('cant connect')
+//     throw err;
+//   });
+
+//url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
+mongoose.Promise = global.Promise;
+mongoose.connect(`mongodb://mongo:27017`,
   {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    user: 'root',
+    pass: 'root'
   }).then(() => {
-    console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
+    console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
     app.listen(PORT, HOST)
     console.log(`Running on http://${HOST}:${PORT}`)
   }).catch((err) => {
-    console.log('cant connect')
     throw err;
   });
 
 //mongoose sandbox routes
 app.get('/add-client', (req, res) => {
   const client = new Client({
-    firstName: 'John',
-    lastName: 'Baroudi',
+    firstName: 'Jimmy',
+    lastName: 'James',
     password: 'test',
     email: 'john@john.com'
   })
@@ -50,19 +66,7 @@ app.get('/add-client', (req, res) => {
       throw err
     })
 })
-//url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
-mongoose.Promise = global.Promise;
-mongoose.connect(`mongodb://mongo:27017`,
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    user: 'root',
-    pass: 'root'
-  }).then(() => {
-    console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
-  }).catch((err) => {
-    throw err;
-  });
+
 
 
 // Constants

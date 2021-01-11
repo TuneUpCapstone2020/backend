@@ -15,7 +15,10 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //store db values needed for connection
 
 //This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
-// mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+//mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS_ENCODED}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
+
+//use this one for now since mongoose seems to have an issue with the srv version of the connection
+// mongoose.connect(`mongodb://${process.env.DB_USER}:${process.env.DB_PASS_ENCODED}@tuneup-dev-shard-00-00.pcwc5.mongodb.net:27017,tuneup-dev-shard-00-01.pcwc5.mongodb.net:27017,tuneup-dev-shard-00-02.pcwc5.mongodb.net:27017/${process.env.DB_NAME}?ssl=true&replicaSet=atlas-149o5z-shard-0&authSource=admin&retryWrites=true&w=majority`,
 //   {
 //     useNewUrlParser: true,
 //     useUnifiedTopology: true

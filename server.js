@@ -8,6 +8,8 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //express app
 const app = express();
 
+app.use(express.urlencoded({extended: true}))
+
 //when its time to connect to the db, we're going to use something like: (except for either atlas or local depending on where its being deployed)
 //mongoose.connect(`mongodb://${process.env.DB_NAME}:${process.env.DB_PASS}@ds241658.mlab.com:41658/test_db`,(err)=>{
 //  if(err) throw err;
@@ -50,17 +52,30 @@ mongoose.connect(`mongodb://mongo:27017`,
   });
 
 //mongoose sandbox routes
-app.get('/add-client', (req, res) => {
-  const client = new Client({
-    firstName: 'Jimmy',
-    lastName: 'James',
-    password: 'test',
-    email: 'john@john.com'
-  })
+// app.get('/register', (req, res) => {
+//   const client = new Client(req.body)
+  
+//   // const client = new Client({
+//   //   email: 'john',
+//   //   password: 'test'
+//   // })
+
+//   client.save()
+//     .then((result) => {
+//       res.send(result)
+//     })
+//     .catch((err) => {
+//       throw err
+//     })
+// })
+
+app.post('/register', (req, res) => {
+  console.log(req.body)
+  const client = new Client(req.body)
 
   client.save()
     .then((result) => {
-      res.send(result)
+      res.redirect('/register')
     })
     .catch((err) => {
       throw err

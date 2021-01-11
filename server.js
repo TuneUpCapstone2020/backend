@@ -2,7 +2,11 @@
 
 const express = require('express'); //nodejs framework. check it out at: https://expressjs.com/
 const mongoose = require('mongoose'); //helps with database. Check it out at: https://mongoosejs.com/
+const Client = require('./models/client')
 require('dotenv').config(); //makes process.env access the .env file which allows us to do provess.env.DB_PASS
+
+//express app
+const app = express();
 
 //when its time to connect to the db, we're going to use something like: (except for either atlas or local depending on where its being deployed)
 //mongoose.connect(`mongodb://${process.env.DB_NAME}:${process.env.DB_PASS}@ds241658.mlab.com:41658/test_db`,(err)=>{
@@ -15,25 +19,50 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //store db values needed for connection
 
 //This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
-// mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`,
-//   {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   }).then(() => {
-//     console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
-//   }).catch((err) => {
-//     throw err;
-//   });
-
-mongoose.connect(`mongodb://mongo:27017`,
+const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
+mongoose.connect(dbURI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
   }).then(() => {
-    console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
+    console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
+    app.listen(PORT, HOST)
+    console.log(`Running on http://${HOST}:${PORT}`)
   }).catch((err) => {
+    console.log('cant connect')
     throw err;
   });
+
+// mongoose.connect(`mongodb://mongo:27017`,
+//   {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+//   }).then(() => {
+//     console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
+//     app.listen(PORT, HOST)
+//     console.log(`Running on http://${HOST}:${PORT}`)
+//   }).catch((err) => {
+//     console.log('cant connect')
+//     throw err;
+//   });
+
+//mongoose sandbox routes
+app.get('/add-client', (req, res) => {
+  const client = new Client({
+    firstName: 'John',
+    lastName: 'Baroudi',
+    password: 'test',
+    email: 'john@john.com'
+  })
+
+  client.save()
+    .then((result) => {
+      res.send(result)
+    })
+    .catch((err) => {
+      throw err
+    })
+})
 
 
 // Constants
@@ -41,7 +70,6 @@ const PORT = process.env.LOCALPORT;
 const HOST = process.env.LOCALHOST;
 
 // Home Page
-const app = express();
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
@@ -54,6 +82,3 @@ app.get('/ping/', (req, res) => {
 app.get('/api/', (req, res) => {
   res.send('You have reached the api of this server');
 });
-
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);

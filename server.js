@@ -25,10 +25,14 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //     throw err;
 //   });
 
+//url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
+mongoose.Promise = global.Promise;
 mongoose.connect(`mongodb://mongo:27017`,
   {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    user: 'root',
+    pass: 'root'
   }).then(() => {
     console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
   }).catch((err) => {

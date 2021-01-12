@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const vehicleSchema = new Schema({
     year: {
-        type: Integer,
+        type: Number,
         required: true
     },
     make: {

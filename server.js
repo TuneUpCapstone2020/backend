@@ -51,24 +51,6 @@ mongoose.connect(`mongodb://mongo:27017`,
     throw err;
   });
 
-//mongoose sandbox routes
-// app.get('/register', (req, res) => {
-//   const client = new Client(req.body)
-  
-//   // const client = new Client({
-//   //   email: 'john',
-//   //   password: 'test'
-//   // })
-
-//   client.save()
-//     .then((result) => {
-//       res.send(result)
-//     })
-//     .catch((err) => {
-//       throw err
-//     })
-// })
-
 
 
 // Constants

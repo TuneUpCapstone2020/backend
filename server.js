@@ -2,7 +2,7 @@
 
 const express = require('express'); //nodejs framework. check it out at: https://expressjs.com/
 const mongoose = require('mongoose'); //helps with database. Check it out at: https://mongoosejs.com/
-const Client = require('./models/client')
+const registerRoutes = require('./routes/registerRoutes')
 require('dotenv').config(); //makes process.env access the .env file which allows us to do provess.env.DB_PASS
 
 //express app
@@ -69,24 +69,14 @@ mongoose.connect(`mongodb://mongo:27017`,
 //     })
 // })
 
-app.post('/register', (req, res) => {
-  console.log(req.body)
-  const client = new Client(req.body)
-
-  client.save()
-    .then((result) => {
-      res.redirect('/register')
-    })
-    .catch((err) => {
-      throw err
-    })
-})
-
 
 
 // Constants
 const PORT = process.env.LOCALPORT;
 const HOST = process.env.LOCALHOST;
+
+//register routes
+app.use('/register',registerRoutes)
 
 // Home Page
 app.get('/', (req, res) => {

@@ -17,7 +17,7 @@ const client_create_client = (req, res) => {
   
     client.save()
       .then((result) => {
-        res.redirect('/register')
+        res.redirect('/client')
       })
       .catch((err) => {
         throw err

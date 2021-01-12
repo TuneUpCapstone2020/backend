@@ -3,7 +3,7 @@
 const express = require('express'); //nodejs framework. check it out at: https://expressjs.com/
 const mongoose = require('mongoose'); //helps with database. Check it out at: https://mongoosejs.com/
 const employeeRoutes = require('./routes/employeeRoutes')
-const registerRoutes = require('./routes/registerRoutes')
+const clientRoutes = require('./routes/clientRoutes')
 const vehicleRoutes = require('./routes/vehicleRoutes')
 require('dotenv').config(); //makes process.env access the .env file which allows us to do provess.env.DB_PASS
 
@@ -62,8 +62,8 @@ const HOST = process.env.LOCALHOST;
 //employee routes
 app.use('/employee', employeeRoutes)
 
-//register routes
-app.use('/register',registerRoutes)
+//client routes
+app.use('/client',clientRoutes)
 
 //vehicle routes
 app.use('/vehicle', vehicleRoutes)

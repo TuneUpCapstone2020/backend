@@ -2,9 +2,11 @@
 
 const express = require('express'); //nodejs framework. check it out at: https://expressjs.com/
 const mongoose = require('mongoose'); //helps with database. Check it out at: https://mongoosejs.com/
+const cookieParser = require('cookie-parser')
 const employeeRoutes = require('./routes/employeeRoutes')
 const clientRoutes = require('./routes/clientRoutes')
-const vehicleRoutes = require('./routes/vehicleRoutes')
+const vehicleRoutes = require('./routes/vehicleRoutes');
+const { requireAuth, checkClient } = require('./middleware/clientMiddleware');
 require('dotenv').config(); //makes process.env access the .env file which allows us to do provess.env.DB_PASS
 
 //express app
@@ -12,6 +14,7 @@ const app = express();
 
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
+app.use(cookieParser())
 
 //when its time to connect to the db, we're going to use something like: (except for either atlas or local depending on where its being deployed)
 //mongoose.connect(`mongodb://${process.env.DB_NAME}:${process.env.DB_PASS}@ds241658.mlab.com:41658/test_db`,(err)=>{
@@ -69,6 +72,9 @@ app.use(clientRoutes)
 
 //vehicle routes
 app.use('/vehicle', vehicleRoutes)
+
+//apply to every route
+app.get('*', checkClient)
 
 // Home Page
 app.get('/', (req, res) => {

@@ -65,7 +65,7 @@ const HOST = process.env.LOCALHOST;
 app.use('/employee', employeeRoutes)
 
 //client routes
-app.use('/client',clientRoutes)
+app.use(clientRoutes)
 
 //vehicle routes
 app.use('/vehicle', vehicleRoutes)

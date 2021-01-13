@@ -3,8 +3,9 @@ const clientController = require('../controllers/clientController')
 
 const router = express.Router()
 
-router.get('/', clientController.client_index)
-
-router.post('/', clientController.client_create_client)
+router.get('/register_client', clientController.register_get)
+router.post('/register_client', clientController.register_post)
+router.get('/login_client', clientController.login_get)
+router.post('/login_client', clientController.login_post)
 
 module.exports = router

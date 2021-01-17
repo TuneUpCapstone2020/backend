@@ -3,7 +3,7 @@ const Vehicle = require('../models/vehicle')
 //handle errors
 const handleErrors = (err) => {
   console.log(err.message, err.code)
-  let errors = { year: '', make: '', model: '' }
+  let errors = { make: '', model: '', year: '' }
 
   //validation errors
   if(err.message.includes('Vehicle validation failed')){
@@ -27,10 +27,10 @@ const vehicle_get = (req, res) => {
 }
 
 const vehicle_post = async (req, res) => {
-    const { year, make, model } = req.body
+    const { make, model, year } = req.body
 
     try{
-      const vehicle = await Vehicle.create({ year, make, model })
+      const vehicle = await Vehicle.create({ make, model, year })
       res.status(201).json({ vehicle: vehicle._id })
     }catch(err){
       const errors = handleErrors(err)

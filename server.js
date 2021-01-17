@@ -16,6 +16,7 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 const app = express();
 
 app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 
 //when its time to connect to the db, we're going to use something like: (except for either atlas or local depending on where its being deployed)
 //mongoose.connect(`mongodb://${process.env.DB_NAME}:${process.env.DB_PASS}@ds241658.mlab.com:41658/test_db`,(err)=>{
@@ -48,6 +49,7 @@ mongoose.connect(`mongodb://mongo:27017`,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useCreateIndex: true,
     user: 'root',
     pass: 'root'
   }).then(() => {

@@ -3,8 +3,8 @@ const vehicleController = require('../controllers/vehicleController')
 
 const router = express.Router()
 
-router.get('/', vehicleController.vehicle_index)
+router.get('/vehicle', vehicleController.vehicle_get)
 
-router.post('/', vehicleController.vehicle_create_vehicle)
+router.post('/vehicle', vehicleController.vehicle_post)
 
 module.exports = router

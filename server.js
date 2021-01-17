@@ -71,7 +71,7 @@ app.use('/employee', employeeRoutes)
 app.use(clientRoutes)
 
 //vehicle routes
-app.use('/vehicle', vehicleRoutes)
+app.use(vehicleRoutes)
 
 //apply to every route
 app.get('*', checkClient)

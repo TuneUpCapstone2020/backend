@@ -4,15 +4,15 @@ const Schema = mongoose.Schema
 const vehicleSchema = new Schema({
     year: {
         type: Number,
-        required: true
+        required: [true, 'Please enter year']
     },
     make: {
         type: String,
-        required: true
+        required: [true, 'Please enter make']
     },
     model: {
         type: String,
-        required: true
+        required: [true, 'Please enter model']
     }
 })
 

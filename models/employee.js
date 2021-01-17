@@ -3,7 +3,7 @@ const Schema = mongoose.Schema
 
 const employeeSchema = new Schema({
     employeeNum: {
-        type: Uint16Array,
+        type: Number,
         required: true
     },
     firstName: {
@@ -31,11 +31,11 @@ const employeeSchema = new Schema({
         required: true
     },
     wage: {
-        type: Float32Array,
+        type: Schema.Types.Decimal128,
         required: true
     },
     skillLevel:{
-        type: Uint16Array,
+        type: Number,
         required: true
     }
 })

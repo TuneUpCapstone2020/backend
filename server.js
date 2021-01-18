@@ -6,7 +6,12 @@ const cookieParser = require('cookie-parser')
 const employeeRoutes = require('./routes/employeeRoutes')
 const clientRoutes = require('./routes/clientRoutes')
 const vehicleRoutes = require('./routes/vehicleRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes')
+const garageRoutes = require('./routes/garageRoutes')
+const itemRoutes = require('./routes/itemRoutes')
+
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware');
+
 require('dotenv').config(); //makes process.env access the .env file which allows us to do provess.env.DB_PASS
 
 //express app
@@ -64,14 +69,23 @@ mongoose.connect(`mongodb://mongo:27017`,
 const PORT = process.env.LOCALPORT;
 const HOST = process.env.LOCALHOST;
 
-//employee routes
-app.use('/employee', employeeRoutes)
+//appointment routes
+app.use('/appointment',appointmentRoutes)
 
 //client routes
 app.use(clientRoutes)
 
+//employee routes
+app.use('/employee', employeeRoutes)
+
+//garage routes
+app.use('/garage', garageRoutes)
+
+//item routes
+app.use('/item',itemRoutes)
+
 //vehicle routes
-app.use('/vehicle', vehicleRoutes)
+app.use(vehicleRoutes)
 
 //apply to every route
 app.get('*', checkClient)

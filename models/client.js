@@ -4,6 +4,24 @@ const bcrypt = require('bcrypt')
 const Schema = mongoose.Schema
 
 const clientSchema = new Schema({
+    firstName:{
+        type: String,
+        required: [true, 'Please enter your first name'],
+        lowercase: true
+    },
+    lastName:{
+        type: String,
+        required: [true, 'Please enter your last name'],
+        lowercase: true
+    },
+    address:{
+        type: String,
+        required: [true, 'Please enter your address']
+    },
+    phoneNumber:{
+        type: String,
+        required: [true, 'Please enter your phone number']
+    },
     email: {
         type: String,
         required: [true, 'Please enter an email'],

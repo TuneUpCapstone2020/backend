@@ -1,6 +1,22 @@
 const Vehicle = require('../models/vehicle')
 
-const vehicle_index = (req, res) => {
+//handle errors
+const handleErrors = (err) => {
+  console.log(err.message, err.code)
+  let errors = { make: '', model: '', year: '' }
+
+  //validation errors
+  if(err.message.includes('Vehicle validation failed')){
+    Object.values(err.errors).forEach(({properties}) => {
+      errors[properties.path] = properties.message
+    })
+  }
+
+  return errors
+
+}
+
+const vehicle_get = (req, res) => {
     Vehicle.find().sort({ createdAt: -1 })
         .then((result) => {
             res.send(result)
@@ -10,21 +26,19 @@ const vehicle_index = (req, res) => {
         })
 }
 
-const vehicle_create_vehicle = (req, res) => {
-    //console.log(req.body)
-    //const vehicle = new Vehicle(req.body)
-    const vehicle = new Vehicle({year: 1993, make: 'Toyota', model: 'Supra'})
-  
-    vehicle.save()
-      .then((result) => {
-        res.redirect('/vehicle')
-      })
-      .catch((err) => {
-        throw err
-      })
+const vehicle_post = async (req, res) => {
+    const { make, model, year } = req.body
+
+    try{
+      const vehicle = await Vehicle.create({ make, model, year })
+      res.status(201).json({ vehicle: vehicle._id })
+    }catch(err){
+      const errors = handleErrors(err)
+      res.status(400).json({ errors })
+    }
 }
 
 module.exports = {
-    vehicle_index,
-    vehicle_create_vehicle
+    vehicle_get,
+    vehicle_post
 }

@@ -56,9 +56,9 @@ clientSchema.statics.login = async function (email, password) {
         if (auth) {
             return client
         }
-        throw Error('incorrect password')
+        throw Error('Incorrect email or password')
     }
-    throw Error('incorrect email')
+    throw Error('Incorrect email or password')
 }
 
 clientSchema.statics.addVehicle = async function (clientId, vehicle) {

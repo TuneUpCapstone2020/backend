@@ -40,6 +40,7 @@ const handleErrors = (err) => {
 }
 
 const maxAge = 3 * 24 * 60 * 60 //3 days in seconds
+
 const createToken = (id) => {
   //TODO make better secret to sign token
   return jwt.sign({ id }, 'tuneup secret', {
@@ -107,7 +108,7 @@ const login_post = async (req, res) => {
 
 const logout_get = (req, res) => {
   res.cookie('jwt', '', { maxAge: 1 })
-  res.status(200).json({ msg: 'Token deleted '})
+  res.status(200).json({ msg: 'Token deleted ' })
   res.redirect('/')
 }
 

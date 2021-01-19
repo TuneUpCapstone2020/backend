@@ -1,4 +1,6 @@
 const Vehicle = require('../models/vehicle')
+const Client = require('../models/client')
+const jwt = require('jsonwebtoken')
 
 //handle errors
 const handleErrors = (err) => {
@@ -36,10 +38,17 @@ const vehicle_get = (req, res) => {
 
 const vehicle_post = async (req, res) => {
   const { make, model, nickName, license, year, mileage, vinNumber } = req.body
+  let token = req.headers['x-access-token'] || req.headers['authorization'];
+  // Remove Bearer from string
+  token = token.replace(/^Bearer\s+/, "");
+  const decodedId = jwt.decode(token, 'tuneup secret')
+
 
   try {
     const vehicle = await Vehicle.create({ make, model, nickName, license, year, mileage, vinNumber })
+    await Client.addVehicle(decodedId.id, vehicle)
     res.status(201).json({ vehicle: vehicle._id })
+
   } catch (err) {
     const errors = handleErrors(err)
     res.status(400).json({ errors })

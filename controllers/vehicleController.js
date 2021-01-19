@@ -37,6 +37,7 @@ const vehicle_get = (req, res) => {
 }
 
 const vehicle_post = async (req, res) => {
+  //TODO: make sure vehicle does not already exist (verify with vin)
   const { make, model, nickName, license, year, mileage, vinNumber } = req.body
   let token = req.headers['x-access-token'] || req.headers['authorization'];
   // Remove Bearer from string

@@ -40,8 +40,12 @@ const vehicle_post = async (req, res) => {
   //TODO: make sure vehicle does not already exist (verify with vin)
   const { make, model, nickName, license, year, mileage, vinNumber } = req.body
   let token = req.headers['x-access-token'] || req.headers['authorization'];
+  console.log("token before:", token)
   // Remove Bearer from string
-  token = token.replace(/^Bearer\s+/, "");
+  //token = token.replace(/^Bearer\s+/, "");
+  token = token.replace(" Bearer:  ", "")
+  token = token.substring(8)
+  console.log("token after:", token)
   const decodedId = jwt.decode(token, 'tuneup secret')
 
 

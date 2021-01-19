@@ -62,7 +62,7 @@ clientSchema.statics.login = async function (email, password) {
 }
 
 clientSchema.statics.addVehicle = async function (clientId, vehicle) {
-    const client = await this.findOne({ clientId })
+    const client = await this.findById(clientId).exec()
     if (client) {
         client.vehicles.push(vehicle._id)
     }

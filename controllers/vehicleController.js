@@ -3,11 +3,19 @@ const Vehicle = require('../models/vehicle')
 //handle errors
 const handleErrors = (err) => {
   console.log(err.message, err.code)
-  let errors = { make: '', model: '', year: '' }
+  let errors = {
+    make: '',
+    model: '',
+    nickName: '',
+    license: '',
+    year: '',
+    mileage: '',
+    vinNumber: ''
+  }
 
   //validation errors
-  if(err.message.includes('Vehicle validation failed')){
-    Object.values(err.errors).forEach(({properties}) => {
+  if (err.message.includes('Vehicle validation failed')) {
+    Object.values(err.errors).forEach(({ properties }) => {
       errors[properties.path] = properties.message
     })
   }
@@ -17,28 +25,28 @@ const handleErrors = (err) => {
 }
 
 const vehicle_get = (req, res) => {
-    Vehicle.find().sort({ createdAt: -1 })
-        .then((result) => {
-            res.send(result)
-        })
-        .catch((err) => {
-            throw err
-        })
+  Vehicle.find().sort({ createdAt: -1 })
+    .then((result) => {
+      res.send(result)
+    })
+    .catch((err) => {
+      throw err
+    })
 }
 
 const vehicle_post = async (req, res) => {
-    const { make, model, year } = req.body
+  const { make, model, nickName, license, year, mileage, vinNumber } = req.body
 
-    try{
-      const vehicle = await Vehicle.create({ make, model, year })
-      res.status(201).json({ vehicle: vehicle._id })
-    }catch(err){
-      const errors = handleErrors(err)
-      res.status(400).json({ errors })
-    }
+  try {
+    const vehicle = await Vehicle.create({ make, model, nickName, license, year, mileage, vinNumber })
+    res.status(201).json({ vehicle: vehicle._id })
+  } catch (err) {
+    const errors = handleErrors(err)
+    res.status(400).json({ errors })
+  }
 }
 
 module.exports = {
-    vehicle_get,
-    vehicle_post
+  vehicle_get,
+  vehicle_post
 }

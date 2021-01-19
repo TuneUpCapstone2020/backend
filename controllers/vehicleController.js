@@ -26,28 +26,18 @@ const handleErrors = (err) => {
 
 }
 
-const vehicle_get = (req, res) => {
-  Vehicle.find().sort({ createdAt: -1 })
-    .then((result) => {
-      res.send(result)
-    })
-    .catch((err) => {
-      throw err
-    })
+const vehicle_get = async (req, res) => {
+  let token = getDecodedToken(req)
+  const client = await Client.findById(token.id).exec()
+  console.log('vehicular devices: ', client.vehicles)
+  res.status(200).json(client.vehicles)
 }
 
 const vehicle_post = async (req, res) => {
   //TODO: make sure vehicle does not already exist (verify with vin)
   const { make, model, nickName, license, year, mileage, vinNumber } = req.body
-  let token = req.headers['x-access-token'] || req.headers['authorization'];
   console.log("token before:", token)
-  // Remove Bearer from string
-  //token = token.replace(/^Bearer\s+/, "");
-  token = token.replace(" Bearer:  ", "")
-  token = token.substring(8)
-  console.log("token after:", token)
-  const decodedId = jwt.decode(token, 'tuneup secret')
-
+  const decodedId = getDecodedToken(req)
 
   try {
     const vehicle = await Vehicle.create({ make, model, nickName, license, year, mileage, vinNumber })
@@ -63,4 +53,13 @@ const vehicle_post = async (req, res) => {
 module.exports = {
   vehicle_get,
   vehicle_post
+}
+
+function getDecodedToken(req) { //todo: maybe pass req.headers instead?
+  let token = req.headers['x-access-token'] || req.headers['authorization'];
+  token = token.replace(" Bearer:  ", "")
+  token = token.substring(7)
+  token = jwt.decode(token, 'tuneup secret')
+  return token
+
 }

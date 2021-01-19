@@ -67,7 +67,7 @@ clientSchema.statics.addVehicle = async function (clientId, vehicle) {
         client.vehicles.push(vehicle._id)
         console.log('Added new vehicle to client: ', vehicle)
         console.log('Client profile is now ', client)
-        client.save
+        client.save()
     } else throw Error('Client not found')
 
 }

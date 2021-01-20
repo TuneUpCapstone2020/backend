@@ -54,7 +54,7 @@ const getVehiclesFromIds = async (listOfIds) => {
 const vehicle_post = async (req, res) => {
   //TODO: make sure vehicle does not already exist (verify with vin)
   const { make, model, nickName, license, year, mileage, vinNumber } = req.body
-  console.log("token before:", token)
+  //console.log("token before:", token)
   const decodedId = getDecodedToken(req)
 
   try {

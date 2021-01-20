@@ -27,11 +27,29 @@ const handleErrors = (err) => {
 }
 
 const vehicle_get = async (req, res) => {
-  let token = getDecodedToken(req)
+  const token = getDecodedToken(req)
   const client = await Client.findById(token.id).exec()
   console.log('vehicular devices: ', client.vehicles)
-  res.status(200).json(client.vehicles)
+  //let listOfVehicleIds = client.vehicles
+  await getVehiclesFromIds(client.vehicles).then((listOfVehicles, err) => {
+    if (err) { console.error(err); }
+    res.status(200).json(listOfVehicles)
+  })
+  //console.log(listOfVehicles)
 }
+
+const getVehiclesFromIds = async (listOfIds) => {
+  try {
+    const returnList = []
+    for (i = 0; i < listOfIds.length; i++) {
+      returnList.push(await Vehicle.findById(listOfIds[i]._id))
+    }
+    return returnList
+  }
+  catch (err) {
+    console.log(err)
+  }
+};
 
 const vehicle_post = async (req, res) => {
   //TODO: make sure vehicle does not already exist (verify with vin)
@@ -58,7 +76,7 @@ module.exports = {
 function getDecodedToken(req) { //todo: maybe pass req.headers instead?
   let token = req.headers['x-access-token'] || req.headers['authorization'];
   token = token.replace(" Bearer:  ", "")
-  token = token.substring(7)
+  token = token.substring(8)
   token = jwt.decode(token, 'tuneup secret')
   return token
 

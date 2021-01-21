@@ -5,17 +5,17 @@ const requireAuth = (req, res, next) => {
     const token = req.cookies.jwt
 
     //check json web token exists and is verified
-    if(token){
+    if (token) {
         jwt.verify(token, 'tuneup secret', (err, decodedToken) => {
-            if(err){
+            if (err) {
                 console.log(err.message)
                 res.redirect('/')
-            }else{
+            } else {
                 console.log(decodedToken)
                 next()
             }
         })
-    }else{
+    } else {
         res.redirect('/')
     }
 }
@@ -24,20 +24,20 @@ const requireAuth = (req, res, next) => {
 const checkClient = (req, res, next) => {
     const token = req.cookies.jwt
 
-    if(token){
+    if (token) {
         jwt.verify(token, 'tuneup secret', async (err, decodedToken) => {
-            if(err){
+            if (err) {
                 console.log(err.message)
                 res.locals.client = null
                 next()
-            }else{
+            } else {
                 console.log(decodedToken)
                 let client = await Client.findById(decodedToken.id)
                 res.locals.client = client
                 next()
             }
         })
-    }else{
+    } else {
         res.locals.client = null
         next()
     }

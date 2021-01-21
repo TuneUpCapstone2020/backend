@@ -27,7 +27,8 @@ const vehicleSchema = new Schema({
     },
     vinNumber: {
         type: Number,
-        required: [true, 'Please enter VIN number']
+        required: [true, 'Please enter VIN number'],
+        unique: true
     }
 })
 

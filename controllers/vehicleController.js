@@ -54,7 +54,6 @@ const getVehiclesFromIds = async (listOfIds) => {
 const vehicle_post = async (req, res) => {
   //TODO: make sure vehicle does not already exist (verify with vin)
   const { make, model, nickName, license, year, mileage, vinNumber } = req.body
-  //console.log("token before:", token)
   const decodedId = getDecodedToken(req)
 
   try {
@@ -75,8 +74,7 @@ module.exports = {
 
 function getDecodedToken(req) { //todo: maybe pass req.headers instead?
   let token = req.headers['x-access-token'] || req.headers['authorization'];
-  token = token.replace(" Bearer:  ", "")
-  token = token.substring(8)
+  token = token.replace("Bearer ", "")
   token = jwt.decode(token, 'tuneup secret')
   return token
 

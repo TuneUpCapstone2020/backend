@@ -26,9 +26,8 @@ const vehicleSchema = new Schema({
         required: [true, 'Please enter mileage']
     },
     vin_number: {
-        type: Number,
-        required: [true, 'Please enter VIN number'],
-        unique: true
+        type: String,
+        //unique: true
     }
 })
 

@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const catalogProduct = new Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        index: true
     },
     cost_price: {
         type: Number, //price stored in cents
@@ -24,25 +25,11 @@ const catalogProduct = new Schema({
     },
     sku: {
         type: String,
-        required: true
+        required: true,
+        index: true
     }
 
-})
-
-const catalogService = new Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    estimate: {
-        type: Number, //price stored in cents
-        required: true
-    },
-    skill_level: {
-        type: Number, //enum corresponding to skill level
-    }
 })
 
 const CatalogProduct = mongoose.model('CatalogProduct', catalogProduct)
-const CatalogService = mongoose.model('CatalogService', catalogService)
-module.exports = CatalogProduct, CatalogService
+module.exports = CatalogProduct

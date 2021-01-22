@@ -14,13 +14,13 @@ const handleErrors = (err) => {
   }
 
   //incorrect email
-  if (err.message === 'incorrect email') {
-    errors.email = 'that email is not registered'
+  if (err.message === 'Incorrect email or password') {
+    errors.email = 'Incorrect email or password'
   }
 
   //incorrect password
-  if (err.message === 'incorrect password') {
-    errors.password = 'that password is incorrect'
+  if (err.message === 'Incorrect email or password') {
+    errors.password = 'Incorrect email or password'
   }
 
   //duplicate error code

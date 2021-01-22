@@ -5,12 +5,12 @@ const Schema = mongoose.Schema
 const Vehicle = require('./vehicle')
 
 const clientSchema = new Schema({
-    firstName: {
+    first_name: {
         type: String,
         required: [true, 'Please enter your first name'],
         lowercase: true
     },
-    lastName: {
+    last_name: {
         type: String,
         required: [true, 'Please enter your last name'],
         lowercase: true
@@ -19,7 +19,7 @@ const clientSchema = new Schema({
         type: String,
         required: [true, 'Please enter your address']
     },
-    phoneNumber: {
+    phone_number: {
         type: String,
         required: [true, 'Please enter your phone number']
     },

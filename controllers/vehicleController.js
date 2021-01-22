@@ -8,11 +8,17 @@ const handleErrors = (err) => {
   let errors = {
     make: '',
     model: '',
-    nickName: '',
+    nickname: '',
     license: '',
     year: '',
     mileage: '',
-    vinNumber: ''
+    vin_number: ''
+  }
+
+  //duplicate error code
+  if (err.code === 11000) {
+    errors.vin_number = 'VIN already exists'
+    return errors
   }
 
   //validation errors
@@ -29,13 +35,10 @@ const handleErrors = (err) => {
 const vehicle_get = async (req, res) => {
   const token = getDecodedToken(req)
   const client = await Client.findById(token.id).exec()
-  console.log('vehicular devices: ', client.vehicles)
-  //let listOfVehicleIds = client.vehicles
   await getVehiclesFromIds(client.vehicles).then((listOfVehicles, err) => {
     if (err) { console.error(err); }
     res.status(200).json(listOfVehicles)
   })
-  //console.log(listOfVehicles)
 }
 
 const getVehiclesFromIds = async (listOfIds) => {
@@ -53,11 +56,11 @@ const getVehiclesFromIds = async (listOfIds) => {
 
 const vehicle_post = async (req, res) => {
   //TODO: make sure vehicle does not already exist (verify with vin)
-  const { make, model, nickName, license, year, mileage, vinNumber } = req.body
+  const { make, model, nickname, license, year, mileage, vin_number } = req.body
   const decodedId = getDecodedToken(req)
 
   try {
-    const vehicle = await Vehicle.create({ make, model, nickName, license, year, mileage, vinNumber })
+    const vehicle = await Vehicle.create({ make, model, nickname, license, year, mileage, vin_number })
     await Client.addVehicle(decodedId.id, vehicle)
     res.status(201).json({ vehicle: vehicle._id })
 

@@ -10,7 +10,7 @@ const vehicleSchema = new Schema({
         type: String,
         required: [true, 'Please enter model']
     },
-    nickName: {
+    nickname: {
         type: String
     },
     license: {
@@ -25,7 +25,7 @@ const vehicleSchema = new Schema({
         type: Number,
         required: [true, 'Please enter mileage']
     },
-    vinNumber: {
+    vin_number: {
         type: Number,
         required: [true, 'Please enter VIN number'],
         unique: true

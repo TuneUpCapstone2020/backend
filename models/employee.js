@@ -1,42 +1,48 @@
 const mongoose = require('mongoose')
+const { isEmail } = require('validator')
 const Schema = mongoose.Schema
 
 const employeeSchema = new Schema({
-    employeeNum: {
+    employee_number: {
         type: Number,
-        required: true
+        required: [true, 'Please enter employee number']
     },
-    firstName: {
+    first_name: {
         type: String,
-        required: true
+        required: [true, 'Please enter first name'],
+        lowercase: true
     },
-    lastName: {
+    last_name: {
         type: String,
-        required: true
+        required: [true, 'Please enter last name'],
+        lowercase: true
     },
     pwd: {
         type: String,
-        required: true
+        required: [true, 'Please enter pwd']
     },
-    phoneNum: {
+    phone_number: {
         type: String,
-        required: true
+        required: [true, 'Please enter phone number']
     },
     email: {
         type: String,
-        required: true
+        required: [true, 'Please enter email'],
+        unique: true,
+        lowercase: true,
+        validate: [isEmail, 'Please enter valid email']
     },
     address: {
         type: String,
-        required: true
+        required: [true, 'Please enter address']
     },
     wage: {
-        type: Schema.Types.Decimal128,
-        required: true
+        type: mongoose.Schema.Types.Decimal128,
+        required: [true, 'Please enter wage']
     },
-    skillLevel:{
+    skill_level:{
         type: Number,
-        required: true
+        required: [true, 'Please enter skill level']
     }
 })
 

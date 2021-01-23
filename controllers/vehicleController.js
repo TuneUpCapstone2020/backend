@@ -16,10 +16,10 @@ const handleErrors = (err) => {
   }
 
   //duplicate error code
-  if (err.code === 11000) {
-    errors.vin_number = 'VIN already exists'
-    return errors
-  }
+  //if (err.code === 11000) {
+    //errors.vin_number = 'VIN already exists'
+    //return errors
+  //}
 
   //validation errors
   if (err.message.includes('Vehicle validation failed')) {

@@ -47,12 +47,14 @@ const handleServiceErrors = (err) => {
 //START: ENDPOINTS FOR POST REQUESTS (Create)
 
 const catalog_product_create_new = async (req, res) => {
-    //const {name, garage_product_number, cost_price, sell_price, description, service, sku} = req.body
     const newProduct = req.body
 
     try {
         const product = await CatalogProduct.create(newProduct)
-        res.status(201).json({ product: product._id })
+        res.status(201).json({
+            message: 'New product created!',
+            product: product._id
+        })
     } catch (err) {
         const errors = handleProductErrors(err)
         res.status(400).json({ errors })
@@ -63,7 +65,10 @@ const catalog_service_create_new = async (req, res) => {
     const newService = req.body
     try {
         const service = await CatalogService.create(newService)
-        res.status(201).json({ service: service._id })
+        res.status(201).json({
+            message: 'New service created!',
+            service: service._id
+        })
     } catch (error) {
         const errors = handleServiceErrors(err)
         res.status(400).json({ errors })
@@ -76,70 +81,91 @@ const catalog_service_create_new = async (req, res) => {
 const catalog_product_get_all = (req, res) => {
     CatalogProduct.find().sort({ createdAt: -1 })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
 const catalog_product_get_by_name = (req, res) => {
     CatalogProduct.find({ 'name': req.body.name })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
 const catalog_product_get_by_garage_product_number = (req, res) => {
     CatalogProduct.find({ 'garage_product_number': req.body.garage_product_number })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
 const catalog_product_get_by_sku = (req, res) => {
     CatalogProduct.find({ 'sku': req.body.sku })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
 const catalog_service_get_all = (req, res) => {
     CatalogService.find().sort({ createdAt: -1 })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
 const catalog_service_get_by_name = (req, res) => {
     CatalogService.find({ 'name': req.body.name })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
 const catalog_service_get_by_service_number = (req, res) => {
     CatalogService.find({ 'garage_service_number': req.body.garage_service_number })
         .then((result) => {
-            res.send(result)
+            res.status(200).json(result)
         })
         .catch((err) => {
-            res.send(`An error occured: ${err}`)
+            res.status(400).json({
+                message: 'An error occured!',
+                error: err
+            })
             throw err
         })
 }
@@ -161,15 +187,20 @@ const catalog_product_update = async (req, res) => {
 
         product.save(function (err) {
             if (err)
-                res.json(err)
-            res.json({
-                message: 'Product updated!',
-                id: product._id
-            })
+                res.status(400).json(err)
+            else {
+                res.status(200).json({
+                    message: 'Product updated!',
+                    id: product._id
+                })
+            }
         })
 
     } catch (err) {
-        res.status(400).send(`An error occured: ${err}`)
+        res.status(400).json({
+            message: 'An error occured',
+            error: err
+        })
     }
 
 
@@ -188,15 +219,20 @@ const catalog_service_update = async (req, res) => {
 
         service.save(function (err) {
             if (err)
-                res.json(err)
-            res.json({
-                message: 'Service updated!',
-                id: service._id
-            })
+                res.status(400).json(err)
+            else {
+                res.status(200).json({
+                    message: 'Service updated!',
+                    id: service._id
+                })
+            }
         })
 
     } catch (err) {
-        res.status(400).send(`An error occured: ${err}`)
+        res.status(400).json({
+            message: 'An error occured',
+            error: err
+        })
     }
 }
 

@@ -29,6 +29,10 @@ const catalogProduct = new Schema({
         type: String,
         required: true,
         index: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 })
 

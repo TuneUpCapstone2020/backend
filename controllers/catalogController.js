@@ -60,7 +60,6 @@ const catalog_product_create_new = async (req, res) => {
         res.status(400).json({ errors })
     }
 }
-
 const catalog_service_create_new = async (req, res) => {
     const newService = req.body
     try {
@@ -221,7 +220,6 @@ const catalog_product_update = async (req, res) => {
 
 
 }
-
 const catalog_service_update = async (req, res) => {
     try {
         const service = await CatalogService.findById(req.body._id)
@@ -275,7 +273,6 @@ const catalog_product_delete = async (req, res) => {
         })
     }
 }
-
 const catalog_service_delete = async (req, res) => {
     try {
         const service = await CatalogService.findByIdAndUpdate(req.params._id, { isDeleted: true })

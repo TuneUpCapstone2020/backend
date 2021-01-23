@@ -14,7 +14,7 @@ const handleProductErrors = (err) => {
     }
 
     //validation errors
-    if (err.message.includes('Product validation failed')) {
+    if (err.message.includes('CatalogProduct validation failed')) {
         Object.values(err.errors).forEach(({ properties }) => {
             errors[properties.path] = properties.message
         })
@@ -35,7 +35,7 @@ const handleServiceErrors = (err) => {
     }
 
     //validation errors
-    if (err.message.includes('Service validation failed')) {
+    if (err.message.includes('CatalogService validation failed')) {
         Object.values(err.errors).forEach(({ properties }) => {
             errors[properties.path] = properties.message
         })
@@ -65,7 +65,7 @@ const catalog_service_create_new = async (req, res) => {
         const service = await CatalogService.create(newService)
         res.status(201).json({ service: service._id })
     } catch (error) {
-        const errors = handleProductErrors(err)
+        const errors = handleServiceErrors(err)
         res.status(400).json({ errors })
     }
 }
@@ -123,7 +123,6 @@ const catalog_service_get_all = (req, res) => {
             throw err
         })
 }
-
 const catalog_service_get_by_name = (req, res) => {
     CatalogService.find({ 'name': req.body.name })
         .then((result) => {
@@ -146,20 +145,62 @@ const catalog_service_get_by_service_number = (req, res) => {
 }
 //END: ENDPOINT FOR GET REQUESTS
 
-//START: ENDPOINTS FOR PATCH REQUESTS (Update)
+//START: ENDPOINTS FOR PUT REQUESTS (Update)
 
 const catalog_product_update = async (req, res) => {
     try {
         const product = await CatalogProduct.findById(req.params._id)
+
+        product.name = req.body.name ? req.body.name : product.name
+        product.garage_product_number = req.body.garage_product_number ? req.body.garage_product_number : product.garage_product_number
+        product.cost_price = req.body.cost_price ? req.body.cost_price : product.cost_price
+        product.sell_price = req.body.sell_price ? req.body.sell_price : product.sell_price
+        product.description = req.body.description ? req.body.description : product.description
+        product.service = req.body.service ? req.body.service : product.service
+        product.sku = req.body.sku ? req.body.sku : product.sku
+
+        product.save(function (err) {
+            if (err)
+                res.json(err)
+            res.json({
+                message: 'Product updated!',
+                id: product._id
+            })
+        })
+
     } catch (err) {
         res.status(400).send(`An error occured: ${err}`)
     }
 
-    product.name = req.body
 
 }
 
-//END: ENDPOINTS FOR PATCH REQUESTS
+const catalog_service_update = async (req, res) => {
+    try {
+        const service = await CatalogService.findById(req.params._id)
+
+        service.name = req.body.name ? req.body.name : service.name
+        service.garage_service_number = req.body.garage_service_number ? req.body.garage_service_number : service.garage_service_number
+        service.description = req.body.description ? req.body.description : service.description
+        service.time_estimate = req.body.time_estimate ? req.body.time_estimate : service.time_estimate
+        service.skill_level = req.body.skill_level ? req.body.skill_level : service.skill_level
+        service.customer_note = req.body.customer_note ? req.body.customer_note : service.customer_note
+
+        service.save(function (err) {
+            if (err)
+                res.json(err)
+            res.json({
+                message: 'Service updated!',
+                id: service._id
+            })
+        })
+
+    } catch (err) {
+        res.status(400).send(`An error occured: ${err}`)
+    }
+}
+
+//END: ENDPOINTS FOR PUT REQUESTS
 
 
 //add product (with related service)

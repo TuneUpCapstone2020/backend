@@ -7,13 +7,26 @@ const catalogService = new Schema({
         required: true,
         index: true
     },
-    estimate: {
-        type: Number, //price stored in cents
+    garage_service_number: {
+        type: String,
+        required: true,
+        index: true
+    },
+    descriptiom: {
+        type: String
+    },
+    time_estimate: {
+        type: Number, //time stored in seconds
         required: true
     },
     skill_level: {
         type: Number, //enum corresponding to skill level
+        required: true
+    },
+    customer_note: { //the solution to a client's issue ()
+        type: String
     }
+
 })
 
 const CatalogService = mongoose.model('CatalogService', catalogService)

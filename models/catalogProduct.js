@@ -7,6 +7,10 @@ const catalogProduct = new Schema({
         required: true,
         index: true
     },
+    garage_product_number: {
+        type: String,
+        index: true
+    },
     cost_price: {
         type: Number, //price stored in cents
         required: true
@@ -17,18 +21,15 @@ const catalogProduct = new Schema({
     },
     description: {
         type: String,
-        required: true
     },
     service: {
         type: Schema.Types.ObjectId, //ref to the service
-        required: true
     },
     sku: {
         type: String,
         required: true,
         index: true
     }
-
 })
 
 const CatalogProduct = mongoose.model('CatalogProduct', catalogProduct)

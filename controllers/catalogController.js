@@ -79,7 +79,7 @@ const catalog_service_create_new = async (req, res) => {
 
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)
 const catalog_product_get_all = (req, res) => {
-    CatalogProduct.find().sort({ createdAt: -1 })
+    CatalogProduct.find({ isDeleted: false }).sort({ createdAt: -1 })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -92,7 +92,10 @@ const catalog_product_get_all = (req, res) => {
         })
 }
 const catalog_product_get_by_name = (req, res) => {
-    CatalogProduct.find({ 'name': req.body.name })
+    CatalogProduct.find({
+        name: req.body.name,
+        isDeleted: false
+    })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -105,7 +108,10 @@ const catalog_product_get_by_name = (req, res) => {
         })
 }
 const catalog_product_get_by_garage_product_number = (req, res) => {
-    CatalogProduct.find({ 'garage_product_number': req.body.garage_product_number })
+    CatalogProduct.find({
+        garage_product_number: req.body.garage_product_number,
+        isDeleted: false
+    })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -118,7 +124,10 @@ const catalog_product_get_by_garage_product_number = (req, res) => {
         })
 }
 const catalog_product_get_by_sku = (req, res) => {
-    CatalogProduct.find({ 'sku': req.body.sku })
+    CatalogProduct.find({
+        sku: req.body.sku,
+        isDeleted: false
+    })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -131,7 +140,8 @@ const catalog_product_get_by_sku = (req, res) => {
         })
 }
 const catalog_service_get_all = (req, res) => {
-    CatalogService.find().sort({ createdAt: -1 })
+    CatalogService.find({ isDeleted: false })
+        .sort({ createdAt: -1 })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -144,7 +154,10 @@ const catalog_service_get_all = (req, res) => {
         })
 }
 const catalog_service_get_by_name = (req, res) => {
-    CatalogService.find({ 'name': req.body.name })
+    CatalogService.find({
+        name: req.body.name,
+        isDeleted: false
+    })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -157,7 +170,10 @@ const catalog_service_get_by_name = (req, res) => {
         })
 }
 const catalog_service_get_by_service_number = (req, res) => {
-    CatalogService.find({ 'garage_service_number': req.body.garage_service_number })
+    CatalogService.find({
+        garage_service_number: req.body.garage_service_number,
+        isDeleted: false
+    })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -238,6 +254,48 @@ const catalog_service_update = async (req, res) => {
 
 //END: ENDPOINTS FOR PUT REQUESTS
 
+//START: ENDPOINTS FOR DELETE REQUESTS (Delete)
+const catalog_product_delete = async (req, res) => {
+    try {
+        const product = await CatalogProduct.findByIdAndUpdate(req.params._id, { isDeleted: true })
+        product.save(function (err) {
+            if (err)
+                res.status(400).json(err)
+            else {
+                res.status(200).json({
+                    message: 'Product deleted!',
+                    id: service._id
+                })
+            }
+        })
+    } catch (err) {
+        res.status(400).json({
+            message: 'An error occured',
+            error: err
+        })
+    }
+}
+
+const catalog_service_delete = async (req, res) => {
+    try {
+        const service = await CatalogService.findByIdAndUpdate(req.params._id, { isDeleted: true })
+        service.save(function (err) {
+            if (err)
+                res.status(400).json(err)
+            else {
+                res.status(200).json({
+                    message: 'Service deleted!',
+                    id: service._id
+                })
+            }
+        })
+    } catch (err) {
+        res.status(400).json({
+            message: 'An error occured',
+            error: err
+        })
+    }
+}
 
 //add product (with related service)
 //add service

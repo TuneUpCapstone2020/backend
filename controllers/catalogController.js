@@ -149,7 +149,7 @@ const catalog_service_get_by_service_number = (req, res) => {
 
 const catalog_product_update = async (req, res) => {
     try {
-        const product = await CatalogProduct.findById(req.params._id)
+        const product = await CatalogProduct.findById(req.body._id)
 
         product.name = req.body.name ? req.body.name : product.name
         product.garage_product_number = req.body.garage_product_number ? req.body.garage_product_number : product.garage_product_number
@@ -177,7 +177,7 @@ const catalog_product_update = async (req, res) => {
 
 const catalog_service_update = async (req, res) => {
     try {
-        const service = await CatalogService.findById(req.params._id)
+        const service = await CatalogService.findById(req.body._id)
 
         service.name = req.body.name ? req.body.name : service.name
         service.garage_service_number = req.body.garage_service_number ? req.body.garage_service_number : service.garage_service_number

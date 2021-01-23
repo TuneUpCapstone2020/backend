@@ -294,7 +294,18 @@ const catalog_service_delete = async (req, res) => {
     }
 }
 
-//add product (with related service)
-//add service
-//search by others
-//edit/update products and whatnot
+module.exports = {
+    catalog_product_create_new,
+    catalog_service_create_new,
+    catalog_product_get_all,
+    catalog_product_get_by_name,
+    catalog_product_get_by_garage_product_number,
+    catalog_product_get_by_sku,
+    catalog_service_get_all,
+    catalog_service_get_by_name,
+    catalog_service_get_by_service_number,
+    catalog_product_update,
+    catalog_service_update,
+    catalog_product_delete,
+    catalog_service_delete
+}

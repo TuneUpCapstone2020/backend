@@ -13,10 +13,20 @@ const handleProductErrors = (err) => {
         sku: ''
     }
 
+    //duplicate errors
+    if (err.code === 11000) {
+        if (err.message.includes('garage_product_number'))
+            errors.garage_product_number = 'That product number already exists!'
+        if (err.message.includes('sku'))
+            errors.sku = 'That SKU already exists!'
+        return errors
+    }
     //validation errors
     if (err.message.includes('CatalogProduct validation failed')) {
         Object.values(err.errors).forEach(({ properties }) => {
-            errors[properties.path] = properties.message
+            if (properties !== undefined) {
+                errors[properties.path] = properties.message
+            }
         })
     }
 
@@ -34,6 +44,13 @@ const handleServiceErrors = (err) => {
         customer_note: ''
     }
 
+    //duplicate errors
+    if (err.code === 11000) {
+        if (err.message.includes('garage_service_number'))
+            errors.garage_service_number = 'That service number already exists!'
+        return errors
+    }
+
     //validation errors
     if (err.message.includes('CatalogService validation failed')) {
         Object.values(err.errors).forEach(({ properties }) => {
@@ -48,7 +65,6 @@ const handleServiceErrors = (err) => {
 
 const catalog_product_create_new = async (req, res) => {
     const newProduct = req.body
-
     try {
         const product = await CatalogProduct.create(newProduct)
         res.status(201).json({
@@ -68,7 +84,7 @@ const catalog_service_create_new = async (req, res) => {
             message: 'New service created!',
             service: service._id
         })
-    } catch (error) {
+    } catch (err) {
         const errors = handleServiceErrors(err)
         res.status(400).json({ errors })
     }
@@ -87,12 +103,11 @@ const catalog_product_get_all = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 const catalog_product_get_by_name = (req, res) => {
     CatalogProduct.find({
-        name: req.body.name,
+        name: req.query.name,
         isDeleted: false
     })
         .then((result) => {
@@ -103,12 +118,11 @@ const catalog_product_get_by_name = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 const catalog_product_get_by_garage_product_number = (req, res) => {
-    CatalogProduct.find({
-        garage_product_number: req.body.garage_product_number,
+    CatalogProduct.findOne({
+        garage_product_number: req.query.garage_product_number,
         isDeleted: false
     })
         .then((result) => {
@@ -119,12 +133,11 @@ const catalog_product_get_by_garage_product_number = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 const catalog_product_get_by_sku = (req, res) => {
-    CatalogProduct.find({
-        sku: req.body.sku,
+    CatalogProduct.findOne({
+        sku: req.query.sku,
         isDeleted: false
     })
         .then((result) => {
@@ -135,7 +148,6 @@ const catalog_product_get_by_sku = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 const catalog_service_get_all = (req, res) => {
@@ -149,12 +161,11 @@ const catalog_service_get_all = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 const catalog_service_get_by_name = (req, res) => {
     CatalogService.find({
-        name: req.body.name,
+        name: req.query.name,
         isDeleted: false
     })
         .then((result) => {
@@ -165,12 +176,11 @@ const catalog_service_get_by_name = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 const catalog_service_get_by_service_number = (req, res) => {
-    CatalogService.find({
-        garage_service_number: req.body.garage_service_number,
+    CatalogService.findOne({
+        garage_service_number: req.query.garage_service_number,
         isDeleted: false
     })
         .then((result) => {
@@ -181,7 +191,6 @@ const catalog_service_get_by_service_number = (req, res) => {
                 message: 'An error occured!',
                 error: err
             })
-            throw err
         })
 }
 //END: ENDPOINT FOR GET REQUESTS
@@ -200,16 +209,19 @@ const catalog_product_update = async (req, res) => {
         product.service = req.body.service ? req.body.service : product.service
         product.sku = req.body.sku ? req.body.sku : product.sku
 
-        product.save(function (err) {
-            if (err)
-                res.status(400).json(err)
-            else {
+        product.save()
+            .then((result) => {
                 res.status(200).json({
                     message: 'Product updated!',
-                    id: product._id
+                    id: result._id
                 })
-            }
-        })
+            })
+            .catch((err) => {
+                res.status(400).json({
+                    message: 'An error occured!',
+                    error: err
+                })
+            })
 
     } catch (err) {
         res.status(400).json({
@@ -231,16 +243,20 @@ const catalog_service_update = async (req, res) => {
         service.skill_level = req.body.skill_level ? req.body.skill_level : service.skill_level
         service.customer_note = req.body.customer_note ? req.body.customer_note : service.customer_note
 
-        service.save(function (err) {
-            if (err)
-                res.status(400).json(err)
-            else {
+        console.log(`service after: ${service}`)
+        service.save()
+            .then((result) => {
                 res.status(200).json({
                     message: 'Service updated!',
-                    id: service._id
+                    id: result._id
                 })
-            }
-        })
+            })
+            .catch((err) => {
+                res.status(400).json({
+                    message: 'An error occured!',
+                    error: err
+                })
+            })
 
     } catch (err) {
         res.status(400).json({
@@ -255,17 +271,21 @@ const catalog_service_update = async (req, res) => {
 //START: ENDPOINTS FOR DELETE REQUESTS (Delete)
 const catalog_product_delete = async (req, res) => {
     try {
-        const product = await CatalogProduct.findByIdAndUpdate(req.params._id, { isDeleted: true })
-        product.save(function (err) {
-            if (err)
-                res.status(400).json(err)
-            else {
+        console.log(`id: ${req.query._id}`)
+        const product = await CatalogProduct.findByIdAndUpdate(req.query._id, { isDeleted: true })
+        product.save()
+            .then((result) => {
                 res.status(200).json({
                     message: 'Product deleted!',
-                    id: service._id
+                    id: result._id
                 })
-            }
-        })
+            })
+            .catch((err) => {
+                res.status(400).json({
+                    message: 'An error occured!',
+                    error: err
+                })
+            })
     } catch (err) {
         res.status(400).json({
             message: 'An error occured',
@@ -275,17 +295,20 @@ const catalog_product_delete = async (req, res) => {
 }
 const catalog_service_delete = async (req, res) => {
     try {
-        const service = await CatalogService.findByIdAndUpdate(req.params._id, { isDeleted: true })
-        service.save(function (err) {
-            if (err)
-                res.status(400).json(err)
-            else {
+        const service = await CatalogService.findByIdAndUpdate(req.query._id, { isDeleted: true })
+        service.save()
+            .then((result) => {
                 res.status(200).json({
                     message: 'Service deleted!',
-                    id: service._id
+                    id: result._id
                 })
-            }
-        })
+            })
+            .catch((err) => {
+                res.status(400).json({
+                    message: 'An error occured!',
+                    error: err
+                })
+            })
     } catch (err) {
         res.status(400).json({
             message: 'An error occured',

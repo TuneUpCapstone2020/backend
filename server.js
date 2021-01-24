@@ -8,7 +8,7 @@ const clientRoutes = require('./routes/clientRoutes')
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes')
 const garageRoutes = require('./routes/garageRoutes')
-const itemRoutes = require('./routes/itemRoutes')
+const catalogRoutes = require('./routes/catalogRoutes')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware');
 
@@ -17,7 +17,7 @@ require('dotenv').config(); //makes process.env access the .env file which allow
 //express app
 const app = express();
 
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 
@@ -62,7 +62,7 @@ mongoose.connect(`mongodb://mongo:27017`,
   }).catch((err) => {
     throw err;
   });
-
+mongoose.set('useFindAndModify', false)
 
 
 // Constants
@@ -70,7 +70,9 @@ const PORT = process.env.LOCALPORT;
 const HOST = process.env.LOCALHOST;
 
 //appointment routes
+
 app.use('/api/appointment',appointmentRoutes)
+
 
 //client routes
 app.use('/api/client', clientRoutes)
@@ -81,11 +83,11 @@ app.use('/api/employee', employeeRoutes)
 //garage routes
 app.use('/api/garage', garageRoutes)
 
-//item routes
-app.use('/api/item',itemRoutes)
-
 //vehicle routes
 app.use('/api/vehicle', vehicleRoutes)
+
+//catalog routes
+app.use('/api/catalog', catalogRoutes)
 
 //apply to every route
 app.get('*', checkClient)

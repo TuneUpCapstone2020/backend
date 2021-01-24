@@ -17,7 +17,7 @@ router.get('/service/service_number', catalogController.catalog_service_get_by_s
 
 //Update
 router.put('/product', catalogController.catalog_product_update)
-router.put('/service', catalogController.catalog_service_delete)
+router.put('/service', catalogController.catalog_service_update)
 
 //Delete
 router.delete('/product', catalogController.catalog_product_delete)

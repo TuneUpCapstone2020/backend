@@ -179,8 +179,12 @@ const getVehiclesFromIds = async (listOfIds) => {
   try {
     const returnList = []
     for (i = 0; i < listOfIds.length; i++) {
-      returnList.push(await Vehicle.findOne({ _id: listOfIds[i]._id, isDeleted: false }))
+      const vehicle = await Vehicle.findOne({ _id: listOfIds[i]._id, isDeleted: false })
+      if (vehicle) {
+        returnList.push(vehicle)
+      }
     }
+    console.log(`return list: ${returnList}`)
     return returnList
   }
   catch (err) {

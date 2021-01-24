@@ -50,12 +50,15 @@ const vehicle_get_client = async (req, res) => {
 }
 
 const vehicle_get_by_licence = (req, res) => {
-  Vehicle.find({
-    license: req.body.license,
+  Vehicle.findOne({
+    license: req.query.license,
     isDeleted: false
   })
     .then((result) => {
-      res.status(200).json(result)
+      res.status(200).json({
+        message: 'Vehicle found!',
+        vehicle: result._id
+      })
     })
     .catch((err) => {
       res.status(400).json({
@@ -103,19 +106,20 @@ const vehicle_update = async (req, res) => {
     vehicle.mileage = req.body.mileage ? req.body.mileage : vehicle.mileage
     vehicle.vin_number = req.body.vin_number ? req.body.vin_number : vehicle.vin_number
 
-    vehicle.save(function (err) {
-      if (err) {
+    vehicle.save()
+      .then((result) => {
+        res.status(200).json({
+          message: 'Vehicle Updated!',
+          vehicle: result._id
+        })
+      })
+      .catch((err) => {
         res.status(400).json({
           message: 'An error occured!',
           error: err
         })
-      } else {
-        res.status(200).json({
-          message: 'Vehicle updated!',
-          id: vehicle._id
-        })
-      }
-    })
+      })
+
   } catch (err) {
     res.status(400).json({
       message: 'An error occured',
@@ -131,19 +135,19 @@ const vehicle_update = async (req, res) => {
 const vehicle_delete = async (req, res) => {
   try {
     const vehicle = await Vehicle.findByIdAndUpdate(req.query._id, { isDeleted: true })
-    vehicle.save(function (err) {
-      if (err) {
+    vehicle.save()
+      .then((result) => {
+        res.status(200).json({
+          message: 'Vehicle Deleted!',
+          vehicle: result._id
+        })
+      })
+      .catch((err) => {
         res.status(400).json({
           message: 'An error occured!',
           error: err
         })
-      } else {
-        res.status(200).json({
-          message: 'Vehicle Deleted!',
-          id: vehicle._id
-        })
-      }
-    })
+      })
   } catch (err) {
     res.status(400).json({
       message: 'An error occured!',
@@ -175,7 +179,7 @@ const getVehiclesFromIds = async (listOfIds) => {
   try {
     const returnList = []
     for (i = 0; i < listOfIds.length; i++) {
-      returnList.push(await Vehicle.findOne({ _id: listOfIds[i]._id , isDeleted: false}))
+      returnList.push(await Vehicle.findOne({ _id: listOfIds[i]._id, isDeleted: false }))
     }
     return returnList
   }

@@ -130,7 +130,7 @@ const vehicle_update = async (req, res) => {
 
 const vehicle_delete = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findByIdAndUpdate(req.params._id, { isDeleted: true })
+    const vehicle = await Vehicle.findByIdAndUpdate(req.query._id, { isDeleted: true })
     vehicle.save(function (err) {
       if (err) {
         res.status(400).json({

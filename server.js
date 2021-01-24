@@ -62,7 +62,7 @@ mongoose.connect(`mongodb://mongo:27017`,
   }).catch((err) => {
     throw err;
   });
-
+mongoose.set('useFindAndModify', false)
 
 
 // Constants

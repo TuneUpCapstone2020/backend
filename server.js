@@ -8,7 +8,6 @@ const clientRoutes = require('./routes/clientRoutes')
 const vehicleRoutes = require('./routes/vehicleRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes')
 const garageRoutes = require('./routes/garageRoutes')
-const itemRoutes = require('./routes/itemRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware');
@@ -81,9 +80,6 @@ app.use('/employee', employeeRoutes)
 
 //garage routes
 app.use('/garage', garageRoutes)
-
-//item routes
-app.use('/item', itemRoutes)
 
 //vehicle routes
 app.use(vehicleRoutes)

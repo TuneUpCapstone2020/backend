@@ -10,7 +10,8 @@ const catalogService = new Schema({
     garage_service_number: {
         type: String,
         required: true,
-        index: true
+        index: true,
+        unique: true
     },
     descriptiom: {
         type: String

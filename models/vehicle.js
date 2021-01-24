@@ -15,7 +15,9 @@ const vehicleSchema = new Schema({
     },
     license: {
         type: String,
-        required: [true, 'Please enter license plate']
+        required: [true, 'Please enter license plate'],
+        unique: true,
+        index: true
     },
     year: {
         type: Number,
@@ -28,6 +30,10 @@ const vehicleSchema = new Schema({
     vin_number: {
         type: String,
         //unique: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
 })
 

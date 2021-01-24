@@ -16,6 +16,7 @@ const vehicleSchema = new Schema({
     license: {
         type: String,
         required: [true, 'Please enter license plate'],
+        unique: true,
         index: true
     },
     year: {

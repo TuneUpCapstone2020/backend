@@ -70,19 +70,21 @@ const PORT = process.env.LOCALPORT;
 const HOST = process.env.LOCALHOST;
 
 //appointment routes
-app.use('/appointment', appointmentRoutes)
+
+app.use('/api/appointment',appointmentRoutes)
+
 
 //client routes
-app.use(clientRoutes)
+app.use('/api/client', clientRoutes)
 
 //employee routes
-app.use('/employee', employeeRoutes)
+app.use('/api/employee', employeeRoutes)
 
 //garage routes
-app.use('/garage', garageRoutes)
+app.use('/api/garage', garageRoutes)
 
 //vehicle routes
-app.use(vehicleRoutes)
+app.use('/api/vehicle', vehicleRoutes)
 
 //catalog routes
 app.use('/api/catalog', catalogRoutes)

@@ -131,6 +131,8 @@ const register_post = async (req, res) => {
           })
         } else {
           console.log(`Deleted client recreated: ${result._id}`);
+          const token = createToken(result._id)
+          res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
           res.status(200).json({
             message: 'Client created!',
             client: result._id

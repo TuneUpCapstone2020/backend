@@ -7,7 +7,8 @@ const router = express.Router()
 router.post('/create', vehicleController.vehicle_post)
 
 //Retrieve
-router.get('/', vehicleController.vehicle_get_client)
+router.get('/', vehicleController.vehicle_get_all)
+router.get('/client', vehicleController.vehicle_get_all_of_client)
 router.get('/license', vehicleController.vehicle_get_by_licence)
 
 //Update

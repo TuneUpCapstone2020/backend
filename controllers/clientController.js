@@ -48,43 +48,71 @@ const createToken = (id) => {
   })
 }
 
-const register_get = (req, res) => {
-  Client.find().sort({ createdAt: -1 })
+//START: ENDPOINTS FOR GET REQUESTS (Retrieve)
+
+const client_get_all = (req, res) => {
+  Client.find({ deleted: false }).sort({ createdAt: -1 })
     .then((result) => {
-      res.send(result)
+      console.log(`get of all clients!`);
+      res.status(200).json(result)
     })
     .catch((err) => {
-      throw err
+      console.log(`An error occured in: client_get_all`);
+      res.status(400).json({
+        message: 'An error occured!',
+        error: err.message
+      })
     })
 }
 
-const login_get = (req, res) => {
-  console.log(req.body)
-  const client = new Client(req.body)
-  //const client = new Client({email: 'ggg', password: 'ff'})
-
-  client.save()
+const client_get_by_full_name = (req, res) => {
+  Client.find({
+    full_name: req.query.full_name,
+    deleted: false
+  })
     .then((result) => {
-      res.redirect('/client')
+      console.log(`get of client by full name!`);
+      res.status(200).json(result)
     })
     .catch((err) => {
-      throw err
+      console.log(`An error occured in: client_get_by_full_name`);
+      res.status(400).json({
+        message: 'An error occured!',
+        error: err.message
+      })
     })
 }
+
+const client_get_by_phone_number = (req, res) => {
+  Client.find({
+    phone_number: req.query.phone_number,
+    deleted: false
+  })
+    .then((result) => {
+      console.log(`get of client by phone number!`);
+      res.status(200).json(result)
+    })
+    .catch((err) => {
+      console.log(`An error occured in: client_get_by_phone_number`);
+      res.status(400).json({
+        message: 'An error occured!',
+        error: err.message
+      })
+    })
+}
+
+//END: ENDPOINTS FOR GET REQUESTS
 
 const register_post = async (req, res) => {
-  const { first_name,
-    last_name,
-    address,
-    phone_number,
-    email,
-    password } = req.body
-
   try {
-    const client = await Client.create({ first_name, last_name, address, phone_number, email, password })
+    const client = await Client.create(req.body)
+    console.log(`Created client ${client.email}`);
     const token = createToken(client._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-    res.status(201).json({ client: client._id })
+    res.status(201).json({ 
+      message: 'New clent created!',
+      client: client._id
+    })
   } catch (err) {
     const errors = handleErrors(err)
     res.status(400).json({ errors })

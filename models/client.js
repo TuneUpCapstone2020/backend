@@ -46,7 +46,7 @@ const clientSchema = new Schema({
         type: Boolean,
         default: false
     }
-})
+}, { timestamps: true })
 
 //fire function before doc saved to db
 clientSchema.pre('save', async function (next) {

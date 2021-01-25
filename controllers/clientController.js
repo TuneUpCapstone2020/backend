@@ -2,7 +2,6 @@ const Client = require('../models/client')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const _ = require('lodash')
-const { result, has } = require('lodash')
 
 //handle errors
 const handleErrors = (err) => {

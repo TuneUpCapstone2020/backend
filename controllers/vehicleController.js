@@ -57,7 +57,7 @@ const vehicle_get_all_of_client = async (req, res) => {
       console.warn('An error occured in: vehicle_get_client');
       res.status(400).json({
         message: 'An error occured!',
-        error: err
+        error: err.message
       });
     } else {
       console.log('Got all vehicles of client!');
@@ -82,7 +82,7 @@ const vehicle_get_by_licence = (req, res) => {
       console.warn('An error occured in: vehicle_get_by_license')
       res.status(400).json({
         message: 'An error occured!',
-        error: err
+        error: err.message
       })
     })
 }
@@ -114,6 +114,8 @@ const vehicle_post = async (req, res) => {
       vehicle.mileage = req.body.mileage ? req.body.mileage : vehicle.mileage
       vehicle.vin_number = req.body.vin_number ? req.body.vin_number : vehicle.vin_number
 
+      console.log(`Vehicle ${vehicle}`);
+
       vehicle.save()
         .then((result) => {
           console.log(`Deleted vehicle has been remade with the following info: ${result}`)
@@ -126,7 +128,7 @@ const vehicle_post = async (req, res) => {
           console.warn('An error occured in: vehicle_post')
           res.status(400).json({
             message: 'An error occured!',
-            error: err
+            error: err.message
           })
         })
     } else { //actually creating a new vehicle
@@ -170,11 +172,11 @@ const vehicle_update = async (req, res) => {
           vehicle: result._id
         })
       })
-      console.warn('An error occured in vehicle_update')
       .catch((err) => {
+        console.warn('An error occured in vehicle_update')
         res.status(400).json({
           message: 'An error occured!',
-          error: err
+          error: err.message
         })
       })
 
@@ -182,7 +184,7 @@ const vehicle_update = async (req, res) => {
     console.warn('An error occured in vehicle_update')
     res.status(400).json({
       message: 'An error occured',
-      error: err
+      error: err.message
     })
   }
 }
@@ -206,14 +208,14 @@ const vehicle_delete = async (req, res) => {
         console.log(`An error occured in vehicle_delete!`);
         res.status(400).json({
           message: 'An error occured!',
-          error: err
+          error: err.message
         })
       })
   } catch (err) {
     console.log(`An error occured in vehicle_delete!`);
     res.status(400).json({
       message: 'An error occured!',
-      error: err
+      error: err.message
     })
   }
 }

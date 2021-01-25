@@ -155,7 +155,7 @@ const register_post = async (req, res) => {
       const token = createToken(client._id)
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
       res.status(201).json({
-        message: 'New clent created!',
+        message: 'New client created!',
         client: client._id
       })
     }
@@ -172,7 +172,10 @@ const login_post = async (req, res) => {
     console.log(`Logged in client ${client.email}`);
     const token = createToken(client._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-    res.status(200).json({ client: client._id })
+    res.status(200).json({
+      message: 'Client logged in!', 
+      client: client._id
+    })
   }
   catch (err) {
     console.warn(`An error occured in login_post`);
@@ -195,6 +198,21 @@ const client_update = async (req, res) => {
     client.address = req.body.address ? req.body.address : client.address
     client.phone_number = req.body.phone_number ? req.body.phone_number : client.phone_number
     client.email = req.body.email ? req.body.email : client.email
+
+    client.save()
+      .then((result) => {
+        console.log(`Client updated: ${result._id}`);
+        res.status(200).json({
+          message: 'Client updated!',
+          client: result._id
+        })
+      })
+      .catch((err) => {
+        res.status(400).json({
+          message: 'An error occured!',
+          error: err.message
+        })
+      })
   } catch (err) {
     console.log(`An error occured in client_update`);
     res.status(400).json({
@@ -212,6 +230,21 @@ const client_delete = async (req, res) => {
   try {
     const token = getDecodedToken(req)
     const client = await Client.findOneAndUpdate(token.id, { deleted: true })
+
+    client.save()
+      .then((result) => {
+        console.log(`Client deleted ${result._id}`);
+        res.status(400).json({
+          message: 'Client deleted!',
+          client: result._id
+        })
+      })
+      .catch((err) => {
+        res.status(400).json({
+          message: 'An error occured',
+          error: err.message
+        })
+      })
   } catch (err) {
     console.log(`An error occured in client_delete!`);
     res.status(400).json({

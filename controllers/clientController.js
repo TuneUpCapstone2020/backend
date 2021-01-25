@@ -1,6 +1,7 @@
 const Client = require('../models/client')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const _ = require('lodash')
 
 //handle errors
 const handleErrors = (err) => {
@@ -192,29 +193,44 @@ const login_post = async (req, res) => {
 const client_update = async (req, res) => {
   try {
     const token = getDecodedToken(req)
-    const client = await Client.findById(token.id)
-
-    client.first_name = req.body.first_name ? req.body.first_name : client.first_name
-    client.last_name = req.body.last_name ? req.body.last_name : client.last_name
-    client.address = req.body.address ? req.body.address : client.address
-    client.phone_number = req.body.phone_number ? req.body.phone_number : client.phone_number
-    client.email = req.body.email ? req.body.email : client.email
-
-    client.save()
-      .then((result) => {
-        console.log(`Client updated: ${result._id}`);
-        res.status(200).json({
-          message: 'Client updated!',
-          client: result._id
-        })
-      })
-      .catch((err) => {
+    const body = _.omitBy(req.body, _.isNil)
+    await Client.findOneAndUpdate({ _id: token.id }, body, (err, result) => {
+      if(err){
         console.warn('An error occured in client_update')
         res.status(400).json({
           message: 'An error occured!',
           error: err.message
         })
-      })
+      }else{
+        console.log(`Client updated: ${result._id}`);
+        res.status(200).json({
+          message: 'Client updated!',
+          client: result._id
+        })
+      }
+    })
+
+    // client.first_name = req.body.first_name ? req.body.first_name : client.first_name
+    // client.last_name = req.body.last_name ? req.body.last_name : client.last_name
+    // client.address = req.body.address ? req.body.address : client.address
+    // client.phone_number = req.body.phone_number ? req.body.phone_number : client.phone_number
+    // client.email = req.body.email ? req.body.email : client.email
+
+    // client.save()
+    //   .then((result) => {
+    //     console.log(`Client updated: ${result._id}`);
+    //     res.status(200).json({
+    //       message: 'Client updated!',
+    //       client: result._id
+    //     })
+    //   })
+    //   .catch((err) => {
+    //     console.warn('An error occured in client_update')
+    //     res.status(400).json({
+    //       message: 'An error occured!',
+    //       error: err.message
+    //     })
+    //   })
   } catch (err) {
     console.warn(`An error occured in client_update`);
     res.status(400).json({
@@ -231,23 +247,37 @@ const client_update = async (req, res) => {
 const client_delete = async (req, res) => {
   try {
     const token = getDecodedToken(req)
-    const client = await Client.findOneAndUpdate(token.id, { deleted: true })
-
-    client.save()
-      .then((result) => {
-        console.log(`Client deleted ${result._id}`);
+    await Client.findOneAndUpdate(token.id, { deleted: true }, (err, result) => {
+      if(err){
+        console.warn(`An error occured in client_delete!`);
         res.status(400).json({
+          message: 'An error occured!',
+          error: err.message
+        })
+      }else{
+        console.log(`Client deleted ${result._id}`);
+        res.status(200).json({
           message: 'Client deleted!',
           client: result._id
         })
-      })
-      .catch((err) => {
-        console.warn(`An error occured in client_delete!`);
-        res.status(400).json({
-          message: 'An error occured',
-          error: err.message
-        })
-      })
+      }
+    })
+
+    // client.save()
+    //   .then((result) => {
+    //     console.log(`Client deleted ${result._id}`);
+    //     res.status(400).json({
+    //       message: 'Client deleted!',
+    //       client: result._id
+    //     })
+    //   })
+    //   .catch((err) => {
+    //     console.warn(`An error occured in client_delete!`);
+    //     res.status(400).json({
+    //       message: 'An error occured',
+    //       error: err.message
+    //     })
+    //   })
   } catch (err) {
     console.warn(`An error occured in client_delete!`);
     res.status(400).json({

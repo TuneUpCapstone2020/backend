@@ -1,6 +1,7 @@
 const Vehicle = require('../models/vehicle')
 const Client = require('../models/client')
 const jwt = require('jsonwebtoken')
+const _ = require('lodash')
 
 //handle errors
 const handleErrors = (err) => {
@@ -96,41 +97,26 @@ const vehicle_post = async (req, res) => {
   const decodedId = getDecodedToken(req)
 
   try {
-    const newVehicle = await Vehicle.findOne({
+    const vehicle = await Vehicle.findOne({
       license: req.body.license,
       deleted: true
     })
-    if (newVehicle) {
-      const vehicle = await Vehicle.findOneAndUpdate(
-        newVehicle.license,
-        { deleted: false },
-        { new: true }
-      )
-      vehicle.make = req.body.make ? req.body.make : vehicle.make
-      vehicle.model = req.body.model ? req.body.model : vehicle.model
-      vehicle.nickname = req.body.nickname ? req.body.nickname : vehicle.nickname
-      vehicle.license = req.body.license ? req.body.license : vehicle.license
-      vehicle.year = req.body.year ? req.body.year : vehicle.year
-      vehicle.mileage = req.body.mileage ? req.body.mileage : vehicle.mileage
-      vehicle.vin_number = req.body.vin_number ? req.body.vin_number : vehicle.vin_number
-
-      console.log(`Vehicle ${vehicle}`);
-
-      vehicle.save()
-        .then((result) => {
-          console.log(`Deleted vehicle has been remade with the following info: ${result}`)
-          res.status(201).json({
-            message: 'New vehicle created!',
-            vehicle: result._id
-          })
-        })
-        .catch((err) => {
+    if (vehicle) {
+      await Vehicle.findOneAndUpdate({ license: vehicle.license }, { $set: req.body, deleted: false }, { new: true }, (err, result) => {
+        if(err){
           console.warn('An error occured in: vehicle_post')
-          res.status(400).json({
-            message: 'An error occured!',
-            error: err.message
-          })
-        })
+           res.status(400).json({
+             message: 'An error occured!',
+             error: err.message
+           })
+        }else{
+          console.log(`Deleted vehicle has been remade with the following info: ${result}`)
+           res.status(201).json({
+             message: 'New vehicle created!',
+             vehicle: result._id
+           })
+        }
+      })
     } else { //actually creating a new vehicle
       const vehicle = await Vehicle.create(req.body)
       await Client.addVehicle(decodedId.id, vehicle)
@@ -154,32 +140,22 @@ const vehicle_post = async (req, res) => {
 
 const vehicle_update = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findById(req.body._id)
-
-    vehicle.make = req.body.make ? req.body.make : vehicle.make
-    vehicle.model = req.body.model ? req.body.model : vehicle.model
-    vehicle.nickname = req.body.nickname ? req.body.nickname : vehicle.nickname
-    vehicle.license = req.body.license ? req.body.license : vehicle.license
-    vehicle.year = req.body.year ? req.body.year : vehicle.year
-    vehicle.mileage = req.body.mileage ? req.body.mileage : vehicle.mileage
-    vehicle.vin_number = req.body.vin_number ? req.body.vin_number : vehicle.vin_number
-
-    vehicle.save()
-      .then((result) => {
-        console.log(`Vehicle Updated: ${result._id}`)
-        res.status(200).json({
-          message: 'Vehicle Updated!',
-          vehicle: result._id
-        })
-      })
-      .catch((err) => {
+    const body = _.omitBy(req.body, _.isNil)
+    await Vehicle.findOneAndUpdate({ _id: body._id }, body, (err, result) => {
+      if(err){
         console.warn('An error occured in vehicle_update')
         res.status(400).json({
           message: 'An error occured!',
           error: err.message
         })
-      })
-
+      }else{
+        console.log(`Vehicle updated: ${result._id}`);
+        res.status(200).json({
+          message: 'Vehicle updated!',
+          vehicle: result._id
+        })
+      }
+    })
   } catch (err) {
     console.warn('An error occured in vehicle_update')
     res.status(400).json({
@@ -195,22 +171,21 @@ const vehicle_update = async (req, res) => {
 
 const vehicle_delete = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findByIdAndUpdate(req.query._id, { deleted: true })
-    vehicle.save()
-      .then((result) => {
-        console.log(`Vehicle Deleted: ${result._id}`)
-        res.status(200).json({
-          message: 'Vehicle Deleted!',
-          vehicle: result._id
-        })
-      })
-      .catch((err) => {
-        console.log(`An error occured in vehicle_delete!`);
+    await Vehicle.findOneAndUpdate({ _id: req.query._id }, { deleted: true }, (err, result) => {
+      if(err){
+        console.warn(`An error occured in vehicle_delete!`);
         res.status(400).json({
           message: 'An error occured!',
           error: err.message
         })
-      })
+      }else{
+        console.log(`Vehicle deleted ${result._id}`);
+        res.status(200).json({
+          message: 'Vehicle deleted!',
+          vehicle: result._id
+        })
+      }
+    })
   } catch (err) {
     console.log(`An error occured in vehicle_delete!`);
     res.status(400).json({

@@ -2,6 +2,7 @@ const Client = require('../models/client')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const _ = require('lodash')
+const { result, has } = require('lodash')
 
 //handle errors
 const handleErrors = (err) => {
@@ -115,40 +116,27 @@ const logout_get = (req, res) => {
 
 const register_post = async (req, res) => {
   try {
-    const newClient = await Client.findOne({
+    const client = await Client.findOne({
       email: req.body.email,
       deleted: true
     })
-    if (newClient) {
-      const client = await Client.findOneAndUpdate(
-        newClient.email,
-        { deleted: false },
-        { new: true }
-      )
-      client.first_name = req.body.first_name ? req.body.first_name : client.first_name
-      client.last_name = req.body.last_name ? req.body.last_name : client.last_name
-      client.address = req.body.address ? req.body.address : client.address
-      client.phone_number = req.body.phone_number ? req.body.phone_number : client.phone_number
-      client.email = req.body.email ? req.body.email : client.email
-      client.password = await hashPassword(client.password)
-
-      client.save()
-        .then((result) => {
-          console.log(`Delete client has been remade with the following info: ${result}`);
-          const token = createToken(result._id)
-          res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-          res.status(201).json({
-            message: 'New client created!',
-            client: result._id
-          })
-        })
-        .catch((err) => {
-          console.warn('An error occured in: register_post')
+    if (client) {
+      req.body.password = await hashPassword(req.body.password)
+      await Client.findOneAndUpdate({ email: client.email }, { $set: req.body, deleted: false}, { new: true }, (err, result) => {
+        if (err) {
+          console.warn('An error occured in register_post')
           res.status(400).json({
             message: 'An error occured!',
             error: err.message
           })
-        })
+        } else {
+          console.log(`Deleted client recreated: ${result._id}`);
+          res.status(200).json({
+            message: 'Client created!',
+            client: result._id
+          })
+        }
+      })
 
     } else {
       req.body.password = await hashPassword(req.body.password)
@@ -175,7 +163,7 @@ const login_post = async (req, res) => {
     const token = createToken(client._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
     res.status(200).json({
-      message: 'Client logged in!', 
+      message: 'Client logged in!',
       client: client._id
     })
   }
@@ -195,13 +183,13 @@ const client_update = async (req, res) => {
     const token = getDecodedToken(req)
     const body = _.omitBy(req.body, _.isNil)
     await Client.findOneAndUpdate({ _id: token.id }, body, (err, result) => {
-      if(err){
+      if (err) {
         console.warn('An error occured in client_update')
         res.status(400).json({
           message: 'An error occured!',
           error: err.message
         })
-      }else{
+      } else {
         console.log(`Client updated: ${result._id}`);
         res.status(200).json({
           message: 'Client updated!',
@@ -248,13 +236,13 @@ const client_delete = async (req, res) => {
   try {
     const token = getDecodedToken(req)
     await Client.findOneAndUpdate(token.id, { deleted: true }, (err, result) => {
-      if(err){
+      if (err) {
         console.warn(`An error occured in client_delete!`);
         res.status(400).json({
           message: 'An error occured!',
           error: err.message
         })
-      }else{
+      } else {
         console.log(`Client deleted ${result._id}`);
         res.status(200).json({
           message: 'Client deleted!',

@@ -142,6 +142,7 @@ const register_post = async (req, res) => {
           })
         })
         .catch((err) => {
+          console.warn('An error occured in: register_post')
           res.status(400).json({
             message: 'An error occured!',
             error: err.message
@@ -208,13 +209,14 @@ const client_update = async (req, res) => {
         })
       })
       .catch((err) => {
+        console.warn('An error occured in client_update')
         res.status(400).json({
           message: 'An error occured!',
           error: err.message
         })
       })
   } catch (err) {
-    console.log(`An error occured in client_update`);
+    console.warn(`An error occured in client_update`);
     res.status(400).json({
       message: 'An error occured!',
       error: err.message
@@ -240,13 +242,14 @@ const client_delete = async (req, res) => {
         })
       })
       .catch((err) => {
+        console.warn(`An error occured in client_delete!`);
         res.status(400).json({
           message: 'An error occured',
           error: err.message
         })
       })
   } catch (err) {
-    console.log(`An error occured in client_delete!`);
+    console.warn(`An error occured in client_delete!`);
     res.status(400).json({
       message: 'An error occured!',
       error: err.message

@@ -3,6 +3,7 @@ const Schema = mongoose.Schema
 const CatalogService = require('./catalogService')
 const CatalogProduct = require('./catalogProduct')
 const Vehicle = require('./vehicle')
+const Client = require('./client')
 
 const appointmentSchema = new Schema({
     /*garageID: {
@@ -55,9 +56,9 @@ const appointmentSchema = new Schema({
         type: Number, //stored in seconds
         default: 0
     },
-    vehicle: {
+    client: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Vehicle'
+        ref: 'Client'
     },
     archived: {
         type: Boolean,
@@ -67,7 +68,7 @@ const appointmentSchema = new Schema({
         type: Boolean,
         default: false
     }
-    //TODO: discount???
+    //TODO: discount?
 
 }, { timestamps: true })
 

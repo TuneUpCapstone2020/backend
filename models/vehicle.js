@@ -34,7 +34,13 @@ const vehicleSchema = new Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    },
+    appointments: [{
+        appointment: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Appointment'
+        }
+    }]
 }, { timestamps: true })
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema)

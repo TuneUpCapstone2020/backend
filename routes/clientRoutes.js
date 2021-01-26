@@ -3,10 +3,20 @@ const clientController = require('../controllers/clientController')
 
 const router = express.Router()
 
-router.get('/register', clientController.register_get)
+//Create
 router.post('/register', clientController.register_post)
-router.get('/login', clientController.login_get)
 router.post('/login', clientController.login_post)
+
+//Retrieve
+router.get('/', clientController.client_get_all)
+router.get('/full_name', clientController.client_get_by_full_name)
+router.get('/phone_number', clientController.client_get_by_phone_number)
 router.get('/logout', clientController.logout_get)
+
+//Update
+router.put('/', clientController.client_update)
+
+//Delete
+router.delete('/', clientController.client_delete)
 
 module.exports = router

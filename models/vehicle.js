@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+const Appointment = require('./appointment')
 
 const vehicleSchema = new Schema({
     make: {
@@ -42,6 +43,15 @@ const vehicleSchema = new Schema({
         }
     }]
 }, { timestamps: true })
+
+vehicleSchema.statics.addAppointment = async function (vehicleId, appointment) {
+    const vehicle = await this.findById(vehicleId).exec()
+    if (vehicle) {
+        vehicle.appointments.push(appointment._id)
+        console.log(`Added new appointment to vehicle: ${appointment}`)
+        vehicle.save()
+    } else throw Error('Vehicle not found')
+}
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 module.exports = Vehicle

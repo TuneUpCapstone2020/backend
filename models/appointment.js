@@ -28,19 +28,48 @@ const appointmentSchema = new Schema({
         type: Boolean,
         required: true
     },*/
-    price: {
-        type: Schema.Types.Decimal128,
-        required: true
+    final_price: { //to be generated when appointment is complete
+        type: Number //stored in cents
     },
-    endTime: {
-        type: String,
-        required: false
-    },
-    employeeNum: {
+    employee_num: {
         type: Number,
-        required: false
+        index: true
+    },
+    services: [{
+        service: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'CatalogService'
+        }
+    }],
+    products: [{
+        product: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'CatalogProduct'
+        },
+        quantity: {
+            type: Number,
+            default: 1
+        }
+    }],
+    labour_time: { //!check for this before marking as complete
+        type: Number, //stored in seconds
+        default: 0
+    },
+    vehicle: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Vehicle'
+    },
+    archived: {
+        type: Boolean,
+        default: false
+    },
+    deleted: {
+        type: Boolean,
+        default: false
     }
-})
+    //TODO: discount???
+
+}, { timestamps: true })
 
 const Appointment = mongoose.model('Appointment', appointmentSchema)
 module.exports = Appointment

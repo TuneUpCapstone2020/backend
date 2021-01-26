@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const garageSchema = new Schema({
-    
+
     name: {
         type: String,
         required: true
@@ -23,7 +23,11 @@ const garageSchema = new Schema({
         type: String,
         required: true
     },
-    
+    standard_hourly_rate: {
+        type: Number, //stored in cents
+        required: true
+    }
+
 })
 
 const Garage = mongoose.model('Garage', garageSchema)

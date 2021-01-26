@@ -19,7 +19,7 @@ const appointmentSchema = new Schema({
         type: Date
     },
     end_time: {
-        type: String
+        type: Date
     },
     skill_level: {
         type: Number,

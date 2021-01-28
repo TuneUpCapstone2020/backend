@@ -40,8 +40,15 @@ const appointmentSchema = new Schema({
         service: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'CatalogService'
+        },
+        quantity: { //ie tire change x4 
+            type: Number,
+            default: 1
         }
     }],
+    total_estimated_time: {
+        type: Number //stored in minutes,
+    },
     products: [{
         product: {
             type: mongoose.Schema.Types.ObjectId,

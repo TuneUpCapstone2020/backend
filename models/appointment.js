@@ -79,7 +79,7 @@ const appointmentSchema = new Schema({
         type: Boolean,
         default: false
     }
-    //TODO: discount?
+
 
 }, { timestamps: true })
 

@@ -1,7 +1,9 @@
 const Appointment = require('../models/appointment')
 const { getTimeStamp } = require('../helpers')
 const Vehicle = require('../models/vehicle')
+const Garage = require('../models/garage')
 const _ = require('lodash')
+const { forEach } = require('lodash')
 //START: Error Handlers
 const handleErrors = (err) => {
   console.log(err.message, err.code)
@@ -37,10 +39,8 @@ const handleErrors = (err) => {
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
 const appoints_create = async (req, res) => {
-  //TODO: whats the deal with checking if the appointment can actually be created
-  //?What if we just set the limit of the amount of appoints at a time by the amount of lifts
-  //Leave the fancier stuff for later
-  //TODO: Add lift count to garage schema
+  //the way creation is going to work, create the object in the db. Then
+  //get the estimated time for all the services and assign it to the total_estimated_time
   //!THIS IS SUPER IMPORTANT
   const newAppointment = req.body
   try {
@@ -110,6 +110,39 @@ const appoints_get_by_date = (req, res) => {
     })
 }
 
+//pass the length of the appoint, and the day (dd-mm-yyyy)
+const appoints_get_availability_by_date = async (req, res) => {
+  const availableTimes = await Appointment.find({ day: req.query.day }, null, { sort: { date: 'ascending' } }, (err, result) => {
+    if (err) {
+      console.warn(`An error occured in appoints_get_availability_by_date @ time: ${getTimeStamp()}`)
+      res.status(400).json({
+        message: 'Unable to get appointments for the day!',
+        error: err.message
+      })
+    } else {
+      if (result.length > 1) {
+        //give times between appointments
+        var times = []
+        for (var i = 0; i < result.length; i++) {
+          if (result[i].date.
+        }
+      }
+      else if (result.length == 1) {
+        //Give times before and after the appointment
+      }
+      else {
+        //give entire day
+      }
+    }
+  })
+
+
+}
+
+//*Get free days of a month (needs month, appoint length, garage capacity )
+const appoints_get_free_days_of_month = (req, res) => {
+
+}
 const appoints_get_by_employee = (req, res) => {
   Appointment.find({
     employee_num: req.query.employee_num,
@@ -164,7 +197,7 @@ const appoints_get_by_date_and_employee = (req, res) => {
       })
     })
 }
-const appoints_get_by_date_and_client = (params) => {
+const appoints_get_by_date_and_client = (req, res) => {
   Appointment.find({
     date: req.query.date,
     client: req.query.client_id,
@@ -248,9 +281,11 @@ const archived_appoints_get_by_id = (req, res) => {
     })
 }
 
+
 //?Do I need to also get archied ones by date and employee??
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
 //START: ENDPOINTS FOR PUT REQUESTS (Update)
+//todo: re-calculate estimated appointment time
 const appoints_update = async (req, res) => {
   try {
     const body = _.omitBy(req.body, _.isNil)
@@ -364,7 +399,6 @@ const appoints_delete = async (req, res) => {
 //END: ENDPOINTS FOR DELETE REQUESTS (Delete)
 
 
-
 module.exports = {
   appoints_create,
   appoints_get_all,
@@ -374,10 +408,17 @@ module.exports = {
   appoints_get_by_date_and_employee,
   appoints_get_by_date_and_client,
   appoints_get_by_date_range,
+  appoints_get_one_by_id,
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,
   appoints_update,
   appoints_complete,
-  appoints_update_start_time,
+  appoints_update_start_time
+  //TODO Add the rest
 }
+
+
+
+//ADD crud for packages
+//get garage packages, update the packages, check if packages have changed (use modify date)

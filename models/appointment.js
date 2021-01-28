@@ -23,8 +23,7 @@ const appointmentSchema = new Schema({
     },
     skill_level: {
         type: Number,
-        required: true,
-        default: 1
+        required: true
     },
     /*finalBill: {
         type: Boolean,

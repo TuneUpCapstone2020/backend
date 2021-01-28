@@ -26,9 +26,31 @@ const garageSchema = new Schema({
     standard_hourly_rate: {
         type: Number, //stored in cents
         required: true
+    },
+    appointment_capacity: {
+        type: Number,
+        required: true
+    },
+    opening_time: {
+        type: Number,
+        required: true
+    },
+    closing_time: {
+        type: Number,
+        required: true
     }
 
 })
+
+garageSchema.statics.getAppointmentCapacity = function () {
+    return this.appointment_capacity
+}
+
+garageSchema.statics.getStandardHourlyRate = function () {
+    return this.standard_hourly_rate
+}
+
+
 
 const Garage = mongoose.model('Garage', garageSchema)
 module.exports = Garage

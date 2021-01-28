@@ -67,6 +67,10 @@ const appointmentSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Client'
     },
+    discount: {
+        type: Number,
+        default: 0
+    },
     archived: {
         type: Boolean,
         default: false

@@ -50,6 +50,13 @@ garageSchema.statics.getStandardHourlyRate = function () {
     return this.standard_hourly_rate
 }
 
+garageSchema.statics.getOpeningTime = function () {
+    return this.opening_time
+}
+garageSchema.statics.getClosingTime = function () {
+    return this.closing_time
+}
+
 
 
 const Garage = mongoose.model('Garage', garageSchema)

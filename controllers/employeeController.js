@@ -191,7 +191,7 @@ const employee_login = async (req, res) => {
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
     res.status(200).json({
       message: 'Employee logged in!',
-      client: client._id
+      employee: employee._id
     })
   }
   catch(err){

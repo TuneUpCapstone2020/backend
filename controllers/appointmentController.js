@@ -1,9 +1,11 @@
 const Appointment = require('../models/appointment')
-const { getTimeStamp } = require('../helpers')
+const helpers = require('../helpers')
 const Vehicle = require('../models/vehicle')
 const Garage = require('../models/garage')
+const Employee = require('../models/employee')
 const _ = require('lodash')
 const { forEach } = require('lodash')
+const minimumMechanicLevel = 4
 //START: Error Handlers
 const handleErrors = (err) => {
   console.log(err.message, err.code)

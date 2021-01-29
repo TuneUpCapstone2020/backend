@@ -6,7 +6,7 @@ const router = express.Router()
 
 //Create
 router.post('/create', employeeController.employee_create)
-route.post('/login', employeeController.employee_login)
+router.post('/login', employeeController.employee_login)
 
 //Retrieve
 router.get('/', employeeController.employee_get_all)

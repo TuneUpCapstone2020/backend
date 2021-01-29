@@ -32,11 +32,11 @@ const garageSchema = new Schema({
         required: true
     },
     opening_time: {
-        type: Number,
+        type: Number, //store the time it opens in minutes since 12:00am
         required: true
     },
     closing_time: {
-        type: Number,
+        type: Number, //time in minutes from 12:00am to closing
         required: true
     }
 

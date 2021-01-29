@@ -113,32 +113,222 @@ const appoints_get_by_date = (req, res) => {
 }
 
 //pass the length of the appoint, and the day (dd-mm-yyyy)
+/*
+ * in body we need:
+ * appointDate: formatted as a Date. This will indidicate when we want to look
+ * appointLength: int of length of appointment stored in minutes
+ * skill_level: skill level of the task 
+ * garageId
+ */
+//todo: make sure there's enough mechanics (maybe even check their skill level appoint.service.skillLevel > mechleve)
 const appoints_get_availability_by_date = async (req, res) => {
-  const availableTimes = await Appointment.find({ day: req.query.day }, null, { sort: { date: 'ascending' } }, (err, result) => {
-    if (err) {
-      console.warn(`An error occured in appoints_get_availability_by_date @ time: ${getTimeStamp()}`)
-      res.status(400).json({
-        message: 'Unable to get appointments for the day!',
-        error: err.message
-      })
-    } else {
-      if (result.length > 1) {
-        //give times between appointments
-        var times = []
-        for (var i = 0; i < result.length; i++) {
-          if (result[i].date.
+  const times = []
+  const qualifiedMechanics = await Employee.find({ skill_level: req.query.skill_level }).sort({ employee_number: 'ascending' }).exec()
+  const totalAvailableTimes = []
+  //todo: before doing this, check if any of them have zero appoints. If yes, return the whole day
+  qualifiedMechanics.forEach(mechanic => {
+    await Appointment.find({ day: req.query.appointDate, employee_num: mechanic.employee_number }, null,
+      { sort: { date: 'ascending' } }, (err, result) => {
+        if (err) {
+          console.warn(`An error occured in appoints_get_availability_by_date @ time: ${helpers.getTimeStamp()}`)
+          res.status(400).json({
+            message: 'Unable to get appointments for the day!',
+            error: err.message
+          })
+        } else {
+          if (result.length > 1) {
+            date = req.query.appointDate
+            const garage = await Garage.findById(result[0].garageId).exec()
+            /* 
+              In this if statement, there are multiple appointments in the day.
+              We need to start by looking at the first appointment of the day
+              and check if its starts when the garage opens or later. 
+              If it starts later, we will check the time between it, and opening time
+              If that time is >= the appoitnment length, then we will return all the possible
+              times that that appointment can start. This case is covered in the next if statement
+            */
+            //*Check times between opening and first appointment
+            if (result[0].date.getHours() > garage.getOpeningTime()) {
+              //time before = the hour that the first appointment starts (converted to minutes)
+              // + the minutes that the appointment starts
+              // - the opening time of the garage (stored in minutes).
+              //This give the amount of minutes between opening time and the first appointment of the day
+              const timeBefore =
+                (result[0].date.getHours() * 60)
+                + result[0].date.getMinutes()
+                - garage.getOpeningTime()
+
+              //now, if that time is enough time to schedule the appointment, we see how many start times would work
+              if (req.query.appointLength <= timeBefore) {
+                //in this loop, we start at the opening time (i=0) and loop in 15 minute increments
+                //the amount of valid time slots the appointment can start
+                //ex: if garage opens at 8:30 and first appointment is at 9:45, we can book at 30 minute
+                // appointment that starts at 8:30, 8:45, 9:00, or 9:15. we push these times to the times array
+                for (var i = 0; i < timeBefore / 15; i++) {
+                  const hours = Math.floor(i * 15 / 60)
+                  const minutes = i * 15 - 60 * hours
+                  times.push({
+                    'date': new Date(
+                      date.getFullYear(),
+                      date.getMonth(),
+                      date.getDate(),
+                      garage.getOpeningTime() / 60 + hours,
+                      minutes),
+                    'employee': mechanic.employee_number
+                  }
+                  )
+                }
+              }
+            }
+            //*Check remaining appointments except the last appointment of the day
+            for (var i = 0; i < result.length - 1; i++) {
+              const endTimeOfAppoint = result[i].date.getHours() * 60 + result[i].date.getMinutes() + result[i].total_estimated_time
+              const timeBetweenAppoints =
+                result[i + 1].date.getHours() * 60 - result[i + 1].date.getMinutes() //start time of next apt in minutes
+                - endTimeOfAppoint
+
+              const hourAppointEnds = Math.floor(endTimeOfAppoint / 60)
+              const minuteAppointEnds = endTimeOfAppoint - hourAppointEnds * 60
+              if (req.query.appointLength <= timeBetweenAppoints) {
+                date = req.query.appointDate
+                for (var i = 0; i < timeBetweenAppoints / 15; i++) {
+                  const hours = Math.floor(i * 15 / 60)
+                  const minutes = i * 15 - 60 * hours
+                  times.push({
+                    'date':
+                      new Date(
+                        date.getFullYear(),
+                        date.getMonth(),
+                        date.getDate(),
+                        hourAppointEnds + hours,
+                        minuteAppointEnds + minutes
+                      ),
+                    'employee': mechanic.employee_number
+                  })
+                }
+              }
+            }
+            //*check time between last appointment of the day, and closing time
+            const timeUntilClose = garage.getClosingTime()
+              - result[result.length - 1].date.getHours() * 60
+              - result[result.length - 1].date.getMinutes()
+            if (timeUntilClose >= req.query.appointLength) {
+              const minutesBetweenLastAptAndEndOfDay = garage.getClosingTime()
+                - (result[result.length - 1].date.getHours() * 60 + result[result.length - 1].date.getMinutes() //start time of last apt
+                  + result[result.length - 1].total_estimated_time)
+
+              const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
+              const minuteOfLastAppointEnd = minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
+
+
+              for (var i = 0; i < timeUntilClose / 15; i++) {
+                const hours = Math.floor(i * 15 / 60)
+                const minutes = i * 15 - 60 * hours
+                times.push({
+                  'date': new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate(),
+                    hourOfLastAppointEnd + hours,
+                    minuteOfLastAppointEnd + minutes
+                  ),
+                  'employee': mechanic.employee_number
+                }
+                )
+              }
+            }
+            totalAvailableTimes = totalAvailableTimes.concat(times)
+          }
+          else if (result.length == 1) {
+
+            //*Check times between opening and appointment
+            if (result[0].date.getHours() > garage.getOpeningTime()) {
+              //time before = the hour that the first appointment starts (converted to minutes)
+              // + the minutes that the appointment starts
+              // - the opening time of the garage (stored in minutes).
+              //This give the amount of minutes between opening time and the first appointment of the day
+              const timeBefore =
+                (result[0].date.getHours() * 60)
+                + result[0].date.getMinutes()
+                - garage.getOpeningTime()
+
+              //now, if that time is enough time to schedule the appointment, we see how many start times would work
+              if (req.query.appointLength <= timeBefore) {
+                //in this loop, we start at the opening time (i=0) and loop in 15 minute increments
+                //the amount of valid time slots the appointment can start
+                //ex: if garage opens at 8:30 and first appointment is at 9:45, we can book at 30 minute
+                // appointment that starts at 8:30, 8:45, 9:00, or 9:15. we push these times to the times array
+                for (var i = 0; i < timeBefore / 15; i++) {
+                  const hours = Math.floor(i * 15 / 60)
+                  const minutes = i * 15 - 60 * hours
+                  times.push({
+                    'date': new Date(
+                      date.getFullYear(),
+                      date.getMonth(),
+                      date.getDate(),
+                      garage.getOpeningTime() / 60 + hours,
+                      minutes
+                    ),
+                    'employee': mechanic.employee_number
+                  })
+                }
+              }
+            }
+
+            //*check time between appointment, and closing time
+            const timeUntilClose = garage.getClosingTime()
+              - result[result.length - 1].date.getHours() * 60
+              - result[result.length - 1].date.getMinutes()
+            if (timeUntilClose >= req.query.appointLength) {
+              const minutesBetweenLastAptAndEndOfDay = garage.getClosingTime()
+                - (result[result.length - 1].date.getHours() * 60 + result[result.length - 1].date.getMinutes() //start time of last apt
+                  + result[result.length - 1].total_estimated_time)
+
+              const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
+              const minuteOfLastAppointEnd = minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
+
+
+              for (var i = 0; i < timeUntilClose / 15; i++) {
+                const hours = Math.floor(i * 15 / 60)
+                const minutes = i * 15 - 60 * hours
+                times.push({
+                  'date': new Date(
+                    date.getFullYear(),
+                    date.getMonth(),
+                    date.getDate(),
+                    hourOfLastAppointEnd + hours,
+                    minuteOfLastAppointEnd + minutes
+                  ),
+                  'employee': mechanic.employee_number
+                })
+              }
+            }
+            totalAvailableTimes = totalAvailableTimes.concat(times)
+          } else { //todo: if this case, just return the entire day for this mechanic
+            //give entire day
+            const totalMinutesOfWorkDay = garage.getClosingTime() - garage.getOpeningTime()
+            for (var i = 0; i < totalMinutesOfWorkDay / 15; i++) {
+              const hours = Math.floor(i * 15 / 60)
+              const minutes = i * 15 - 60 * hours
+              times.push({
+                'date': new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  garage.getOpeningTime() + hours,
+                  garage.getOpeningTime() + minutes
+                ),
+                'employee': mechanic.employee_number
+              })
+            }
+            totalAvailableTimes = totalAvailableTimes.concat(times)
+          }
         }
-      }
-      else if (result.length == 1) {
-        //Give times before and after the appointment
-      }
-      else {
-        //give entire day
-      }
-    }
+      })
   })
 
-
+  //*Now that we have all the available times, we want to combine all the times and show which mechs can do that time
+  res.status(200).json(totalAvailableTimes)
 }
 
 //*Get free days of a month (needs month, appoint length, garage capacity )
@@ -399,7 +589,6 @@ const appoints_delete = async (req, res) => {
   }
 }
 //END: ENDPOINTS FOR DELETE REQUESTS (Delete)
-
 
 module.exports = {
   appoints_create,

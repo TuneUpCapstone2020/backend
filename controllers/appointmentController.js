@@ -47,7 +47,7 @@ const appoints_create = async (req, res) => {
   const newAppointment = req.body
   try {
     const appointment = await Appointment.create(newAppointment)
-    console.log(`New appointment created for: ${appointment.date} @ time: ${getTimeStamp()}`)
+    console.log(`New appointment created for: ${appointment.date} @ time: ${helpers.getTimeStamp()}`)
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     res.status(201).json({
       message: 'New Appointment created!',
@@ -56,7 +56,7 @@ const appoints_create = async (req, res) => {
     })
   } catch (err) {
     const errors = handleErrors(err)
-    console.warn(`An error occured in appointment_create @ time: ${getTimeStamp()}`)
+    console.warn(`An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`)
     res.status(400).json({ errors })
   }
 }
@@ -66,11 +66,11 @@ const appoints_create = async (req, res) => {
 const appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: false }).sort({ createdAt: -1 })
     .then((result) => {
-      console.log(`Get request of all appointments @ time: ${getTimeStamp()}`)
+      console.log(`Get request of all appointments @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: appoints_get_all @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -83,10 +83,10 @@ const appoints_get_one_by_id = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoint by id @ time: ${getTimeStamp()}`)
+      console.log(`Get appoint by id @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in: appoints_get_one_by_id @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in: appoints_get_one_by_id @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -101,10 +101,10 @@ const appoints_get_by_date = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoint by date @ time: ${getTimeStamp()}`)
+      console.log(`Get appoint by date @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in: appoints_get_by_date @ ${getTimeStamp()}`)
+      console.warn(`An error occured in: appoints_get_by_date @ ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -152,7 +152,7 @@ const appoints_get_by_employee = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoint by employee @ time: ${getTimeStamp()}`)
+      console.log(`Get appoint by employee @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
       res.status(400).json({
@@ -169,10 +169,10 @@ const appoints_get_by_client = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoint by user @ time: ${getTimeStamp()}`)
+      console.log(`Get appoint by user @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in appoints_get_by_user @ time: ${getTimeStamp()}`);
+      console.warn(`An error occured in appoints_get_by_user @ time: ${helpers.getTimeStamp()}`);
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -189,10 +189,10 @@ const appoints_get_by_date_and_employee = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoint by date and employee @ time: ${getTimeStamp()}`)
+      console.log(`Get appoint by date and employee @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in appoints_get_by_date_and_employee @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in appoints_get_by_date_and_employee @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -207,10 +207,10 @@ const appoints_get_by_date_and_client = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoint by date and client @ time: ${getTimeStamp()}`)
+      console.log(`Get appoint by date and client @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in appoints_get_by_date_and_client @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in appoints_get_by_date_and_client @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -227,10 +227,10 @@ const appoints_get_by_date_range = (req, res) => {
     archived: false
   })
     .then((result) => {
-      console.log(`Get appoints by date range @ time: ${getTimeStamp()}`)
+      console.log(`Get appoints by date range @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in appoints_get_by_date_range @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in appoints_get_by_date_range @ time: ${helpers.getTimeStamp()}`)
     });
 }
 
@@ -238,11 +238,11 @@ const appoints_get_by_date_range = (req, res) => {
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true }).sort({ createdAt: -1 })
     .then((result) => {
-      console.log(`Get request of all archived appointments @ time: ${getTimeStamp()}`)
+      console.log(`Get request of all archived appointments @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: appoints_get_all @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -256,10 +256,10 @@ const archived_appoints_get_by_user = (req, res) => {
     archived: true
   })
     .then((result) => {
-      console.log(`Archived GET by user @ time: ${getTimeStamp()}`)
+      console.log(`Archived GET by user @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in archived_appoints_get_by_user @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in archived_appoints_get_by_user @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured',
         error: err.message
@@ -272,10 +272,10 @@ const archived_appoints_get_by_id = (req, res) => {
     archived: true
   })
     .then((result) => {
-      console.log(`get archived appointment by id @ time: ${getTimeStamp()}`)
+      console.log(`get archived appointment by id @ time: ${helpers.getTimeStamp()}`)
       res.status(201).json(result)
     }).catch((err) => {
-      console.warn(`An error occured in archived_appoints_get_by_id @ time: ${getTimeStamp()}`)
+      console.warn(`An error occured in archived_appoints_get_by_id @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message
@@ -293,13 +293,13 @@ const appoints_update = async (req, res) => {
     const body = _.omitBy(req.body, _.isNil)
     await Appointment.findOneAndUpdate(body._id, body, (err, result) => {
       if (err) {
-        console.warn(`An error occured in appoints_update @ time: ${getTimeStamp()}`);
+        console.warn(`An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`);
         res.status(400).json({
           message: 'Unable to update appointment!',
           error: err.message
         })
       } else {
-        console.log(`Update appoint @ time: ${getTimeStamp()}`);
+        console.log(`Update appoint @ time: ${helpers.getTimeStamp()}`);
         res.status(200).json({
           message: 'Appointment updated!',
           appointment: result._id
@@ -307,7 +307,7 @@ const appoints_update = async (req, res) => {
       }
     })
   } catch (err) {
-    console.warn(`An error occured in appoints_update @ time: ${getTimeStamp()}`);
+    console.warn(`An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`);
     res.status(400).json({
       message: 'Unable to update appointment!',
       error: err.message
@@ -321,18 +321,18 @@ const appoints_complete = async (req, res) => {
     req.query._id,
     {
       archived: true,
-      end_time: getTimeStamp(), //TODO: make sure this is the correct time format!!!!
+      end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
       labour_time: req.body.labour_time
     },
     (err, result) => {
       if (err) {
-        console.warn(`An error occured in appoints_complete @ time: ${getTimeStamp()}`);
+        console.warn(`An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`);
         req.status(400).json({
           message: 'Unable to mark appointment as complete!',
           error: err.message
         })
       } else {
-        console.log(`Appointment marked as complete @ time: ${getTimeStamp()}`);
+        console.log(`Appointment marked as complete @ time: ${helpers.getTimeStamp()}`);
         res.status(200).json({
           message: 'Appointment marked as complete!',
           id: result._id
@@ -350,13 +350,13 @@ const appoints_update_start_time = async (req, res) => {
   )
   appointment.save()
     .then((result) => {
-      console.log(`Appointment ${result._id} start time updated @ time: ${getTimeStamp()}`)
+      console.log(`Appointment ${result._id} start time updated @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json({
         message: 'Appointment start time updated!',
         id: result._id
       })
     }).catch((err) => {
-      console.warn(`An error occurred in appoints_update_start_time @ time: ${getTimeStamp()}`)
+      console.warn(`An error occurred in appoints_update_start_time @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'Unable to update start time!',
         error: err.message
@@ -376,13 +376,13 @@ const appoints_delete = async (req, res) => {
   try {
     await Appointment.findByIdAndUpdate(req.query._id, { deleted: true }, (err, result) => {
       if (err) {
-        console.warn(`An error occured in appoints_delete @ time: ${getTimeStamp()}`);
+        console.warn(`An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`);
         req.status(400).json({
           message: 'Unable to delete appointment!',
           error: err.message
         })
       } else {
-        console.log(`Appointment deleted @ time: ${getTimeStamp()}`);
+        console.log(`Appointment deleted @ time: ${helpers.getTimeStamp()}`);
         res.status(200).json({
           message: 'Appointment deleted!',
           id: result._id
@@ -391,7 +391,7 @@ const appoints_delete = async (req, res) => {
     })
 
   } catch (error) {
-    console.warn(`An error occured in appoints_delete @ time: ${getTimeStamp()}`);
+    console.warn(`An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`);
     req.status(400).json({
       message: 'Unable to delete appointment!',
       error: err.message

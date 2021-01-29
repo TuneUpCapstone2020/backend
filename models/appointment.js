@@ -6,10 +6,10 @@ const Vehicle = require('./vehicle')
 const Client = require('./client')
 
 const appointmentSchema = new Schema({
-    /*garageID: {
+    garageId: {
         type: Schema.Types.ObjectId,
         required: true
-    },*/
+    },
     date: {
         type: Date,
         required: true,

@@ -4,6 +4,7 @@ const Vehicle = require('../models/vehicle')
 const Garage = require('../models/garage')
 const Employee = require('../models/employee')
 const _ = require('lodash')
+const __ = require('underscore')
 const { forEach } = require('lodash')
 const minimumMechanicLevel = 4
 const timeBlockGranularity = 30
@@ -49,7 +50,8 @@ const appoints_create = async (req, res) => {
   try {
     const appointment = await Appointment.create(newAppointment)
     console.log(
-      `New appointment created for: ${appointment.date
+      `New appointment created for: ${
+        appointment.date
       } @ time: ${helpers.getTimeStamp()}`
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
@@ -131,7 +133,7 @@ const appoints_get_by_date = (req, res) => {
 
 //pass the length of the appoint, and the day (dd-mm-yyyy)
 /*
- * in body we need:
+ * in query params we need:
  * appointDate: JS Date object This will indidicate when we want to look
  * appointLength: int of length of appointment stored in minutes
  * skill_level: skill level of the task
@@ -139,7 +141,13 @@ const appoints_get_by_date = (req, res) => {
  * preferredTime: a bool where 0 is AM and 1 is PM
  */
 //todo: make sure there's enough mechanics (maybe even check their skill level appoint.service.skillLevel > mechleve)
+//todo: use getDay to determine if date provided is weekend or not. If weekend say nahhhhh
 const appoints_get_availability_by_date = async (req, res) => {
+  const garage = await Garage.findById(req.query.garageId)
+  const date = new Date(req.query.appointDate)
+  let timesThatWorkForClient = []
+  let mechFreeAllDay = false
+  let responseSent = false
   const qualifiedMechanics = await Employee.find({
     skill_level: req.query.skill_level,
     deleted: false,
@@ -150,6 +158,12 @@ const appoints_get_availability_by_date = async (req, res) => {
 
   //qualifiedMechanics.forEach((mechanic) => {
   for (const mechanic of qualifiedMechanics) {
+    // console.log(`Checking: ${mechanic.first_name}`)
+    console.log(`mechFreeAllDay1: ${mechFreeAllDay}`)
+    // if (mechFreeAllDay) {
+    //   res.status(200).json(timesThatWorkForClient)
+    //   break
+    // }
     const times = []
     await Appointment.find(
       {
@@ -169,9 +183,15 @@ const appoints_get_availability_by_date = async (req, res) => {
             error: err.message,
           })
         } else {
+          if (mechFreeAllDay && !responseSent) {
+            res.status(200).json(timesThatWorkForClient)
+            responseSent = true
+            return
+          }
+          console.log(`Appointments: ${result}`)
           if (result.length > 1) {
-            date = req.query.appointDate
-            const garage = await Garage.findById(result[0].garageId).exec()
+            //date = req.query.appointDate
+            //const garage = await Garage.findById(result[0].garageId).exec()
             /* 
               In this if statement, there are multiple appointments in the day.
               We need to start by looking at the first appointment of the day
@@ -181,7 +201,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               times that that appointment can start. This case is covered in the next if statement
             */
             //*Check times between opening and first appointment
-            if (result[0].date.getHours() > garage.getOpeningTime()) {
+            if (result[0].date.getHours() > garage.opening_time) {
               //time before = the hour that the first appointment starts (converted to minutes)
               // + the minutes that the appointment starts
               // - the opening time of the garage (stored in minutes).
@@ -189,7 +209,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               const timeBefore =
                 result[0].date.getHours() * 60 +
                 result[0].date.getMinutes() -
-                garage.getOpeningTime()
+                garage.opening_time
 
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
               if (req.query.appointLength <= timeBefore) {
@@ -205,7 +225,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                       date.getFullYear(),
                       date.getMonth(),
                       date.getDate(),
-                      garage.getOpeningTime() / 60 + hours,
+                      garage.opening_time / 60 + hours,
                       minutes
                     ),
                     employee: mechanic.employee_number,
@@ -227,7 +247,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               const hourAppointEnds = Math.floor(endTimeOfAppoint / 60)
               const minuteAppointEnds = endTimeOfAppoint - hourAppointEnds * 60
               if (req.query.appointLength <= timeBetweenAppoints) {
-                date = req.query.appointDate
+                //date = req.query.appointDate
                 for (
                   var i = 0;
                   i < timeBetweenAppoints / timeBlockGranularity;
@@ -250,12 +270,12 @@ const appoints_get_availability_by_date = async (req, res) => {
             }
             //*check time between last appointment of the day, and closing time
             const timeUntilClose =
-              garage.getClosingTime() -
+              garage.closing_time -
               result[result.length - 1].date.getHours() * 60 -
               result[result.length - 1].date.getMinutes()
             if (timeUntilClose >= req.query.appointLength) {
               const minutesBetweenLastAptAndEndOfDay =
-                garage.getClosingTime() -
+                garage.closing_time -
                 (result[result.length - 1].date.getHours() * 60 +
                   result[result.length - 1].date.getMinutes() + //start time of last apt
                   result[result.length - 1].total_estimated_time)
@@ -284,7 +304,7 @@ const appoints_get_availability_by_date = async (req, res) => {
             totalAvailableTimes = totalAvailableTimes.concat(times)
           } else if (result.length == 1) {
             //*Check times between opening and appointment
-            if (result[0].date.getHours() > garage.getOpeningTime()) {
+            if (result[0].date.getHours() > garage.opening_time) {
               //time before = the hour that the first appointment starts (converted to minutes)
               // + the minutes that the appointment starts
               // - the opening time of the garage (stored in minutes).
@@ -292,7 +312,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               const timeBefore =
                 result[0].date.getHours() * 60 +
                 result[0].date.getMinutes() -
-                garage.getOpeningTime()
+                garage.opening_time
 
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
               if (req.query.appointLength <= timeBefore) {
@@ -308,7 +328,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                       date.getFullYear(),
                       date.getMonth(),
                       date.getDate(),
-                      garage.getOpeningTime() / 60 + hours,
+                      garage.opening_time / 60 + hours,
                       minutes
                     ),
                     employee: mechanic.employee_number,
@@ -319,12 +339,12 @@ const appoints_get_availability_by_date = async (req, res) => {
 
             //*check time between appointment, and closing time
             const timeUntilClose =
-              garage.getClosingTime() -
+              garage.closing_time -
               result[result.length - 1].date.getHours() * 60 -
               result[result.length - 1].date.getMinutes()
             if (timeUntilClose >= req.query.appointLength) {
               const minutesBetweenLastAptAndEndOfDay =
-                garage.getClosingTime() -
+                garage.closing_time -
                 (result[result.length - 1].date.getHours() * 60 +
                   result[result.length - 1].date.getMinutes() + //start time of last apt
                   result[result.length - 1].total_estimated_time)
@@ -352,9 +372,13 @@ const appoints_get_availability_by_date = async (req, res) => {
             }
             totalAvailableTimes = totalAvailableTimes.concat(times)
           } else {
+            const freeMechTimes = []
+            mechFreeAllDay = true
+            //console.log(`mechFreeAllDay2: ${mechFreeAllDay}`)
+            console.log(`${mechanic.first_name} is free all day!`)
             //the mech has no appoints that day so give entire day
             const totalMinutesOfWorkDay =
-              garage.getClosingTime() - garage.getOpeningTime()
+              garage.closing_time - garage.opening_time
             for (
               var i = 0;
               i < totalMinutesOfWorkDay / timeBlockGranularity;
@@ -362,62 +386,99 @@ const appoints_get_availability_by_date = async (req, res) => {
             ) {
               const hours = Math.floor((i * timeBlockGranularity) / 60)
               const minutes = i * timeBlockGranularity - 60 * hours
-              times.push({
+              freeMechTimes.push({
                 date: new Date(
                   date.getFullYear(),
                   date.getMonth(),
                   date.getDate(),
-                  garage.getOpeningTime() + hours,
-                  garage.getOpeningTime() + minutes
+                  garage.opening_time + hours,
+                  garage.opening_time + minutes
                 ),
                 employee: mechanic.employee_number,
               })
             }
+            console.log(`freeMechTimes: ${JSON.stringify(freeMechTimes)}`)
+            //freeMechTimes.forEach((date) => {
+            for (const date of freeMechTimes) {
+              //if hours >12, ampm==1, else == 2
+              if (
+                (date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTimes
+              ) {
+                continue
+              } //if pm
+              timesThatWorkForClient.push(date)
+            } //)
+            // console.log(
+            //   `TimesThatWork1: ${JSON.stringify(timesThatWorkForClient)}`
+            // )
+            // console.log(
+            //   `TimesThatWorth length ${timesThatWorkForClient.length}`
+            // )
+            if (timesThatWorkForClient.length > timeSlotsToReturn) {
+              timesThatWorkForClient = __.initial(
+                timesThatWorkForClient,
+                timesThatWorkForClient.length - timeSlotsToReturn
+              )
+            }
+            // console.log(
+            //   `TimesThatWorth length ${timesThatWorkForClient.length}`
+            // )
+            // console.log(
+            //   `TimesThatWork2: ${JSON.stringify(timesThatWorkForClient)}`
+            // )
+            return
             //todo: eject the times the client doesn't want (AM/PM), if thats empty return earliest/closest appoint
-            res.status(200).json(times) //?This should stop the loop, right?
+            // return res.status(200).json(times) //?This should stop the loop, right?
           }
         }
       }
     )
   } //)
-  //*Now that we have all the available times, we want to eliminate the ones that don't work for the client
-  const timesThatWorkForClient = []
-  // if(req.query.preferredTime){ //if client prefers am appoints
-  totalAvailableTimes.forEach((date) => {
-    //if hours >12, ampm==1, else == 2
-    if ((date.getHours() >= 12 ? 1 : 0) == req.query.preferredTimes) {
-      return
-    } //if pm
-    timesThatWorkForClient.push(date)
-  })
 
-  //*Now we check if the array is empty. If it is, we recommend the closest appointment to the time
-  //todo: test how the sort actually works
-  if (!timesThatWorkForClient.length) {
-    totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
-    if (req.query.preferredTimes) {
-      //if they want PM
-      res.status(200).json(totalAvailableTimes[totalAvailableTimes.length - 1])
-    } else {
-      //they want am
-      res.status(200).json(totalAvailableTimes[0])
+  //check to make sure there wasn't a free mech.
+  if (!responseSent) {
+    //*Now that we have all the available times, we want to eliminate the ones that don't work for the client
+
+    // if(req.query.preferredTime){ //if client prefers am appoints
+    //totalAvailableTimes.forEach((date) => {
+    for (const date of totalAvailableTimes) {
+      //if hours >12, ampm==1, else == 2
+      if ((date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTimes) {
+        break
+      } //if pm
+      timesThatWorkForClient.push(date)
     }
-  } else {
-    //we have multiple available appoints
-    if (timesThatWorkForClient.length > timeSlotsToReturn) {
-      const timesToReturn = []
-      for (var i = 0; i < timeSlotsToReturn; i++) {
-        timesToReturn.push(timesThatWorkForClient[i])
+
+    //*Now we check if the array is empty. If it is, we recommend the closest appointment to the time
+    //todo: test how the sort actually works
+    if (!timesThatWorkForClient.length) {
+      totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
+      if (req.query.preferredTimes) {
+        //if they want PM
+        return res
+          .status(200)
+          .json(totalAvailableTimes[totalAvailableTimes.length - 1])
+      } else {
+        //they want am
+        return res.status(200).json(totalAvailableTimes[0])
       }
-      res.status(200).json(timesToReturn)
     } else {
-      res.status(200).json(timesThatWorkForClient)
+      //we have multiple available appoints
+      if (timesThatWorkForClient.length > timeSlotsToReturn) {
+        const timesToReturn = []
+        for (var i = 0; i < timeSlotsToReturn; i++) {
+          timesToReturn.push(timesThatWorkForClient[i])
+        }
+        return res.status(200).json(timesToReturn)
+      } else {
+        return res.status(200).json(timesThatWorkForClient)
+      }
     }
   }
 }
 
 //*Get free days of a month (needs month, appoint length, garage capacity )
-const appoints_get_free_days_of_month = (req, res) => { }
+const appoints_get_free_days_of_month = (req, res) => {}
 const appoints_get_by_employee = (req, res) => {
   Appointment.find({
     employee_num: req.query.employee_num,
@@ -654,7 +715,8 @@ const appoints_update_start_time = async (req, res) => {
     .save()
     .then((result) => {
       console.log(
-        `Appointment ${result._id
+        `Appointment ${
+          result._id
         } start time updated @ time: ${helpers.getTimeStamp()}`
       )
       res.status(200).json({
@@ -674,7 +736,7 @@ const appoints_update_start_time = async (req, res) => {
 }
 //? I dont think this is needed since we're updating the endtime when
 //? we mark the appointment as complete
-const appoints_update_end_time = (req, res) => { }
+const appoints_update_end_time = (req, res) => {}
 //END: ENDPOINTS FOR PUT REQUESTS (Update)
 
 //START: ENDPOINTS FOR DELETE REQUESTS (Delete)
@@ -736,6 +798,3 @@ module.exports = {
   //D
   appoints_delete,
 }
-
-//ADD crud for packages
-//get garage packages, update the packages, check if packages have changed (use modify date)

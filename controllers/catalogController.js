@@ -94,7 +94,7 @@ const catalog_service_create_new = async (req, res) => {
 
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)
 const catalog_product_get_all = (req, res) => {
-    CatalogProduct.find({ isDeleted: false }).sort({ createdAt: -1 })
+    CatalogProduct.find({ deleted: false }).sort({ createdAt: -1 })
         .then((result) => {
             res.status(200).json(result)
         })
@@ -108,7 +108,7 @@ const catalog_product_get_all = (req, res) => {
 const catalog_product_get_by_name = (req, res) => {
     CatalogProduct.find({
         name: req.query.name,
-        isDeleted: false
+        deleted: false
     })
         .then((result) => {
             res.status(200).json(result)
@@ -123,7 +123,7 @@ const catalog_product_get_by_name = (req, res) => {
 const catalog_product_get_by_garage_product_number = (req, res) => {
     CatalogProduct.findOne({
         garage_product_number: req.query.garage_product_number,
-        isDeleted: false
+        deleted: false
     })
         .then((result) => {
             res.status(200).json(result)
@@ -138,7 +138,7 @@ const catalog_product_get_by_garage_product_number = (req, res) => {
 const catalog_product_get_by_sku = (req, res) => {
     CatalogProduct.findOne({
         sku: req.query.sku,
-        isDeleted: false
+        deleted: false
     })
         .then((result) => {
             res.status(200).json(result)
@@ -151,7 +151,7 @@ const catalog_product_get_by_sku = (req, res) => {
         })
 }
 const catalog_service_get_all = (req, res) => {
-    CatalogService.find({ isDeleted: false })
+    CatalogService.find({ deleted: false })
         .sort({ createdAt: -1 })
         .then((result) => {
             res.status(200).json(result)
@@ -166,7 +166,7 @@ const catalog_service_get_all = (req, res) => {
 const catalog_service_get_by_name = (req, res) => {
     CatalogService.find({
         name: req.query.name,
-        isDeleted: false
+        deleted: false
     })
         .then((result) => {
             res.status(200).json(result)
@@ -181,7 +181,7 @@ const catalog_service_get_by_name = (req, res) => {
 const catalog_service_get_by_service_number = (req, res) => {
     CatalogService.findOne({
         garage_service_number: req.query.garage_service_number,
-        isDeleted: false
+        deleted: false
     })
         .then((result) => {
             res.status(200).json(result)
@@ -272,7 +272,7 @@ const catalog_service_update = async (req, res) => {
 const catalog_product_delete = async (req, res) => {
     try {
         console.log(`id: ${req.query._id}`)
-        const product = await CatalogProduct.findByIdAndUpdate(req.query._id, { isDeleted: true })
+        const product = await CatalogProduct.findByIdAndUpdate(req.query._id, { deleted: true })
         product.save()
             .then((result) => {
                 res.status(200).json({
@@ -295,7 +295,7 @@ const catalog_product_delete = async (req, res) => {
 }
 const catalog_service_delete = async (req, res) => {
     try {
-        const service = await CatalogService.findByIdAndUpdate(req.query._id, { isDeleted: true })
+        const service = await CatalogService.findByIdAndUpdate(req.query._id, { deleted: true })
         service.save()
             .then((result) => {
                 res.status(200).json({

@@ -1,6 +1,7 @@
 const Vehicle = require('../models/vehicle')
 const Client = require('../models/client')
 const jwt = require('jsonwebtoken')
+const _ = require('lodash')
 
 //handle errors
 const handleErrors = (err) => {
@@ -34,16 +35,33 @@ const handleErrors = (err) => {
 
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)
 
-const vehicle_get_client = async (req, res) => {
+const vehicle_get_all = (req, res) => {
+  Vehicle.find({ deleted: false }).sort({ createdAt: -1 })
+    .then((result) => {
+      console.log('get of all vehicles!');
+      res.status(200).json(result)
+    })
+    .catch((err) => {
+      console.warn('An error occured in: vehicle_get_all')
+      res.status(400).json({
+        message: 'An error occured!',
+        error: err.message
+      })
+    })
+}
+
+const vehicle_get_all_of_client = async (req, res) => {
   const token = getDecodedToken(req)
   const client = await Client.findById(token.id).exec()
   await getVehiclesFromIds(client.vehicles).then((listOfVehicles, err) => {
     if (err) {
+      console.warn('An error occured in: vehicle_get_client');
       res.status(400).json({
         message: 'An error occured!',
-        error: err
+        error: err.message
       });
     } else {
+      console.log('Got all vehicles of client!');
       res.status(200).json(listOfVehicles)
     }
   })
@@ -52,18 +70,20 @@ const vehicle_get_client = async (req, res) => {
 const vehicle_get_by_licence = (req, res) => {
   Vehicle.findOne({
     license: req.query.license,
-    isDeleted: false
+    deleted: false
   })
     .then((result) => {
+      console.log(`Found license: ${result.license}`);
       res.status(200).json({
         message: 'Vehicle found!',
         vehicle: result._id
       })
     })
     .catch((err) => {
+      console.warn('An error occured in: vehicle_get_by_license')
       res.status(400).json({
         message: 'An error occured!',
-        error: err
+        error: err.message
       })
     })
 }
@@ -77,47 +97,37 @@ const vehicle_post = async (req, res) => {
   const decodedId = getDecodedToken(req)
 
   try {
-    const newVehicle = await Vehicle.findOne({
+    const vehicle = await Vehicle.findOne({
       license: req.body.license,
-      isDeleted: true
+      deleted: true
     })
-    if (newVehicle) {
-      const vehicle = await Vehicle.findOneAndUpdate(
-        newVehicle.license,
-        { isDeleted: false },
-        { new: true }
-      )
-      vehicle.make = req.body.make ? req.body.make : vehicle.make
-      vehicle.model = req.body.model ? req.body.model : vehicle.model
-      vehicle.nickname = req.body.nickname ? req.body.nickname : vehicle.nickname
-      vehicle.license = req.body.license ? req.body.license : vehicle.license
-      vehicle.year = req.body.year ? req.body.year : vehicle.year
-      vehicle.mileage = req.body.mileage ? req.body.mileage : vehicle.mileage
-      vehicle.vin_number = req.body.vin_number ? req.body.vin_number : vehicle.vin_number
-
-      vehicle.save()
-        .then((result) => {
+    if (vehicle) {
+      await Vehicle.findOneAndUpdate({ license: vehicle.license }, { $set: req.body, deleted: false }, { new: true }, (err, result) => {
+        if(err){
+          console.warn('An error occured in: vehicle_post')
+           res.status(400).json({
+             message: 'An error occured!',
+             error: err.message
+           })
+        }else{
           console.log(`Deleted vehicle has been remade with the following info: ${result}`)
-          res.status(201).json({
-            message: 'New vehicle created!',
-            vehicle: result._id
-          })
-        })
-        .catch((err) => {
-          res.status(400).json({
-            message: 'An error occured!',
-            error: err
-          })
-        })
+           res.status(201).json({
+             message: 'New vehicle created!',
+             vehicle: result._id
+           })
+        }
+      })
     } else { //actually creating a new vehicle
       const vehicle = await Vehicle.create(req.body)
       await Client.addVehicle(decodedId.id, vehicle)
+      console.log(`Vehicle ${vehicle.license} added to client ${decodedId.id}`)
       res.status(201).json({
         message: 'New vehicle created!',
         vehicle: vehicle._id
       })
     }
   } catch (err) {
+    console.warn('An error occured in vehicle_post')
     const errors = handleErrors(err)
     res.status(400).json({ errors })
   }
@@ -130,35 +140,27 @@ const vehicle_post = async (req, res) => {
 
 const vehicle_update = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findById(req.body._id)
-
-    vehicle.make = req.body.make ? req.body.make : vehicle.make
-    vehicle.model = req.body.model ? req.body.model : vehicle.model
-    vehicle.nickname = req.body.nickname ? req.body.nickname : vehicle.nickname
-    vehicle.license = req.body.license ? req.body.license : vehicle.license
-    vehicle.year = req.body.year ? req.body.year : vehicle.year
-    vehicle.mileage = req.body.mileage ? req.body.mileage : vehicle.mileage
-    vehicle.vin_number = req.body.vin_number ? req.body.vin_number : vehicle.vin_number
-
-    vehicle.save()
-      .then((result) => {
-        console.log(`Vehicle Updated: ${vehicle._id}`)
-        res.status(200).json({
-          message: 'Vehicle Updated!',
-          vehicle: result._id
-        })
-      })
-      .catch((err) => {
+    const body = _.omitBy(req.body, _.isNil)
+    await Vehicle.findOneAndUpdate({ _id: body._id }, body, (err, result) => {
+      if(err){
+        console.warn('An error occured in vehicle_update')
         res.status(400).json({
           message: 'An error occured!',
-          error: err
+          error: err.message
         })
-      })
-
+      }else{
+        console.log(`Vehicle updated: ${result._id}`);
+        res.status(200).json({
+          message: 'Vehicle updated!',
+          vehicle: result._id
+        })
+      }
+    })
   } catch (err) {
+    console.warn('An error occured in vehicle_update')
     res.status(400).json({
       message: 'An error occured',
-      error: err
+      error: err.message
     })
   }
 }
@@ -169,25 +171,26 @@ const vehicle_update = async (req, res) => {
 
 const vehicle_delete = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findByIdAndUpdate(req.query._id, { isDeleted: true })
-    vehicle.save()
-      .then((result) => {
-        console.log(`Vehicle Deleted: ${vehicle._id}`)
-        res.status(200).json({
-          message: 'Vehicle Deleted!',
-          vehicle: result._id
-        })
-      })
-      .catch((err) => {
+    await Vehicle.findOneAndUpdate({ _id: req.query._id }, { deleted: true }, (err, result) => {
+      if(err){
+        console.warn(`An error occured in vehicle_delete!`);
         res.status(400).json({
           message: 'An error occured!',
-          error: err
+          error: err.message
         })
-      })
+      }else{
+        console.log(`Vehicle deleted ${result._id}`);
+        res.status(200).json({
+          message: 'Vehicle deleted!',
+          vehicle: result._id
+        })
+      }
+    })
   } catch (err) {
+    console.log(`An error occured in vehicle_delete!`);
     res.status(400).json({
       message: 'An error occured!',
-      error: err
+      error: err.message
     })
   }
 }
@@ -196,7 +199,8 @@ const vehicle_delete = async (req, res) => {
 
 
 module.exports = {
-  vehicle_get_client,
+  vehicle_get_all,
+  vehicle_get_all_of_client,
   vehicle_post,
   vehicle_get_by_licence,
   vehicle_update,
@@ -215,7 +219,7 @@ const getVehiclesFromIds = async (listOfIds) => {
   try {
     const returnList = []
     for (i = 0; i < listOfIds.length; i++) {
-      const vehicle = await Vehicle.findOne({ _id: listOfIds[i]._id, isDeleted: false })
+      const vehicle = await Vehicle.findOne({ _id: listOfIds[i]._id, deleted: false })
       if (vehicle) {
         returnList.push(vehicle)
       }

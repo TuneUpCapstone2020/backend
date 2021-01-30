@@ -32,7 +32,7 @@ const vehicleSchema = new Schema({
         type: String,
         //unique: true
     },
-    isDeleted: {
+    deleted: {
         type: Boolean,
         default: false
     },

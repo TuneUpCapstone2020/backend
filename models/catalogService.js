@@ -27,7 +27,7 @@ const catalogService = new Schema({
     customer_note: { //the solution to a client's issue ()
         type: String
     },
-    isDeleted: {
+    deleted: {
         type: Boolean,
         default: false
     }

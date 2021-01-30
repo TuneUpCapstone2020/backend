@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const { isEmail } = require('validator')
-const bcrypt = require('bcrypt')
 const Schema = mongoose.Schema
 const Vehicle = require('./vehicle')
 
@@ -15,12 +14,17 @@ const clientSchema = new Schema({
         required: [true, 'Please enter your last name'],
         lowercase: true
     },
+    full_name:{
+        type: String,
+        index: true
+    },
     address: {
         type: String,
         required: [true, 'Please enter your address']
     },
     phone_number: {
         type: String,
+        index: true,
         required: [true, 'Please enter your phone number']
     },
     email: {
@@ -37,19 +41,22 @@ const clientSchema = new Schema({
     },
     vehicles: [{
         vehicle: { type: mongoose.Schema.Types.ObjectId, ref: 'Vehicle' }
-    }]
-})
+    }],
+    deleted: {
+        type: Boolean,
+        default: false
+    }
+}, { timestamps: true })
 
 //fire function before doc saved to db
 clientSchema.pre('save', async function (next) {
-    //const salt = await bcrypt.genSalt() //TODO: add prints to see what the salt is and what the password is. 
-    //this.password = await bcrypt.hash(this.password, salt)
+    this.full_name = `${this.first_name} ${this.last_name}`
     next()
 })
 
 //static method to login user
 clientSchema.statics.login = async function (email, password) {
-    const client = await this.findOne({ email })
+    const client = await this.findOne({ email, deleted: false })
     if (client) {
         //const auth = await bcrypt.compare(password, client.password)
         const auth = await password === client.password

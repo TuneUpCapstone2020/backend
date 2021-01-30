@@ -36,7 +36,7 @@ const catalogProduct = new Schema({
         index: true,
         unique: true
     },
-    isDeleted: {
+    deleted: {
         type: Boolean,
         default: false
     }

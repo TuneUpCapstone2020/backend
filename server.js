@@ -47,32 +47,34 @@ const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneu
 //   });
 
 //url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
-mongoose.Promise = global.Promise;
-mongoose.connect(`mongodb://mongo:27017`,
-  {
+mongoose.Promise = global.Promise
+mongoose
+  .connect(`mongodb://mongo:27017`, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
     user: 'root',
-    pass: 'root'
-  }).then(() => {
-    console.log(`Successfully connected to the ${process.env.DB_NAME_LOCAL} database`)
+    pass: 'root',
+  })
+  .then(() => {
+    console.log(
+      `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
+    )
     app.listen(PORT, HOST)
     console.log(`Running on http://${HOST}:${PORT}`)
-  }).catch((err) => {
-    throw err;
-  });
+  })
+  .catch((err) => {
+    throw err
+  })
 mongoose.set('useFindAndModify', false)
 
-
 // Constants
-const PORT = process.env.LOCALPORT;
-const HOST = process.env.LOCALHOST;
+const PORT = process.env.LOCALPORT
+const HOST = process.env.LOCALHOST
 
 //appointment routes
 
-app.use('/api/appointment',appointmentRoutes)
-
+app.use('/api/appointment', appointmentRoutes)
 
 //client routes
 app.use('/api/client', clientRoutes)

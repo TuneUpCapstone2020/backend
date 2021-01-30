@@ -13,13 +13,13 @@ const handleErrors = (err) => {
   console.log(err.message, err.code)
 
   let errors = {
-    date = '',
-    start_time = '',
-    end_time = '',
-    skill_level = '',
-    price = '',
-    employee_num = '',
-    services = ''
+    date: '',
+    start_time: '',
+    end_time: '',
+    skill_level: '',
+    price: '',
+    employee_num: '',
+    services: '',
   }
 
   // Handle Duplicate errors

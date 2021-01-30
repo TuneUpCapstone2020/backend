@@ -94,14 +94,23 @@ app.get('*', checkClient)
 
 // Home Page
 app.get('/', (req, res) => {
-  res.send('Hello World');
-});
+  res.send('Hello World')
+})
 
 //easy postman test
 app.get('/ping/', (req, res) => {
-  res.send('PONG');
-});
+  res.send('PONG')
+})
 
 app.get('/api/', (req, res) => {
-  res.send('You have reached the api of this server');
-});
+  res.send('You have reached the api of this server')
+})
+
+app.get('/today', (req, res) => {
+  const date = new Date()
+  res.status(200).json({
+    date: date,
+    dateMinute: date.getMinutes(),
+    dateMinuteUTC: date.getUTCMinutes(),
+  })
+})

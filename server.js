@@ -1,21 +1,21 @@
-'use strict';
+'use strict'
 
-const express = require('express'); //nodejs framework. check it out at: https://expressjs.com/
-const mongoose = require('mongoose'); //helps with database. Check it out at: https://mongoosejs.com/
+const express = require('express') //nodejs framework. check it out at: https://expressjs.com/
+const mongoose = require('mongoose') //helps with database. Check it out at: https://mongoosejs.com/
 const cookieParser = require('cookie-parser')
 const employeeRoutes = require('./routes/employeeRoutes')
 const clientRoutes = require('./routes/clientRoutes')
-const vehicleRoutes = require('./routes/vehicleRoutes');
+const vehicleRoutes = require('./routes/vehicleRoutes')
 const appointmentRoutes = require('./routes/appointmentRoutes')
 const garageRoutes = require('./routes/garageRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
 
-const { requireAuth, checkClient } = require('./middleware/clientMiddleware');
+const { requireAuth, checkClient } = require('./middleware/clientMiddleware')
 
-require('dotenv').config(); //makes process.env access the .env file which allows us to do provess.env.DB_PASS
+require('dotenv').config() //makes process.env access the .env file which allows us to do provess.env.DB_PASS
 
 //express app
-const app = express();
+const app = express()
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())

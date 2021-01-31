@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const CatalogService = require('./catalogService')
 const CatalogProduct = require('./catalogProduct')
-const Vehicle = require('./vehicle')
+//const Vehicle = require('./vehicle')
 const Client = require('./client')
 
 const appointmentSchema = new Schema({
@@ -40,7 +40,8 @@ const appointmentSchema = new Schema({
     services: [{
         service: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'CatalogService'
+            ref: 'CatalogService', 
+            default: undefined
         },
         quantity: { //ie tire change x4 
             type: Number,
@@ -53,7 +54,8 @@ const appointmentSchema = new Schema({
     products: [{
         product: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'CatalogProduct'
+            ref: 'CatalogProduct',
+            default: undefined
         },
         quantity: {
             type: Number,
@@ -66,10 +68,11 @@ const appointmentSchema = new Schema({
     },
     client: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Client'
+        ref: 'Client',
+        required: true
     },
     discount: {
-        type: Number,
+        type: Number, //format: 10=10% off, 15=15% off, etc
         default: 0
     },
     archived: {

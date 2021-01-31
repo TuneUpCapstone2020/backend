@@ -18,9 +18,14 @@ const handleErrors = (err) => {
     start_time: '',
     end_time: '',
     skill_level: '',
-    price: '',
+    final_price: '',
     employee_num: '',
     services: '',
+    products: '',
+    total_estimated_time: '',
+    labour_time: '',
+    client: '',
+    discount: '',
   }
 
   // Handle Duplicate errors

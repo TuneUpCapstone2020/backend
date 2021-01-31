@@ -3,8 +3,12 @@ const garageController = require('../controllers/garageController')
 
 const router = express.Router()
 
-router.get('/', garageController.garage_index)
+//Create
+router.post('/create', garageController.garage_create)
 
-router.post('/', garageController.garage_create_garage)
+//Retreive
+router.get('/', garageController.garage_get_all)
+router.get('/name', garageController.garage_get_by_name)
+router.get('/owner', garageController.garage_get_by_owner)
 
 module.exports = router

@@ -3,6 +3,7 @@ const helpers = require('../helpers')
 const Vehicle = require('../models/vehicle')
 const Garage = require('../models/garage')
 const Employee = require('../models/employee')
+const Client = require('../models/client')
 const _ = require('lodash')
 const __ = require('underscore')
 const { forEach } = require('lodash')
@@ -47,17 +48,24 @@ const handleErrors = (err) => {
 //END: Error Handlers
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
+/*
+ * date: date object
+ * skill level: highest int of highest service????
+ * total_esimated_time: int of estimated time in minutes
+ * garageId: String of garageid (just the characters, not the ObjectId(...))
+ * client: string of client's id (formatted as above)
+ */
 const appoints_create = async (req, res) => {
   //the way creation is going to work, create the object in the db. Then
   //get the estimated time for all the services and assign it to the total_estimated_time
   //!THIS IS SUPER IMPORTANT
-  const newAppointment = req.body
+  let newAppointment = _.omitBy(req.body, _.isNil)
+  newAppointment.garageId = await Garage.findById(newAppointment.garageId)
+  newAppointment.client = await Client.findById(newAppointment.client)
   try {
     const appointment = await Appointment.create(newAppointment)
     console.log(
-      `New appointment created for: ${
-        appointment.date
-      } @ time: ${helpers.getTimeStamp()}`
+      `New appointment created for: ${appointment.date} @ time: ${helpers.getTimeStamp()}`
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     res.status(201).json({
@@ -67,9 +75,7 @@ const appoints_create = async (req, res) => {
     })
   } catch (err) {
     const errors = handleErrors(err)
-    console.warn(
-      `An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`
-    )
+    console.warn(`An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`)
     res.status(400).json({ errors })
   }
 }
@@ -80,15 +86,11 @@ const appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: false })
     .sort({ createdAt: -1 })
     .then((result) => {
-      console.log(
-        `Get request of all appointments @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`Get request of all appointments @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(
-        `An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`
-      )
+      console.warn(`An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -105,9 +107,7 @@ const appoints_get_one_by_id = (req, res) => {
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(
-        `An error occured in: appoints_get_one_by_id @ time: ${helpers.getTimeStamp()}`
-      )
+      console.warn(`An error occured in: appoints_get_one_by_id @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -126,9 +126,7 @@ const appoints_get_by_date = (req, res) => {
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(
-        `An error occured in: appoints_get_by_date @ ${helpers.getTimeStamp()}`
-      )
+      console.warn(`An error occured in: appoints_get_by_date @ ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -136,7 +134,6 @@ const appoints_get_by_date = (req, res) => {
     })
 }
 
-//pass the length of the appoint, and the day (dd-mm-yyyy)
 /*
  * in query params we need:
  * appointDate: JS Date object This will indidicate when we want to look
@@ -153,13 +150,13 @@ const appoints_get_availability_by_date = async (req, res) => {
   let timesThatWorkForClient = []
   let mechFreeAllDay = false
   let responseSent = false
+  let totalAvailableTimes = []
   const qualifiedMechanics = await Employee.find({
     skill_level: req.query.skill_level,
     deleted: false,
   })
     .sort({ employee_number: 'ascending' })
     .exec()
-  const totalAvailableTimes = []
 
   //qualifiedMechanics.forEach((mechanic) => {
   for (const mechanic of qualifiedMechanics) {
@@ -170,9 +167,41 @@ const appoints_get_availability_by_date = async (req, res) => {
     //   break
     // }
     const times = []
+    const nextDay = new Date(date)
+    nextDay.setDate(nextDay.getDate() + 1)
+
+    // console.log(`Date: ${req.query.appointDate}`)
+    // console.log(`DateObj: ${date}`)
+    // console.log(`Next Date: ${nextDay}`)
+    // console.log(`employee_number: ${mechanic.employee_number}`)
+    // console.log(
+    //   `appoints: ${await Appointment.find({
+    //     //date: Date(req.query.appointDate),
+    //     //date: '2021-01-31 08:00:00.000-05:00',
+    //     date: {
+    //       $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+    //       $lt: `${nextDay.getFullYear()}-${nextDay.getMonth() + 1}-${nextDay.getDate()}`,
+    //     },
+    //     // day: date.getDate(),
+    //     // month: date.getMonth(),
+    //     // year: date.getFullYear(),
+    //     employee_num: mechanic.employee_number,
+    //     deleted: false,
+    //   })}`
+    // )
+    // const appoints = Appointment.aggregate([
+    //   {
+    //     $project: {
+    //       year: { $year: '$date', $month: '$date', $day: '$date' },
+    //     },
+    //   },
+    // ])
     await Appointment.find(
       {
-        day: req.query.appointDate,
+        date: {
+          $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+          $lt: `${nextDay.getFullYear()}-${nextDay.getMonth() + 1}-${nextDay.getDate()}`,
+        },
         employee_num: mechanic.employee_number,
         deleted: false,
       },
@@ -188,12 +217,15 @@ const appoints_get_availability_by_date = async (req, res) => {
             error: err.message,
           })
         } else {
+          //sloppy check to see if there has been a mech who is free all day
+          console.log(`Checking avails for day: ${result.date}`)
           if (mechFreeAllDay && !responseSent) {
             res.status(200).json(timesThatWorkForClient)
             responseSent = true
             return
           }
-          console.log(`Appointments: ${result}`)
+          // console.log(`Appointments: ${result}`)
+          // console.log(`Appoints length: ${result.length}`)
           if (result.length > 1) {
             //date = req.query.appointDate
             //const garage = await Garage.findById(result[0].garageId).exec()
@@ -212,9 +244,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               // - the opening time of the garage (stored in minutes).
               //This give the amount of minutes between opening time and the first appointment of the day
               const timeBefore =
-                result[0].date.getHours() * 60 +
-                result[0].date.getMinutes() -
-                garage.opening_time
+                result[0].date.getHours() * 60 + result[0].date.getMinutes() - garage.opening_time
 
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
               if (req.query.appointLength <= timeBefore) {
@@ -253,11 +283,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               const minuteAppointEnds = endTimeOfAppoint - hourAppointEnds * 60
               if (req.query.appointLength <= timeBetweenAppoints) {
                 //date = req.query.appointDate
-                for (
-                  var i = 0;
-                  i < timeBetweenAppoints / timeBlockGranularity;
-                  i++
-                ) {
+                for (var i = 0; i < timeBetweenAppoints / timeBlockGranularity; i++) {
                   const hours = Math.floor((i * timeBlockGranularity) / 60)
                   const minutes = i * timeBlockGranularity - 60 * hours
                   times.push({
@@ -285,9 +311,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                   result[result.length - 1].date.getMinutes() + //start time of last apt
                   result[result.length - 1].total_estimated_time)
 
-              const hourOfLastAppointEnd = Math.floor(
-                minutesBetweenLastAptAndEndOfDay / 60
-              )
+              const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
               const minuteOfLastAppointEnd =
                 minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
 
@@ -308,6 +332,7 @@ const appoints_get_availability_by_date = async (req, res) => {
             }
             totalAvailableTimes = totalAvailableTimes.concat(times)
           } else if (result.length == 1) {
+            console.log(`There is only one apointment for ${mechanic.first_name} today`)
             //*Check times between opening and appointment
             if (result[0].date.getHours() > garage.opening_time) {
               //time before = the hour that the first appointment starts (converted to minutes)
@@ -315,9 +340,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               // - the opening time of the garage (stored in minutes).
               //This give the amount of minutes between opening time and the first appointment of the day
               const timeBefore =
-                result[0].date.getHours() * 60 +
-                result[0].date.getMinutes() -
-                garage.opening_time
+                result[0].date.getHours() * 60 + result[0].date.getMinutes() - garage.opening_time
 
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
               if (req.query.appointLength <= timeBefore) {
@@ -354,9 +377,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                   result[result.length - 1].date.getMinutes() + //start time of last apt
                   result[result.length - 1].total_estimated_time)
 
-              const hourOfLastAppointEnd = Math.floor(
-                minutesBetweenLastAptAndEndOfDay / 60
-              )
+              const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
               const minuteOfLastAppointEnd =
                 minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
 
@@ -382,13 +403,8 @@ const appoints_get_availability_by_date = async (req, res) => {
             //console.log(`mechFreeAllDay2: ${mechFreeAllDay}`)
             console.log(`${mechanic.first_name} is free all day!`)
             //the mech has no appoints that day so give entire day
-            const totalMinutesOfWorkDay =
-              garage.closing_time - garage.opening_time
-            for (
-              var i = 0;
-              i < totalMinutesOfWorkDay / timeBlockGranularity;
-              i++
-            ) {
+            const totalMinutesOfWorkDay = garage.closing_time - garage.opening_time
+            for (var i = 0; i < totalMinutesOfWorkDay / timeBlockGranularity; i++) {
               const hours = Math.floor((i * timeBlockGranularity) / 60)
               const minutes = i * timeBlockGranularity - 60 * hours
               freeMechTimes.push({
@@ -402,13 +418,11 @@ const appoints_get_availability_by_date = async (req, res) => {
                 employee: mechanic.employee_number,
               })
             }
-            console.log(`freeMechTimes: ${JSON.stringify(freeMechTimes)}`)
+            //console.log(`freeMechTimes: ${JSON.stringify(freeMechTimes)}`)
             //freeMechTimes.forEach((date) => {
             for (const date of freeMechTimes) {
               //if hours >12, ampm==1, else == 2
-              if (
-                (date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTimes
-              ) {
+              if ((date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTimes) {
                 continue
               } //if pm
               timesThatWorkForClient.push(date)
@@ -440,15 +454,17 @@ const appoints_get_availability_by_date = async (req, res) => {
     )
   } //)
 
+  //todo: if all mechs are busy, trigger special case where we see if there's any availability
   //check to make sure there wasn't a free mech.
   if (!responseSent) {
     //*Now that we have all the available times, we want to eliminate the ones that don't work for the client
 
     // if(req.query.preferredTime){ //if client prefers am appoints
     //totalAvailableTimes.forEach((date) => {
+    // console.log(`totalAvail: ${JSON.stringify(totalAvailableTimes)}`)
     for (const date of totalAvailableTimes) {
       //if hours >12, ampm==1, else == 2
-      if ((date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTimes) {
+      if ((date.date.getHours() >= 12 ? 1 : 0) != req.query.preferredTimes) {
         break
       } //if pm
       timesThatWorkForClient.push(date)
@@ -458,11 +474,10 @@ const appoints_get_availability_by_date = async (req, res) => {
     //todo: test how the sort actually works
     if (!timesThatWorkForClient.length) {
       totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
+      console.log(`Sorted totalAvailableTimes: ${totalAvailableTimes}`)
       if (req.query.preferredTimes) {
         //if they want PM
-        return res
-          .status(200)
-          .json(totalAvailableTimes[totalAvailableTimes.length - 1])
+        return res.status(200).json(totalAvailableTimes[totalAvailableTimes.length - 1])
       } else {
         //they want am
         return res.status(200).json(totalAvailableTimes[0])
@@ -474,6 +489,7 @@ const appoints_get_availability_by_date = async (req, res) => {
         for (var i = 0; i < timeSlotsToReturn; i++) {
           timesToReturn.push(timesThatWorkForClient[i])
         }
+        // console.log(`timesThatWorkForClient: ${JSON.stringify(timesThatWorkForClient)}`)
         return res.status(200).json(timesToReturn)
       } else {
         return res.status(200).json(timesThatWorkForClient)
@@ -512,9 +528,7 @@ const appoints_get_by_client = (req, res) => {
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(
-        `An error occured in appoints_get_by_user @ time: ${helpers.getTimeStamp()}`
-      )
+      console.warn(`An error occured in appoints_get_by_user @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -529,9 +543,7 @@ const appoints_get_by_date_and_employee = (req, res) => {
     archived: false,
   })
     .then((result) => {
-      console.log(
-        `Get appoint by date and employee @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`Get appoint by date and employee @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
@@ -552,9 +564,7 @@ const appoints_get_by_date_and_client = (req, res) => {
     archived: false,
   })
     .then((result) => {
-      console.log(
-        `Get appoint by date and client @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`Get appoint by date and client @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
@@ -577,9 +587,7 @@ const appoints_get_by_date_range = (req, res) => {
     archived: false,
   })
     .then((result) => {
-      console.log(
-        `Get appoints by date range @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`Get appoints by date range @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
@@ -592,15 +600,11 @@ const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
     .then((result) => {
-      console.log(
-        `Get request of all archived appointments @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`Get request of all archived appointments @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(
-        `An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`
-      )
+      console.warn(`An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`)
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -633,9 +637,7 @@ const archived_appoints_get_by_id = (req, res) => {
     archived: true,
   })
     .then((result) => {
-      console.log(
-        `get archived appointment by id @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`get archived appointment by id @ time: ${helpers.getTimeStamp()}`)
       res.status(201).json(result)
     })
     .catch((err) => {
@@ -657,9 +659,7 @@ const appoints_update = async (req, res) => {
     const body = _.omitBy(req.body, _.isNil)
     await Appointment.findOneAndUpdate(body._id, body, (err, result) => {
       if (err) {
-        console.warn(
-          `An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`
-        )
+        console.warn(`An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`)
         res.status(400).json({
           message: 'Unable to update appointment!',
           error: err.message,
@@ -673,9 +673,7 @@ const appoints_update = async (req, res) => {
       }
     })
   } catch (err) {
-    console.warn(
-      `An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`
-    )
+    console.warn(`An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`)
     res.status(400).json({
       message: 'Unable to update appointment!',
       error: err.message,
@@ -692,17 +690,13 @@ const appoints_complete = async (req, res) => {
     },
     (err, result) => {
       if (err) {
-        console.warn(
-          `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
-        )
-        req.status(400).json({
+        console.warn(`An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`)
+        res.status(400).json({
           message: 'Unable to mark appointment as complete!',
           error: err.message,
         })
       } else {
-        console.log(
-          `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
-        )
+        console.log(`Appointment marked as complete @ time: ${helpers.getTimeStamp()}`)
         res.status(200).json({
           message: 'Appointment marked as complete!',
           id: result._id,
@@ -719,11 +713,7 @@ const appoints_update_start_time = async (req, res) => {
   appointment
     .save()
     .then((result) => {
-      console.log(
-        `Appointment ${
-          result._id
-        } start time updated @ time: ${helpers.getTimeStamp()}`
-      )
+      console.log(`Appointment ${result._id} start time updated @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json({
         message: 'Appointment start time updated!',
         id: result._id,
@@ -745,34 +735,27 @@ const appoints_update_end_time = (req, res) => {}
 //END: ENDPOINTS FOR PUT REQUESTS (Update)
 
 //START: ENDPOINTS FOR DELETE REQUESTS (Delete)
+//todo: if day of cancellation is in the full day list of garage, remove from the list
 const appoints_delete = async (req, res) => {
   try {
-    await Appointment.findByIdAndUpdate(
-      req.query._id,
-      { deleted: true },
-      (err, result) => {
-        if (err) {
-          console.warn(
-            `An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`
-          )
-          req.status(400).json({
-            message: 'Unable to delete appointment!',
-            error: err.message,
-          })
-        } else {
-          console.log(`Appointment deleted @ time: ${helpers.getTimeStamp()}`)
-          res.status(200).json({
-            message: 'Appointment deleted!',
-            id: result._id,
-          })
-        }
+    await Appointment.findByIdAndUpdate(req.query._id, { deleted: true }, (err, result) => {
+      if (err) {
+        console.warn(`An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`)
+        res.status(400).json({
+          message: 'Unable to delete appointment!',
+          error: err.message,
+        })
+      } else {
+        console.log(`Appointment deleted @ time: ${helpers.getTimeStamp()}`)
+        res.status(200).json({
+          message: 'Appointment deleted!',
+          id: result._id,
+        })
       }
-    )
+    })
   } catch (error) {
-    console.warn(
-      `An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`
-    )
-    req.status(400).json({
+    console.warn(`An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`)
+    res.status(400).json({
       message: 'Unable to delete appointment!',
       error: err.message,
     })

@@ -83,7 +83,7 @@ const garage_get_by_owner = (req, res) => {
 
 //START: ENDPOINTS FOR POST REQUESTS
 
-const garage_create = (req, res) => {
+const garage_create = async (req, res) => {
     try{
       const garage = await Garage.findOne({
         email: req.body.email,

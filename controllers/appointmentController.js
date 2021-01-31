@@ -385,7 +385,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                     date.getFullYear(),
                     date.getMonth(),
                     date.getDate(),
-                    hourOfLastAppointEnd + hours + 8,
+                    hourOfLastAppointEnd + hours + 8, //todo: figure out why we have to add 8 and how to avoid doing it because its hacky and dumb
                     minuteOfLastAppointEnd + minutes
                   ),
                   employee: mechanic.employee_number,
@@ -453,7 +453,16 @@ const appoints_get_availability_by_date = async (req, res) => {
     )
   } //)
 
-  //todo: if all mechs are busy, trigger special case where we see if there's any availability
+  //*If there is no availability that day, we need to see if there is any at all for any appoint length
+  //Lets say, the client needs a 4 hours appoit but there isn't any room. We want to see if there's no
+  //room because there aren't any 4 hours appoints or if there are not min time slots left.
+  if (!totalAvailableTimes.length) {
+    //!The current implementation is super inefficient
+
+    res.status(200).json({
+      message: 'There is no room for that appointment today!',
+    })
+  }
   //check to make sure there wasn't a free mech.
   if (!responseSent) {
     //*Now that we have all the available times, we want to eliminate the ones that don't work for the client

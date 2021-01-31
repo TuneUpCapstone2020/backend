@@ -4,7 +4,7 @@ const appointmentController = require('../controllers/appointmentController')
 const router = express.Router()
 
 //Create
-router.post('/', appointmentController.appoints_complete)
+router.post('/', appointmentController.appoints_create)
 //Retrieve
 router.get('/', appointmentController.appoints_get_all)
 router.get('/employee', appointmentController.appoints_get_by_employee)

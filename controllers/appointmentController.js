@@ -154,7 +154,6 @@ const appoints_get_by_date = (req, res) => {
  * garageId: the ID of the garage where the client wants to make the appoint
  * preferredTime: a bool where 0 is AM and 1 is PM
  */
-//todo: make sure there's enough mechanics (maybe even check their skill level appoint.service.skillLevel > mechleve)
 //todo: use getDay to determine if date provided is weekend or not. If weekend say nahhhhh
 const appoints_get_availability_by_date = async (req, res) => {
   const garage = await Garage.findById(req.query.garageId)
@@ -312,12 +311,6 @@ const appoints_get_availability_by_date = async (req, res) => {
                 result[result.length - 1].date.getMinutes() + //start time of last apt
                 result[result.length - 1].total_estimated_time)
             if (timeUntilClose >= req.query.appointLength) {
-              const minutesBetweenLastAptAndEndOfDay =
-                garage.closing_time -
-                (result[result.length - 1].date.getHours() * 60 +
-                  result[result.length - 1].date.getMinutes() + //start time of last apt
-                  result[result.length - 1].total_estimated_time)
-
               const hourOfLastAppointEnd = Math.floor(
                 (result[result.length - 1].date.getHours() * 60 +
                   result[result.length - 1].date.getMinutes() + //start time of last apt

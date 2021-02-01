@@ -65,7 +65,9 @@ const appoints_create = async (req, res) => {
   try {
     const appointment = await Appointment.create(newAppointment)
     console.log(
-      `New appointment created for: ${appointment.date} @ time: ${helpers.getTimeStamp()}`
+      `New appointment created for: ${
+        appointment.date
+      } @ time: ${helpers.getTimeStamp()}`
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     res.status(201).json({
@@ -75,7 +77,9 @@ const appoints_create = async (req, res) => {
     })
   } catch (err) {
     const errors = handleErrors(err)
-    console.warn(`An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`)
+    console.warn(
+      `An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`
+    )
     res.status(400).json({ errors })
   }
 }
@@ -86,11 +90,15 @@ const appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: false })
     .sort({ createdAt: -1 })
     .then((result) => {
-      console.log(`Get request of all appointments @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `Get request of all appointments @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`)
+      console.warn(
+        `An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -107,7 +115,9 @@ const appoints_get_one_by_id = (req, res) => {
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: appoints_get_one_by_id @ time: ${helpers.getTimeStamp()}`)
+      console.warn(
+        `An error occured in: appoints_get_one_by_id @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -126,7 +136,9 @@ const appoints_get_by_date = (req, res) => {
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: appoints_get_by_date @ ${helpers.getTimeStamp()}`)
+      console.warn(
+        `An error occured in: appoints_get_by_date @ ${helpers.getTimeStamp()}`
+      )
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -173,11 +185,24 @@ const appoints_get_availability_by_date = async (req, res) => {
     await Appointment.find(
       {
         date: {
-          $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
-          $lt: `${nextDay.getFullYear()}-${nextDay.getMonth() + 1}-${nextDay.getDate()}`,
+          // $gte: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`,
+          // $lt: `${nextDay.getFullYear()}-${nextDay.getMonth() + 1}-${nextDay.getDate()}`,
+          // $gte: `${new Date(
+          //   date.getFullYear(),
+          //   date.getMonth(),
+          //   date.getDate()
+          // ).toISOString()}`,
+          $gte: date.toISOString(),
+          $lt: nextDay.toISOString(),
+          // $lt: `${new Date(
+          //   nextDay.getFullYear(),
+          //   nextDay.getMonth(),
+          //   nextDay.getDate()
+          // ).toISOString()}`,
         },
         employee_num: mechanic.employee_number,
         deleted: false,
+        archived: false,
       },
       null,
       { sort: { date: 'ascending' } },
@@ -212,13 +237,15 @@ const appoints_get_availability_by_date = async (req, res) => {
               times that that appointment can start. This case is covered in the next if statement
             */
             //*Check times between opening and first appointment
-            if (result[0].date.getHours() > garage.opening_time) {
+            if (result[0].date.getHours() > garage.opening_time / 60) {
               //time before = the hour that the first appointment starts (converted to minutes)
               // + the minutes that the appointment starts
               // - the opening time of the garage (stored in minutes).
               //This give the amount of minutes between opening time and the first appointment of the day
               const timeBefore =
-                result[0].date.getHours() * 60 + result[0].date.getMinutes() - garage.opening_time
+                result[0].date.getHours() * 60 +
+                result[0].date.getMinutes() -
+                garage.opening_time
 
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
               if (req.query.appointLength <= timeBefore) {
@@ -226,7 +253,11 @@ const appoints_get_availability_by_date = async (req, res) => {
                 //the amount of valid time slots the appointment can start
                 //ex: if garage opens at 8:30 and first appointment is at 9:45, we can book at 30 minute
                 // appointment that starts at 8:30, 8:45, 9:00, or 9:15. we push these times to the times array
-                for (var i = 0; i < timeBefore / timeBlockGranularity; i++) {
+                for (
+                  var i = 0;
+                  i < timeBefore / timeBlockGranularity - 1;
+                  i++
+                ) {
                   const hours = Math.floor((i * timeBlockGranularity) / 60)
                   const minutes = i * timeBlockGranularity - 60 * hours
                   times.push({
@@ -240,8 +271,10 @@ const appoints_get_availability_by_date = async (req, res) => {
                     employee: mechanic.employee_number,
                   })
                 }
+                console.log(`opening times: ${JSON.stringify(times, null, 2)}`)
               }
             }
+
             //*Check remaining appointments except the last appointment of the day
             for (var i = 0; i < result.length - 1; i++) {
               const endTimeOfAppoint =
@@ -252,12 +285,24 @@ const appoints_get_availability_by_date = async (req, res) => {
                 result[i + 1].date.getHours() * 60 -
                 result[i + 1].date.getMinutes() - //start time of next apt in minutes
                 endTimeOfAppoint
-
+              console.log(
+                `endTimeOfAppoint: ${JSON.stringify(endTimeOfAppoint, null, 2)}`
+              )
+              console.log(
+                `timeBetweenAppoints: ${JSON.parse(
+                  timeBetweenAppoints,
+                  null,
+                  2
+                )}`
+              )
               const hourAppointEnds = Math.floor(endTimeOfAppoint / 60)
               const minuteAppointEnds = endTimeOfAppoint - hourAppointEnds * 60
               if (req.query.appointLength <= timeBetweenAppoints) {
-                //date = req.query.appointDate
-                for (var i = 0; i < timeBetweenAppoints / timeBlockGranularity; i++) {
+                for (
+                  var i = 0;
+                  i < timeBetweenAppoints / timeBlockGranularity - 1;
+                  i++
+                ) {
                   const hours = Math.floor((i * timeBlockGranularity) / 60)
                   const minutes = i * timeBlockGranularity - 60 * hours
                   times.push({
@@ -273,40 +318,134 @@ const appoints_get_availability_by_date = async (req, res) => {
                 }
               }
             }
+
             //*check time between last appointment of the day, and closing time
             const timeUntilClose =
               garage.closing_time -
-              result[result.length - 1].date.getHours() * 60 -
-              result[result.length - 1].date.getMinutes()
+              (result[result.length - 1].date.getHours() * 60 +
+                result[result.length - 1].date.getMinutes() + //start time of last apt
+                result[result.length - 1].total_estimated_time)
+            //console.log(`gar close: ${garage.closing_time}`)
+            // console.log(
+            //   `line 1: ${result[result.length - 1].date.getHours() * 60}`
+            // )
+            // console.log(`line2: ${result[result.length - 1].date.getMinutes()}`)
+            // console.log(
+            //   `line3: ${result[result.length - 1].total_estimated_time}`
+            // )
+            console.log(`time til close: ${JSON.stringify(timeUntilClose)}`)
             if (timeUntilClose >= req.query.appointLength) {
               const minutesBetweenLastAptAndEndOfDay =
                 garage.closing_time -
                 (result[result.length - 1].date.getHours() * 60 +
                   result[result.length - 1].date.getMinutes() + //start time of last apt
                   result[result.length - 1].total_estimated_time)
+              console.log(
+                `minutesBetweenLastAptAndEndOfday: ${minutesBetweenLastAptAndEndOfDay}`
+              )
 
-              const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
+              //const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
+              const hourOfLastAppointEnd = Math.floor(
+                (result[result.length - 1].date.getHours() * 60 +
+                  result[result.length - 1].date.getMinutes() + //start time of last apt
+                  result[result.length - 1].total_estimated_time) /
+                  60
+              )
+              console.log(`last apt end: ${hourOfLastAppointEnd}`)
               const minuteOfLastAppointEnd =
-                minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
+                minutesBetweenLastAptAndEndOfDay +
+                result[result.length - 1].total_estimated_time //- hourOfLastAppointEnd * 60
 
-              for (var i = 0; i < timeUntilClose / timeBlockGranularity; i++) {
+              for (
+                var i = 0;
+                i < timeUntilClose / timeBlockGranularity - 1;
+                i++
+              ) {
                 const hours = Math.floor((i * timeBlockGranularity) / 60)
+                //console.log(`hours: ${hours}`)
                 const minutes = i * timeBlockGranularity - 60 * hours
+                // console.log(`hour: ${hourOfLastAppointEnd + hours}`)
+                // let date2 = new Date(
+                //   `${date.getFullYear()}-0${
+                //     date.getMonth() + 1
+                //   }-${date.getDate()}T${hourOfLastAppointEnd + hours}:00:00`
+                // )
+
+                // console.log(
+                //   `date1: ${new Date(
+                //     Date.UTC(
+                //       date.getFullYear(),
+                //       date.getMonth(),
+                //       date.getDate(),
+                //       hourOfLastAppointEnd + hours,
+                //       minutes
+                //     )
+                //   )}`
+                // )
+                // console.log(
+                //   `dates: ${date.getFullYear()} ${date.getMonth()} ${date.getDate()}
+                //     ${hourOfLastAppointEnd + hours}
+                //     ${minuteOfLastAppointEnd + minutes}
+                //   }`
+                // )
+                // console.log(`newDate: ${new Date(2021, 0, 31, 14, 0)}`)
+                // console.log(`Date2: ${date2}`)
+                // console.log(
+                //   `Date2String: ${date.getFullYear()}-${
+                //     date.getMonth() + 1
+                //   }-${date.getDate()}T${hourOfLastAppointEnd + hours}:00:00`
+                // )
                 times.push({
                   date: new Date(
                     date.getFullYear(),
                     date.getMonth(),
                     date.getDate(),
-                    hourOfLastAppointEnd + hours,
-                    minuteOfLastAppointEnd + minutes
+                    hourOfLastAppointEnd + hours, //todo: figure out why we have to add 8 and how to avoid doing it because its hacky and dumb
+                    minutes
                   ),
                   employee: mechanic.employee_number,
                 })
               }
+              console.log(`end of day times: ${JSON.stringify(times, null, 2)}`)
+              //console.log(`dates: ${JSON.stringify(dates.toUTCString(), null, 4)}`)
+              // console.log(`Times: ${JSON.stringify(times, null, 2)}`)
             }
             totalAvailableTimes = totalAvailableTimes.concat(times)
+            // const timeUntilClose =
+            //   garage.closing_time -
+            //   result[result.length - 1].date.getHours() * 60 -
+            //   result[result.length - 1].date.getMinutes()
+            // if (timeUntilClose >= req.query.appointLength) {
+            //   const minutesBetweenLastAptAndEndOfDay =
+            //     garage.closing_time -
+            //     (result[result.length - 1].date.getHours() * 60 +
+            //       result[result.length - 1].date.getMinutes() + //start time of last apt
+            //       result[result.length - 1].total_estimated_time)
+
+            //   const hourOfLastAppointEnd = Math.floor(minutesBetweenLastAptAndEndOfDay / 60)
+            //   const minuteOfLastAppointEnd =
+            //     minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
+
+            //   for (var i = 0; i < timeUntilClose / timeBlockGranularity; i++) {
+            //     const hours = Math.floor((i * timeBlockGranularity) / 60)
+            //     const minutes = i * timeBlockGranularity - 60 * hours
+            //     times.push({
+            //       date: new Date(
+            //         date.getFullYear(),
+            //         date.getMonth(),
+            //         date.getDate(),
+            //         hourOfLastAppointEnd + hours,
+            //         minuteOfLastAppointEnd + minutes
+            //       ),
+            //       employee: mechanic.employee_number,
+            //     })
+            //   }
+            // }
+            totalAvailableTimes = totalAvailableTimes.concat(times)
           } else if (result.length == 1) {
-            console.log(`There is only one apointment for ${mechanic.first_name} today`)
+            console.log(
+              `There is only one apointment for ${mechanic.first_name} today`
+            )
             //*Check times between opening and appointment
             if (result[0].date.getHours() > garage.opening_time / 60) {
               //time before = the hour that the first appointment starts (converted to minutes)
@@ -314,14 +453,20 @@ const appoints_get_availability_by_date = async (req, res) => {
               // - the opening time of the garage (stored in minutes).
               //This give the amount of minutes between opening time and the first appointment of the day
               const timeBefore =
-                result[0].date.getHours() * 60 + result[0].date.getMinutes() - garage.opening_time
+                result[0].date.getHours() * 60 +
+                result[0].date.getMinutes() -
+                garage.opening_time
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
               if (req.query.appointLength <= timeBefore) {
                 //in this loop, we start at the opening time (i=0) and loop in 15 minute increments
                 //the amount of valid time slots the appointment can start
                 //ex: if garage opens at 8:30 and first appointment is at 9:45, we can book at 30 minute
                 // appointment that starts at 8:30, 8:45, 9:00, or 9:15. we push these times to the times array
-                for (var i = 0; i < timeBefore / timeBlockGranularity - 1; i++) {
+                for (
+                  var i = 0;
+                  i < timeBefore / timeBlockGranularity - 1;
+                  i++
+                ) {
                   const hours = Math.floor((i * timeBlockGranularity) / 60)
                   const minutes = i * timeBlockGranularity - 60 * hours
                   times.push({
@@ -367,7 +512,11 @@ const appoints_get_availability_by_date = async (req, res) => {
               const minuteOfLastAppointEnd =
                 minutesBetweenLastAptAndEndOfDay - hourOfLastAppointEnd * 60
 
-              for (var i = 0; i < timeUntilClose / timeBlockGranularity - 1; i++) {
+              for (
+                var i = 0;
+                i < timeUntilClose / timeBlockGranularity - 1;
+                i++
+              ) {
                 const hours = Math.floor((i * timeBlockGranularity) / 60)
                 const minutes = i * timeBlockGranularity - 60 * hours
                 // console.log(`hour: ${hourOfLastAppointEnd + hours}`)
@@ -385,8 +534,9 @@ const appoints_get_availability_by_date = async (req, res) => {
                     date.getFullYear(),
                     date.getMonth(),
                     date.getDate(),
-                    hourOfLastAppointEnd + hours + 8, //todo: figure out why we have to add 8 and how to avoid doing it because its hacky and dumb
-                    minuteOfLastAppointEnd + minutes
+                    hourOfLastAppointEnd + hours, // + 8, //todo: figure out why we have to add 8 and how to avoid doing it because its hacky and dumb
+                    //minuteOfLastAppointEnd + minutes
+                    minutes
                   ),
                   employee: mechanic.employee_number,
                 })
@@ -402,8 +552,13 @@ const appoints_get_availability_by_date = async (req, res) => {
             //console.log(`mechFreeAllDay2: ${mechFreeAllDay}`)
             // console.log(`${mechanic.first_name} is free all day!`)
             //the mech has no appoints that day so give entire day
-            const totalMinutesOfWorkDay = garage.closing_time - garage.opening_time
-            for (var i = 0; i < totalMinutesOfWorkDay / timeBlockGranularity; i++) {
+            const totalMinutesOfWorkDay =
+              garage.closing_time - garage.opening_time
+            for (
+              var i = 0;
+              i < totalMinutesOfWorkDay / timeBlockGranularity;
+              i++
+            ) {
               const hours = Math.floor((i * timeBlockGranularity) / 60)
               const minutes = i * timeBlockGranularity - 60 * hours
               freeMechTimes.push({
@@ -412,7 +567,8 @@ const appoints_get_availability_by_date = async (req, res) => {
                   date.getMonth(),
                   date.getDate(),
                   garage.opening_time + hours,
-                  garage.opening_time + minutes
+                  //garage.opening_time + minutes
+                  minutes
                 ),
                 employee: mechanic.employee_number,
               })
@@ -421,7 +577,9 @@ const appoints_get_availability_by_date = async (req, res) => {
             //freeMechTimes.forEach((date) => {
             for (const date of freeMechTimes) {
               //if hours >12, ampm==1, else == 2
-              if ((date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTime) {
+              if (
+                (date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTime
+              ) {
                 continue
               } //if pm
               timesThatWorkForClient.push(date)
@@ -457,8 +615,6 @@ const appoints_get_availability_by_date = async (req, res) => {
   //Lets say, the client needs a 4 hours appoit but there isn't any room. We want to see if there's no
   //room because there aren't any 4 hours appoints or if there are not min time slots left.
   if (!totalAvailableTimes.length) {
-    //!The current implementation is super inefficient
-
     res.status(200).json({
       message: 'There is no room for that appointment today!',
     })
@@ -477,16 +633,26 @@ const appoints_get_availability_by_date = async (req, res) => {
       } //if pm
       timesThatWorkForClient.push(date)
     }
-    console.log(`timesThatWorkForClient: ${JSON.stringify(timesThatWorkForClient)}`)
+    console.log(
+      `timesThatWorkForClient: ${JSON.stringify(timesThatWorkForClient)}`
+    )
 
     //*Now we check if the array is empty. If it is, we recommend the closest appointment to the time
     //todo: test how the sort actually works
     if (!timesThatWorkForClient.length) {
       totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
-      console.log(`Sorted totalAvailableTimes: ${JSON.stringify(totalAvailableTimes, null, 4)}`)
+      console.log(
+        `Sorted totalAvailableTimes: ${JSON.stringify(
+          totalAvailableTimes,
+          null,
+          4
+        )}`
+      )
       if (req.query.preferredTime) {
         //if they want PM
-        return res.status(200).json(totalAvailableTimes[totalAvailableTimes.length - 1])
+        return res
+          .status(200)
+          .json(totalAvailableTimes[totalAvailableTimes.length - 1])
       } else {
         //they want am
         return res.status(200).json(totalAvailableTimes[0])
@@ -508,7 +674,119 @@ const appoints_get_availability_by_date = async (req, res) => {
 }
 
 //*Get free days of a month (needs month, appoint length, garage capacity )
-const appoints_get_free_days_of_month = (req, res) => {}
+/*
+ * pass the following in the querry params:
+ * firstDay: JS Date object of first day in range
+ * lastDay: JS DAte object of last day in range
+ * total_estimated_timed: the estimated time of the service/package
+ * skill_level: int of the max required skill for services/package
+ * garageId: the ID of the garage where the client is booking the appointment
+ */
+const appoints_get_free_days_of_week = async (req, res) => {
+  try {
+    //const freeDays = []
+    const daysToVerifyAvail = []
+    const firstDay = new Date(req.query.firstDay)
+    const lastDay = new Date(req.query.lastDay)
+    const tmpDate = new Date(req.query.firstDay)
+
+    //build and array of all the days we awant to check
+    for (let i = 0; i < 7; i++) {
+      daysToVerifyAvail.push({
+        date: tmpDate,
+        available: false,
+      })
+      tmpDate.setDate(tmpDate.getDate() + 1)
+    }
+    const qualifiedMechanics = await Employee.find({
+      skill_level: req.query.skill_level,
+      deleted: false,
+    })
+      .sort({ employee_number: 'ascending' })
+      .exec()
+
+    for (const mechanic of qualifiedMechanics) {
+      for (let i = 0; i < daysToVerifyAvail.length; i++) {
+        const upperLimitOfDateCheck = new Date(daysToVerifyAvail[i])
+        upperLimitOfDateCheck.setDate(upperLimitOfDateCheck.getDate() + 1)
+
+        await Appointment.find({
+          date: {
+            $gte: `${daysToVerifyAvail[i].getFullYear()}-${
+              daysToVerifyAvail[i].getMonth() + 1
+            }-${daysToVerifyAvail[i].getDate()}`,
+            $lt: `${upperLimitOfDateCheck[i].getFullYear()}-${
+              upperLimitOfDateCheck[i].getMonth() + 1
+            }-${upperLimitOfDateCheck[i].getDate()}`,
+          },
+          employee_num: mechanic.employee_number,
+          deleted: false,
+          archived: false,
+        }).sort({ employee_number: 'ascending' }, (err, result) => {
+          if (err) {
+            res.status(40).json({
+              message: 'Unable to get appointments for this date',
+              error: err.message,
+            })
+          }
+          if (result.length === 0) {
+            daysToVerifyAvail[i].available = true
+            return
+          } else if (result.length === 1) {
+            //*check time between opening and appointment
+            if (result[0].date.getHours() > garage.opening_time / 60) {
+              const timeBefore =
+                result[0].date.getHours() * 60 +
+                result[0].date.getMinutes() -
+                garage.opening_time
+              if (timeBefore >= req.query.total_estimated_time) {
+                daysToVerifyAvail[i].available = true
+                return
+              }
+            }
+
+            //*Check time between appoint and closing
+            const timeUntilClose =
+              garage.closing_time -
+              (result[result.length - 1].date.getHours() * 60 +
+                result[result.length - 1].date.getMinutes() + //start time of last apt
+                result[result.length - 1].total_estimated_time)
+
+            if (timeUntilClose >= req.query.total_estimated_time) {
+              daysToVerifyAvail[i].available = true
+              return
+            }
+          }
+          //If there are multiple appoints
+          else {
+            //*check time between opening and appointment
+            if (result.getHours() > garage.opening_time / 60) {
+              const timeBefore =
+                result.date.getHours() * 60 +
+                result.date.getMinutes() -
+                garage.opening_time
+              if (timeBefore >= req.query.total_estimated_time) {
+                daysToVerifyAvail[i].available = true
+                return
+              }
+            }
+            //*Check time between first appointment and next one
+          }
+        })
+      }
+    }
+  } catch (err) {
+    console.warn(
+      `An error occurred in appoints_get_free_days_of_week @ time: ${helpers.getTimeStamp()}`
+    )
+    res.status(400).json({
+      message: 'An error occured!',
+      error: err.message,
+    })
+  }
+
+  //we want to check for every mechanic if they have
+}
 const appoints_get_by_employee = (req, res) => {
   Appointment.find({
     employee_num: req.query.employee_num,
@@ -537,7 +815,9 @@ const appoints_get_by_client = (req, res) => {
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in appoints_get_by_user @ time: ${helpers.getTimeStamp()}`)
+      console.warn(
+        `An error occured in appoints_get_by_user @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -552,7 +832,9 @@ const appoints_get_by_date_and_employee = (req, res) => {
     archived: false,
   })
     .then((result) => {
-      console.log(`Get appoint by date and employee @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `Get appoint by date and employee @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(200).json(result)
     })
     .catch((err) => {
@@ -573,7 +855,9 @@ const appoints_get_by_date_and_client = (req, res) => {
     archived: false,
   })
     .then((result) => {
-      console.log(`Get appoint by date and client @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `Get appoint by date and client @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(200).json(result)
     })
     .catch((err) => {
@@ -596,7 +880,9 @@ const appoints_get_by_date_range = (req, res) => {
     archived: false,
   })
     .then((result) => {
-      console.log(`Get appoints by date range @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `Get appoints by date range @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(200).json(result)
     })
     .catch((err) => {
@@ -609,11 +895,15 @@ const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
     .then((result) => {
-      console.log(`Get request of all archived appointments @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `Get request of all archived appointments @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`)
+      console.warn(
+        `An error occured in: appoints_get_all @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(400).json({
         message: 'An error occured!',
         error: err.message,
@@ -646,7 +936,9 @@ const archived_appoints_get_by_id = (req, res) => {
     archived: true,
   })
     .then((result) => {
-      console.log(`get archived appointment by id @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `get archived appointment by id @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(201).json(result)
     })
     .catch((err) => {
@@ -668,7 +960,9 @@ const appoints_update = async (req, res) => {
     const body = _.omitBy(req.body, _.isNil)
     await Appointment.findOneAndUpdate(body._id, body, (err, result) => {
       if (err) {
-        console.warn(`An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`)
+        console.warn(
+          `An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`
+        )
         res.status(400).json({
           message: 'Unable to update appointment!',
           error: err.message,
@@ -682,7 +976,9 @@ const appoints_update = async (req, res) => {
       }
     })
   } catch (err) {
-    console.warn(`An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`)
+    console.warn(
+      `An error occured in appoints_update @ time: ${helpers.getTimeStamp()}`
+    )
     res.status(400).json({
       message: 'Unable to update appointment!',
       error: err.message,
@@ -699,13 +995,17 @@ const appoints_complete = async (req, res) => {
     },
     (err, result) => {
       if (err) {
-        console.warn(`An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`)
+        console.warn(
+          `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
+        )
         res.status(400).json({
           message: 'Unable to mark appointment as complete!',
           error: err.message,
         })
       } else {
-        console.log(`Appointment marked as complete @ time: ${helpers.getTimeStamp()}`)
+        console.log(
+          `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
+        )
         res.status(200).json({
           message: 'Appointment marked as complete!',
           id: result._id,
@@ -722,7 +1022,11 @@ const appoints_update_start_time = async (req, res) => {
   appointment
     .save()
     .then((result) => {
-      console.log(`Appointment ${result._id} start time updated @ time: ${helpers.getTimeStamp()}`)
+      console.log(
+        `Appointment ${
+          result._id
+        } start time updated @ time: ${helpers.getTimeStamp()}`
+      )
       res.status(200).json({
         message: 'Appointment start time updated!',
         id: result._id,
@@ -747,23 +1051,31 @@ const appoints_update_end_time = (req, res) => {}
 //todo: if day of cancellation is in the full day list of garage, remove from the list
 const appoints_delete = async (req, res) => {
   try {
-    await Appointment.findByIdAndUpdate(req.query._id, { deleted: true }, (err, result) => {
-      if (err) {
-        console.warn(`An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`)
-        res.status(400).json({
-          message: 'Unable to delete appointment!',
-          error: err.message,
-        })
-      } else {
-        console.log(`Appointment deleted @ time: ${helpers.getTimeStamp()}`)
-        res.status(200).json({
-          message: 'Appointment deleted!',
-          id: result._id,
-        })
+    await Appointment.findByIdAndUpdate(
+      req.query._id,
+      { deleted: true },
+      (err, result) => {
+        if (err) {
+          console.warn(
+            `An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`
+          )
+          res.status(400).json({
+            message: 'Unable to delete appointment!',
+            error: err.message,
+          })
+        } else {
+          console.log(`Appointment deleted @ time: ${helpers.getTimeStamp()}`)
+          res.status(200).json({
+            message: 'Appointment deleted!',
+            id: result._id,
+          })
+        }
       }
-    })
+    )
   } catch (error) {
-    console.warn(`An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`)
+    console.warn(
+      `An error occured in appoints_delete @ time: ${helpers.getTimeStamp()}`
+    )
     res.status(400).json({
       message: 'Unable to delete appointment!',
       error: err.message,

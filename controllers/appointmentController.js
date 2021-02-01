@@ -707,6 +707,9 @@ const appoints_get_free_days_of_week = async (req, res) => {
 
     for (const mechanic of qualifiedMechanics) {
       for (let i = 0; i < daysToVerifyAvail.length; i++) {
+        if (daysToVerifyAvail[i].available == true) {
+          continue
+        }
         const upperLimitOfDateCheck = new Date(daysToVerifyAvail[i])
         upperLimitOfDateCheck.setDate(upperLimitOfDateCheck.getDate() + 1)
 
@@ -798,6 +801,8 @@ const appoints_get_free_days_of_week = async (req, res) => {
         })
       }
     }
+
+    res.status(200).json(daysToVerifyAvail)
   } catch (err) {
     console.warn(
       `An error occurred in appoints_get_free_days_of_week @ time: ${helpers.getTimeStamp()}`
@@ -1120,6 +1125,7 @@ module.exports = {
   appoints_get_by_date_range,
   appoints_get_one_by_id,
   appoints_get_availability_by_date,
+  appoints_get_free_days_of_week,
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,

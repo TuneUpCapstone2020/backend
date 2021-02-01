@@ -771,6 +771,29 @@ const appoints_get_free_days_of_week = async (req, res) => {
               }
             }
             //*Check time between first appointment and next one
+            for (var i = 0; i < result.length - 1; i++) {
+              const timeBetweenAppoints =
+                result[i + 1].date.getHours() * 60 -
+                result[i + 1].date.getMinutes() - //start time of next apt in minutes
+                result[i].date.getHours() * 60 + //end time of ith appointment
+                result[i].date.getMinutes() +
+                result[i].total_estimated_time
+
+              if (req.query.appointLength <= timeBetweenAppoints) {
+                daysToVerifyAvail[i].available = true
+                return
+              }
+            }
+            //*check time between last appointment of the day, and closing time
+            const timeUntilClose =
+              garage.closing_time -
+              (result[result.length - 1].date.getHours() * 60 +
+                result[result.length - 1].date.getMinutes() + //start time of last apt
+                result[result.length - 1].total_estimated_time)
+            if (timeUntilClose >= req.query.appointLength) {
+              daysToVerifyAvail[i].available = true
+              return
+            }
           }
         })
       }

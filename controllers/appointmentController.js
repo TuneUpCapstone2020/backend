@@ -124,10 +124,16 @@ const appoints_get_one_by_id = (req, res) => {
       })
     })
 }
-//!Define date!
+//Date should be sent as "yyyy-mm-dd" or as JavaScript date object style
 const appoints_get_by_date = (req, res) => {
+  date = new Date(req.query.date)
+  nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + 1)
   Appointment.find({
-    date: req.query.date,
+    date: {
+      $gte: date.toISOString(),
+      $lt: nextDate.toISOString(),
+    },
     deleted: false,
     archived: false,
   })
@@ -543,6 +549,7 @@ const appoints_get_free_days_of_week = async (req, res) => {
     //const freeDays = []
     const daysToVerifyAvail = []
     const tmpDate = new Date(req.query.firstDay)
+    console.log(`tmpDate: ${tmpDate}`)
 
     //build and array of all the days we awant to check
     for (let i = 0; i < 7; i++) {
@@ -550,7 +557,14 @@ const appoints_get_free_days_of_week = async (req, res) => {
         date: tmpDate,
         available: false,
       })
+      console.log(`tmpDate2: ${tmpDate}`)
+      console.log(`avail: ${JSON.stringify(daysToVerifyAvail[i], null, 2)}`)
       tmpDate.setDate(tmpDate.getDate() + 1)
+    }
+    for (let i = 0; i < 7; i++) {
+      console.log(
+        `daysToVerify: ${JSON.stringify(daysToVerifyAvail[i], null, 2)}`
+      )
     }
     const qualifiedMechanics = await Employee.find({
       skill_level: req.query.skill_level,
@@ -567,92 +581,99 @@ const appoints_get_free_days_of_week = async (req, res) => {
         const upperLimitOfDateCheck = new Date(daysToVerifyAvail[i])
         upperLimitOfDateCheck.setDate(upperLimitOfDateCheck.getDate() + 1)
 
-        await Appointment.find({
-          date: {
-            $gte: `${daysToVerifyAvail[i].getFullYear()}-${
-              daysToVerifyAvail[i].getMonth() + 1
-            }-${daysToVerifyAvail[i].getDate()}`,
-            $lt: `${upperLimitOfDateCheck[i].getFullYear()}-${
-              upperLimitOfDateCheck[i].getMonth() + 1
-            }-${upperLimitOfDateCheck[i].getDate()}`,
+        await Appointment.find(
+          {
+            date: {
+              $gte: `${daysToVerifyAvail[i].date.getFullYear()}-${
+                daysToVerifyAvail[i].date.getMonth() + 1
+              }-${daysToVerifyAvail[i].date.getDate()}`,
+              $lt: `${upperLimitOfDateCheck.getFullYear()}-${
+                upperLimitOfDateCheck.getMonth() + 1
+              }-${upperLimitOfDateCheck.getDate()}`,
+            },
+            employee_num: mechanic.employee_number,
+            deleted: false,
+            archived: false,
           },
-          employee_num: mechanic.employee_number,
-          deleted: false,
-          archived: false,
-        }).sort({ employee_number: 'ascending' }, (err, result) => {
-          if (err) {
-            res.status(40).json({
-              message: 'Unable to get appointments for this date',
-              error: err.message,
-            })
-          }
-          if (result.length === 0) {
-            daysToVerifyAvail[i].available = true
-            return
-          } else if (result.length === 1) {
-            //*check time between opening and appointment
-            if (result[0].date.getHours() > garage.opening_time / 60) {
-              const timeBefore =
-                result[0].date.getHours() * 60 +
-                result[0].date.getMinutes() -
-                garage.opening_time
-              if (timeBefore >= req.query.total_estimated_time) {
+          null,
+          { sort: { employee_number: 'ascending' } },
+          (err, result) => {
+            if (err) {
+              res.status(400).json({
+                message: 'Unable to get appointments for this date',
+                error: err.message,
+              })
+            } else {
+              console.log(`result: ${result}`)
+              if (result.length === 0) {
                 daysToVerifyAvail[i].available = true
                 return
+              } else if (result.length === 1) {
+                //*check time between opening and appointment
+                if (result[0].date.getHours() > garage.opening_time / 60) {
+                  const timeBefore =
+                    result[0].date.getHours() * 60 +
+                    result[0].date.getMinutes() -
+                    garage.opening_time
+                  if (timeBefore >= req.query.total_estimated_time) {
+                    daysToVerifyAvail[i].available = true
+                    return
+                  }
+                }
+
+                //*Check time between appoint and closing
+                const timeUntilClose =
+                  garage.closing_time -
+                  (result[result.length - 1].date.getHours() * 60 +
+                    result[result.length - 1].date.getMinutes() + //start time of last apt
+                    result[result.length - 1].total_estimated_time)
+
+                if (timeUntilClose >= req.query.total_estimated_time) {
+                  daysToVerifyAvail[i].available = true
+                  return
+                }
               }
-            }
+              //If there are multiple appoints
+              else {
+                //*check time between opening and appointment
+                if (result.getHours() > garage.opening_time / 60) {
+                  const timeBefore =
+                    result.date.getHours() * 60 +
+                    result.date.getMinutes() -
+                    garage.opening_time
+                  if (timeBefore >= req.query.total_estimated_time) {
+                    daysToVerifyAvail[i].available = true
+                    return
+                  }
+                }
+                //*Check time between first appointment and next one
+                for (var i = 0; i < result.length - 1; i++) {
+                  const timeBetweenAppoints =
+                    result[i + 1].date.getHours() * 60 -
+                    result[i + 1].date.getMinutes() - //start time of next apt in minutes
+                    result[i].date.getHours() * 60 + //end time of ith appointment
+                    result[i].date.getMinutes() +
+                    result[i].total_estimated_time
 
-            //*Check time between appoint and closing
-            const timeUntilClose =
-              garage.closing_time -
-              (result[result.length - 1].date.getHours() * 60 +
-                result[result.length - 1].date.getMinutes() + //start time of last apt
-                result[result.length - 1].total_estimated_time)
-
-            if (timeUntilClose >= req.query.total_estimated_time) {
-              daysToVerifyAvail[i].available = true
-              return
+                  if (req.query.appointLength <= timeBetweenAppoints) {
+                    daysToVerifyAvail[i].available = true
+                    return
+                  }
+                }
+                //*check time between last appointment of the day, and closing time
+                const timeUntilClose =
+                  garage.closing_time -
+                  (result[result.length - 1].date.getHours() * 60 +
+                    result[result.length - 1].date.getMinutes() + //start time of last apt
+                    result[result.length - 1].total_estimated_time)
+                if (timeUntilClose >= req.query.appointLength) {
+                  daysToVerifyAvail[i].available = true
+                  return
+                }
+              }
             }
           }
-          //If there are multiple appoints
-          else {
-            //*check time between opening and appointment
-            if (result.getHours() > garage.opening_time / 60) {
-              const timeBefore =
-                result.date.getHours() * 60 +
-                result.date.getMinutes() -
-                garage.opening_time
-              if (timeBefore >= req.query.total_estimated_time) {
-                daysToVerifyAvail[i].available = true
-                return
-              }
-            }
-            //*Check time between first appointment and next one
-            for (var i = 0; i < result.length - 1; i++) {
-              const timeBetweenAppoints =
-                result[i + 1].date.getHours() * 60 -
-                result[i + 1].date.getMinutes() - //start time of next apt in minutes
-                result[i].date.getHours() * 60 + //end time of ith appointment
-                result[i].date.getMinutes() +
-                result[i].total_estimated_time
-
-              if (req.query.appointLength <= timeBetweenAppoints) {
-                daysToVerifyAvail[i].available = true
-                return
-              }
-            }
-            //*check time between last appointment of the day, and closing time
-            const timeUntilClose =
-              garage.closing_time -
-              (result[result.length - 1].date.getHours() * 60 +
-                result[result.length - 1].date.getMinutes() + //start time of last apt
-                result[result.length - 1].total_estimated_time)
-            if (timeUntilClose >= req.query.appointLength) {
-              daysToVerifyAvail[i].available = true
-              return
-            }
-          }
-        })
+        )
       }
     }
 
@@ -730,8 +751,14 @@ const appoints_get_by_date_and_employee = (req, res) => {
     })
 }
 const appoints_get_by_date_and_client = (req, res) => {
+  date = new Date(req.query.date)
+  nextDate = new Date(date)
+  nextDate.setDate(nextDate.getDate() + 1)
   Appointment.find({
-    date: req.query.date,
+    date: {
+      $gte: date.toISOString(),
+      $lt: nextDate.toISOString(),
+    },
     client: req.query.client_id,
     deleted: false,
     archived: false,
@@ -753,10 +780,14 @@ const appoints_get_by_date_and_client = (req, res) => {
     })
 }
 const appoints_get_by_date_range = (req, res) => {
+  lowerDate = new Date(req.query.lower_date)
+  upperDate = new Date(req.query.upper_date)
+  nextUpperDate = new Date(upperDate)
+  nextUpperDate.setDate(nextUpperDate.getDate() + 1)
   Appointment.find({
     date: {
-      $gt: req.query.lower_date,
-      $lt: req.query.upper_date,
+      $gte: lowerDate,
+      $lt: nextUpperDate,
     },
     deleted: false,
     archived: false,
@@ -833,7 +864,6 @@ const archived_appoints_get_by_id = (req, res) => {
       })
     })
 }
-//?Do I need to also get archied ones by date and employee??
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
 //START: ENDPOINTS FOR PUT REQUESTS (Update)
 //todo: re-calculate estimated appointment time
@@ -930,7 +960,6 @@ const appoints_update_end_time = (req, res) => {}
 //END: ENDPOINTS FOR PUT REQUESTS (Update)
 
 //START: ENDPOINTS FOR DELETE REQUESTS (Delete)
-//todo: if day of cancellation is in the full day list of garage, remove from the list
 const appoints_delete = async (req, res) => {
   try {
     await Appointment.findByIdAndUpdate(

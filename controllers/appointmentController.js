@@ -49,19 +49,22 @@ const handleErrors = (err) => {
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
 /*
- * date: date object
- * skill level: highest int of highest service????
- * total_esimated_time: int of estimated time in minutes
- * garageId: String of garageid (just the characters, not the ObjectId(...))
- * client: string of client's id (formatted as above)
+ * body:
+ *  date: date object
+ *  skill level: highest int of highest service????
+ *  total_esimated_time: int of estimated time in minutes
+ *  garageId: String of garageid (just the characters, not the ObjectId(...))
+ *  client: string of client's id (formatted as above)
+ * Query params:
+ *  vehicleId: Id of the vehicle the appointment is for
  */
 const appoints_create = async (req, res) => {
   //the way creation is going to work, create the object in the db. Then
   //get the estimated time for all the services and assign it to the total_estimated_time
-  //!THIS IS SUPER IMPORTANT
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.garageId = await Garage.findById(newAppointment.garageId)
   newAppointment.client = await Client.findById(newAppointment.client)
+  newAppointment.date = new Date(newAppointment.date)
   try {
     const appointment = await Appointment.create(newAppointment)
     console.log(
@@ -544,52 +547,159 @@ const appoints_get_availability_by_date = async (req, res) => {
  * skill_level: int of the max required skill for services/package
  * garageId: the ID of the garage where the client is booking the appointment
  */
+//todo: if there are to avails in the seven days, look either for a month, another week, or until an avail comes up
 const appoints_get_free_days_of_week = async (req, res) => {
   try {
-    //const freeDays = []
+    const garage = Garage.findById({ _id: req.query.garageId, delete: false })
     const daysToVerifyAvail = []
     const tmpDate = new Date(req.query.firstDay)
-    console.log(`tmpDate: ${tmpDate}`)
+    //console.log(`tmpDate: ${tmpDate}`)
 
     //build and array of all the days we awant to check
     for (let i = 0; i < 7; i++) {
       daysToVerifyAvail.push({
-        date: tmpDate,
+        date: tmpDate.toISOString(),
         available: false,
       })
-      console.log(`tmpDate2: ${tmpDate}`)
-      console.log(`avail: ${JSON.stringify(daysToVerifyAvail[i], null, 2)}`)
+      // console.log(`tmpDate2: ${tmpDate}`)
+      // console.log(`avail: ${JSON.stringify(daysToVerifyAvail[i], null, 2)}`)
+      //console.log(`wholeArray: ${JSON.stringify(daysToVerifyAvail, null, 2)}`)
       tmpDate.setDate(tmpDate.getDate() + 1)
     }
-    for (let i = 0; i < 7; i++) {
-      console.log(
-        `daysToVerify: ${JSON.stringify(daysToVerifyAvail[i], null, 2)}`
-      )
-    }
+    //console.log(`wholeArray: ${JSON.stringify(daysToVerifyAvail, null, 2)}`)
+
     const qualifiedMechanics = await Employee.find({
       skill_level: req.query.skill_level,
       deleted: false,
     })
       .sort({ employee_number: 'ascending' })
       .exec()
-
+    //console.log(`days: ${JSON.stringify(daysToVerifyAvail)}`)
+    console.log(`mech length: ${qualifiedMechanics.length}`)
     for (const mechanic of qualifiedMechanics) {
       for (let i = 0; i < daysToVerifyAvail.length; i++) {
+        console.log(`i: ${i}`)
         if (daysToVerifyAvail[i].available == true) {
           continue
         }
-        const upperLimitOfDateCheck = new Date(daysToVerifyAvail[i])
+        const upperLimitOfDateCheck = new Date(daysToVerifyAvail[i].date)
         upperLimitOfDateCheck.setDate(upperLimitOfDateCheck.getDate() + 1)
+        // console.log(`date1: ${daysToVerifyAvail[i].date}`)
+        // console.log(`date2: ${upperLimitOfDateCheck}`)
+        // console.log(`employee: ${mechanic.employee_number}`)
 
-        await Appointment.find(
+        const result = await Appointment.find({
+          date: {
+            // $gte: `${daysToVerifyAvail[i][0].date.getFullYear()}-${
+            //   daysToVerifyAvail[i][0].date.getMonth() + 1
+            // }-${daysToVerifyAvail[i][0].date.getDate()}`,
+            $gte: daysToVerifyAvail[i].date,
+            // $lt: `${upperLimitOfDateCheck.getFullYear()}-${
+            //   upperLimitOfDateCheck.getMonth() + 1
+            // }-${upperLimitOfDateCheck.getDate()}`,
+            $lt: upperLimitOfDateCheck,
+          },
+          employee_num: mechanic.employee_number,
+          deleted: false,
+          archived: false,
+        })
+          .sort({ employee_number: 'ascending' })
+          .exec()
+        console.log(`result: ${result}`)
+        console.log(`result length: ${result.length}`)
+        if (result.length === 0) {
+          console.log(`daysTo: ${JSON.stringify(daysToVerifyAvail)}`)
+          console.log(`true1`)
+          console.log(`i: ${i}`)
+          console.log(`day: ${daysToVerifyAvail[i].date}`)
+          console.log(`avail? ${daysToVerifyAvail[i].available}`)
+          daysToVerifyAvail[i].available = true
+          continue
+        } else if (result.length === 1) {
+          //*check time between opening and appointment
+          if (result[0].date.getHours() > garage.opening_time / 60) {
+            const timeBefore =
+              result[0].date.getHours() * 60 +
+              result[0].date.getMinutes() -
+              garage.opening_time
+            console.log(`timeBefore1: ${timeBefore}`)
+            if (timeBefore >= req.query.total_estimated_time) {
+              daysToVerifyAvail[i].available = true
+              console.log(`true2`)
+              continue
+            }
+          }
+
+          //*Check time between appoint and closing
+          const timeUntilClose =
+            garage.closing_time -
+            (result[result.length - 1].date.getHours() * 60 +
+              result[result.length - 1].date.getMinutes() + //start time of last apt
+              result[result.length - 1].total_estimated_time)
+          console.log(`timeUntilClose1 ${timeUntilClose}`)
+          if (timeUntilClose >= req.query.total_estimated_time) {
+            daysToVerifyAvail[i].available = true
+            console.log(`true3`)
+            continue
+          }
+        }
+        //If there are multiple appoints
+        else {
+          //*check time between opening and appointment
+          if (result[0].date.getHours() > garage.opening_time / 60) {
+            const timeBefore =
+              result[0].date.getHours() * 60 +
+              result[0].date.getMinutes() -
+              garage.opening_time
+            console.log(`timebefore2: ${timeBefore}`)
+            if (timeBefore >= req.query.total_estimated_time) {
+              daysToVerifyAvail[i].available = true
+              console.log(`true4`)
+              continue
+            }
+          }
+          //*Check time between first appointment and next one
+          for (let j = 0; j < result.length - 1; j++) {
+            const timeBetweenAppoints =
+              result[j + 1].date.getHours() * 60 -
+              result[j + 1].date.getMinutes() - //start time of next apt in minutes
+              result[j].date.getHours() * 60 + //end time of ith appointment
+              result[j].date.getMinutes() +
+              result[j].total_estimated_time
+            console.log(`timebetweenappoints: ${timeBetweenAppoints}`)
+
+            if (req.query.appointLength <= timeBetweenAppoints) {
+              daysToVerifyAvail[i].available = true
+              console.log(`true5`)
+              continue
+            }
+          }
+          //*check time between last appointment of the day, and closing time
+          const timeUntilClose =
+            garage.closing_time -
+            (result[result.length - 1].date.getHours() * 60 +
+              result[result.length - 1].date.getMinutes() + //start time of last apt
+              result[result.length - 1].total_estimated_time)
+          console.log(`timeuntilclose2: ${timeUntilClose}`)
+          if (timeUntilClose >= req.query.appointLength) {
+            daysToVerifyAvail[i].available = true
+            console.log(`true6`)
+            continue
+          }
+        }
+        console.log(`nothing found!`)
+        //}
+        /* await Appointment.find(
           {
             date: {
-              $gte: `${daysToVerifyAvail[i].date.getFullYear()}-${
-                daysToVerifyAvail[i].date.getMonth() + 1
-              }-${daysToVerifyAvail[i].date.getDate()}`,
-              $lt: `${upperLimitOfDateCheck.getFullYear()}-${
-                upperLimitOfDateCheck.getMonth() + 1
-              }-${upperLimitOfDateCheck.getDate()}`,
+              // $gte: `${daysToVerifyAvail[i][0].date.getFullYear()}-${
+              //   daysToVerifyAvail[i][0].date.getMonth() + 1
+              // }-${daysToVerifyAvail[i][0].date.getDate()}`,
+              $gte: daysToVerifyAvail[i].date,
+              // $lt: `${upperLimitOfDateCheck.getFullYear()}-${
+              //   upperLimitOfDateCheck.getMonth() + 1
+              // }-${upperLimitOfDateCheck.getDate()}`,
+              $lt: upperLimitOfDateCheck,
             },
             employee_num: mechanic.employee_number,
             deleted: false,
@@ -603,85 +713,105 @@ const appoints_get_free_days_of_week = async (req, res) => {
                 message: 'Unable to get appointments for this date',
                 error: err.message,
               })
-            } else {
-              console.log(`result: ${result}`)
-              if (result.length === 0) {
-                daysToVerifyAvail[i].available = true
-                return
-              } else if (result.length === 1) {
-                //*check time between opening and appointment
-                if (result[0].date.getHours() > garage.opening_time / 60) {
-                  const timeBefore =
-                    result[0].date.getHours() * 60 +
-                    result[0].date.getMinutes() -
-                    garage.opening_time
-                  if (timeBefore >= req.query.total_estimated_time) {
-                    daysToVerifyAvail[i].available = true
-                    return
-                  }
-                }
-
-                //*Check time between appoint and closing
-                const timeUntilClose =
-                  garage.closing_time -
-                  (result[result.length - 1].date.getHours() * 60 +
-                    result[result.length - 1].date.getMinutes() + //start time of last apt
-                    result[result.length - 1].total_estimated_time)
-
-                if (timeUntilClose >= req.query.total_estimated_time) {
+            } //else if (result.length > 0) {
+            console.log(`result: ${result}`)
+            console.log(`result length: ${result.length}`)
+            if (result.length === 0) {
+              console.log(`daysTo: ${JSON.stringify(daysToVerifyAvail)}`)
+              console.log(`true1`)
+              console.log(`i: ${i}`)
+              console.log(`day: ${daysToVerifyAvail[i].date}`)
+              console.log(`avail? ${daysToVerifyAvail[i].available}`)
+              daysToVerifyAvail[i].available = true
+              return
+            } else if (result.length === 1) {
+              //*check time between opening and appointment
+              if (result[0].date.getHours() > garage.opening_time / 60) {
+                const timeBefore =
+                  result[0].date.getHours() * 60 +
+                  result[0].date.getMinutes() -
+                  garage.opening_time
+                console.log(`timeBefore1: ${timeBefore}`)
+                if (timeBefore >= req.query.total_estimated_time) {
                   daysToVerifyAvail[i].available = true
+                  console.log(`true2`)
                   return
                 }
               }
-              //If there are multiple appoints
-              else {
-                //*check time between opening and appointment
-                if (result.getHours() > garage.opening_time / 60) {
-                  const timeBefore =
-                    result.date.getHours() * 60 +
-                    result.date.getMinutes() -
-                    garage.opening_time
-                  if (timeBefore >= req.query.total_estimated_time) {
-                    daysToVerifyAvail[i].available = true
-                    return
-                  }
-                }
-                //*Check time between first appointment and next one
-                for (var i = 0; i < result.length - 1; i++) {
-                  const timeBetweenAppoints =
-                    result[i + 1].date.getHours() * 60 -
-                    result[i + 1].date.getMinutes() - //start time of next apt in minutes
-                    result[i].date.getHours() * 60 + //end time of ith appointment
-                    result[i].date.getMinutes() +
-                    result[i].total_estimated_time
 
-                  if (req.query.appointLength <= timeBetweenAppoints) {
-                    daysToVerifyAvail[i].available = true
-                    return
-                  }
-                }
-                //*check time between last appointment of the day, and closing time
-                const timeUntilClose =
-                  garage.closing_time -
-                  (result[result.length - 1].date.getHours() * 60 +
-                    result[result.length - 1].date.getMinutes() + //start time of last apt
-                    result[result.length - 1].total_estimated_time)
-                if (timeUntilClose >= req.query.appointLength) {
-                  daysToVerifyAvail[i].available = true
-                  return
-                }
+              //*Check time between appoint and closing
+              const timeUntilClose =
+                garage.closing_time -
+                (result[result.length - 1].date.getHours() * 60 +
+                  result[result.length - 1].date.getMinutes() + //start time of last apt
+                  result[result.length - 1].total_estimated_time)
+              console.log(`timeUntilClose1 ${timeUntilClose}`)
+              if (timeUntilClose >= req.query.total_estimated_time) {
+                daysToVerifyAvail[i].available = true
+                console.log(`true3`)
+                return
               }
             }
+            //If there are multiple appoints
+            else {
+              //*check time between opening and appointment
+              if (result[0].date.getHours() > garage.opening_time / 60) {
+                const timeBefore =
+                  result[0].date.getHours() * 60 +
+                  result[0].date.getMinutes() -
+                  garage.opening_time
+                console.log(`timebefore2: ${timeBefore}`)
+                if (timeBefore >= req.query.total_estimated_time) {
+                  daysToVerifyAvail[i].available = true
+                  console.log(`true4`)
+                  return
+                }
+              }
+              //*Check time between first appointment and next one
+              for (var i = 0; i < result.length - 1; i++) {
+                const timeBetweenAppoints =
+                  result[i + 1].date.getHours() * 60 -
+                  result[i + 1].date.getMinutes() - //start time of next apt in minutes
+                  result[i].date.getHours() * 60 + //end time of ith appointment
+                  result[i].date.getMinutes() +
+                  result[i].total_estimated_time
+                console.log(`timebetweenappoints: ${timeBetweenAppoints}`)
+
+                if (req.query.appointLength <= timeBetweenAppoints) {
+                  daysToVerifyAvail[i].available = true
+                  console.log(`true5`)
+                  return
+                }
+              }
+              //*check time between last appointment of the day, and closing time
+              const timeUntilClose =
+                garage.closing_time -
+                (result[result.length - 1].date.getHours() * 60 +
+                  result[result.length - 1].date.getMinutes() + //start time of last apt
+                  result[result.length - 1].total_estimated_time)
+              console.log(`timeuntilclose2: ${timeUntilClose}`)
+              if (timeUntilClose >= req.query.appointLength) {
+                daysToVerifyAvail[i].available = true
+                console.log(`true6`)
+                return
+              }
+            }
+            console.log(`nothing found!`)
+            //}
           }
-        )
+        )*/
       }
     }
 
+    console.log(
+      `Sending to front: ${JSON.stringify(daysToVerifyAvail, null, 2)}`
+    )
     res.status(200).json(daysToVerifyAvail)
   } catch (err) {
     console.warn(
       `An error occurred in appoints_get_free_days_of_week @ time: ${helpers.getTimeStamp()}`
     )
+    console.warn(`Error: ${err.message}`)
     res.status(400).json({
       message: 'An error occured!',
       error: err.message,

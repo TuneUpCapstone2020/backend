@@ -55,6 +55,7 @@ const handleErrors = (err) => {
  *  total_esimated_time: int of estimated time in minutes
  *  garageId: String of garageid (just the characters, not the ObjectId(...))
  *  client: string of client's id (formatted as above)
+ *  employee_number: employee which the appoint is assigned to
  * Query params:
  *  vehicleId: Id of the vehicle the appointment is for
  */
@@ -452,18 +453,18 @@ const appoints_get_availability_by_date = async (req, res) => {
             ) {
               const hours = Math.floor((i * timeBlockGranularity) / 60)
               const minutes = i * timeBlockGranularity - 60 * hours
-              console.log(`hours: ${hours},
-                minutes: ${minutes}`)
+              // console.log(`hours: ${hours},
+              //   minutes: ${minutes}`)
               //console.log(`date: ${date}`)
-              console.log(
-                `date2: ${new Date(
-                  date.getFullYear(),
-                  date.getMonth(),
-                  date.getDate(),
-                  garage.opening_time / 60 + hours,
-                  minutes
-                )}`
-              )
+              // console.log(
+              //   `date2: ${new Date(
+              //     date.getFullYear(),
+              //     date.getMonth(),
+              //     date.getDate(),
+              //     garage.opening_time / 60 + hours,
+              //     minutes
+              //   )}`
+              // )
 
               freeMechTimes.push({
                 date: new Date(

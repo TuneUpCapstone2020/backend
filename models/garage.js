@@ -29,6 +29,22 @@ const garageSchema = new Schema({
         type: String,
         required: true
     },
+    standard_hourly_rate: {
+      type: Number, //stored in cents
+      required: true,
+    },
+    appointment_capacity: {
+      type: Number,
+      required: true,
+    },
+    opening_time: {
+      type: Number, //store the time it opens in minutes since 12:00am
+      required: true,
+    },
+    closing_time: {
+      type: Number, //time in minutes from 12:00am to closing
+      required: true,
+    },
     employees: [{
         employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' }
     }],

@@ -188,6 +188,7 @@ const appoints_get_availability_by_date = async (req, res) => {
     // }
     const times = []
     const nextDay = new Date(date)
+    console.log(`date: ${date}`)
     nextDay.setDate(nextDay.getDate() + 1)
 
     await Appointment.find(
@@ -212,6 +213,8 @@ const appoints_get_availability_by_date = async (req, res) => {
             error: err.message,
           })
         } else {
+          console.log(`date: ${date}`)
+
           //sloppy check to see if there has been a mech who is free all day
           // console.log(`Checking avails for day: ${result.date}`)
           if (mechFreeAllDay && !responseSent) {
@@ -434,8 +437,11 @@ const appoints_get_availability_by_date = async (req, res) => {
             }
             totalAvailableTimes = totalAvailableTimes.concat(times)
           } else {
+            console.log(`date: ${date}`)
+
             const freeMechTimes = []
             mechFreeAllDay = true
+            console.log(`mechfree: ${mechFreeAllDay}`)
             //the mech has no appoints that day so give entire day
             const totalMinutesOfWorkDay =
               garage.closing_time - garage.opening_time
@@ -446,26 +452,41 @@ const appoints_get_availability_by_date = async (req, res) => {
             ) {
               const hours = Math.floor((i * timeBlockGranularity) / 60)
               const minutes = i * timeBlockGranularity - 60 * hours
+              console.log(`hours: ${hours},
+                minutes: ${minutes}`)
+              //console.log(`date: ${date}`)
+              console.log(
+                `date2: ${new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                  garage.opening_time / 60 + hours,
+                  minutes
+                )}`
+              )
+
               freeMechTimes.push({
                 date: new Date(
                   date.getFullYear(),
                   date.getMonth(),
                   date.getDate(),
-                  garage.opening_time + hours,
+                  garage.opening_time / 60 + hours,
                   minutes
                 ),
                 employee: mechanic.employee_number,
               })
             }
-
-            for (const date of freeMechTimes) {
+            console.log(
+              `freeMechTimes: ${JSON.stringify(freeMechTimes, null, 2)}`
+            )
+            for (const time of freeMechTimes) {
               //if hours >12, ampm==1, else == 2
               if (
-                (date.date.getHours() >= 12 ? 1 : 0) == req.query.preferredTime
+                (time.date.getHours() >= 12 ? 0 : 1) == req.query.preferredTime
               ) {
                 continue
               } //if pm
-              timesThatWorkForClient.push(date)
+              timesThatWorkForClient.push(time)
             }
             if (timesThatWorkForClient.length > timeSlotsToReturn) {
               timesThatWorkForClient = __.initial(
@@ -474,7 +495,8 @@ const appoints_get_availability_by_date = async (req, res) => {
               )
             }
 
-            return
+            responseSent = true
+            return res.status(200).json(timesThatWorkForClient)
           }
         }
       }
@@ -482,10 +504,11 @@ const appoints_get_availability_by_date = async (req, res) => {
   } //)
 
   //*If there are no available appointments, then inform the client
-  if (!totalAvailableTimes.length) {
+  if (!totalAvailableTimes.length && !timesThatWorkForClient.length) {
     res.status(200).json({
       message: 'There is no room for that appointment today!',
     })
+    return
   }
   //check to make sure there wasn't a free mech.
   if (!responseSent) {

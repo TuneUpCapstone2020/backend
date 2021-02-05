@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const CatalogService = require('./catalogService')
+const Garage = require('../models/garage')
 
 const packagesSchema = new Schema(
   {
@@ -15,9 +16,15 @@ const packagesSchema = new Schema(
     },
     description: {
       type: String,
+      required: true,
     },
     disclaimer: {
       type: String,
+    },
+    garage: {
+      type: mongoose.Schema.Types.ObjectIdm,
+      ref: 'Garage',
+      required: true,
     },
     services: [
       {
@@ -32,6 +39,14 @@ const packagesSchema = new Schema(
         },
       },
     ],
+    published: {
+      type: Boolean,
+      default: true,
+    },
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 )

@@ -4,7 +4,6 @@ const { isEmail } = require('validator')
 const Schema = mongoose.Schema
 
 const garageSchema = new Schema({
-    
     name: {
         type: String,
         required: true,
@@ -55,6 +54,21 @@ const garageSchema = new Schema({
     }
     
 }, { timestamps: true })
+
+garageSchema.statics.getAppointmentCapacity = function () {
+  return this.appointment_capacity
+}
+
+garageSchema.statics.getStandardHourlyRate = function () {
+  return this.standard_hourly_rate
+}
+
+garageSchema.statics.getOpeningTime = function () {
+  return this.opening_time
+}
+garageSchema.statics.getClosingTime = function () {
+  return this.closing_time
+}
 
 const Garage = mongoose.model('Garage', garageSchema)
 module.exports = Garage

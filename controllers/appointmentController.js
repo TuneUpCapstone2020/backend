@@ -565,7 +565,7 @@ const appoints_get_availability_by_date = async (req, res) => {
 /*
  * pass the following in the querry params:
  * firstDay: JS Date object of first day in range
- * lastDay: JS DAte object of last day in range
+ // lastDay: JS DAte object of last day in range
  * total_estimated_timed: the estimated time of the service/package
  * skill_level: int of the max required skill for services/package
  * garageId: the ID of the garage where the client is booking the appointment

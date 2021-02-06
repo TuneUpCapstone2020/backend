@@ -22,7 +22,7 @@ const packagesSchema = new Schema(
       type: String,
     },
     garage: {
-      type: mongoose.Schema.Types.ObjectIdm,
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'Garage',
       required: true,
     },

@@ -508,10 +508,9 @@ const appoints_get_availability_by_date = async (req, res) => {
 
   //*If there are no available appointments, then inform the client
   if (!totalAvailableTimes.length && !timesThatWorkForClient.length) {
-    res.status(200).json({
+    return res.status(200).json({
       message: 'There is no room for that appointment today!',
     })
-    return
   }
   //check to make sure there wasn't a free mech.
   if (!responseSent) {

@@ -14,6 +14,12 @@ const getTimeStamp = () => {
   return dateFormat(date_ob, 'isoDateTime')
 }
 
+function getDecodedToken(req) { //todo: maybe pass req.headers instead?
+  let token = req.headers['x-access-token'] || req.headers['authorization'];
+  token = token.replace("Bearer ", "")
+  token = jwt.decode(token, 'tuneup secret')
+  return token
+}
 module.exports = {
-  getTimeStamp,
+  getTimeStamp, getDecodedToken(req)
 }

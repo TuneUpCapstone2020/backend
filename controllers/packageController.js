@@ -231,3 +231,42 @@ const package_publish_or_unpublish = async (req, res) => {
     })
   }
 }
+
+//Delete
+//in query params:
+// id: id of package to be deleted
+const package_delete = async (req, res) => {
+  try {
+    await Package.findByIdAndUpdate(
+      req.query.id,
+      { deleted: true },
+      (err, package) => {
+        if (err) {
+          console.warn(
+            `An error occured in package_delete @ time: ${helpers.getTimeStamp()}`
+          )
+          console.log(`Error: ${err.message}`)
+          res.status(400).json({
+            message: 'Unable to delete package!',
+            error: err.message,
+          })
+        } else {
+          console.log(`Package deleted @ time: ${helpers.getTimeStamp()}`)
+          res.status(200).json({
+            message: 'Package deleted!',
+            id: req.query.id,
+          })
+        }
+      }
+    )
+  } catch (err) {
+    console.warn(
+      `An error occured in package_delete @ time: ${helpers.getTimeStamp()}`
+    )
+    console.log(`Error: ${err.message}`)
+    res.status(400).json({
+      message: 'Unable to delete package!',
+      error: err.message,
+    })
+  }
+}

@@ -12,7 +12,7 @@ const timeBlockGranularity = 30
 const timeSlotsToReturn = 5
 //START: Error Handlers
 const handleErrors = (err) => {
-  console.log(err.message, err.code)
+  console.warn(err.message, err.code)
 
   let errors = {
     date: '',
@@ -54,17 +54,19 @@ const handleErrors = (err) => {
  *  skill level: highest int of highest service????
  *  total_esimated_time: int of estimated time in minutes
  *  garageId: String of garageid (just the characters, not the ObjectId(...))
- *  client: string of client's id (formatted as above)
+ //  client: string of client's id (formatted as above)
  *  employee_number: employee which the appoint is assigned to
  * Query params:
  *  vehicleId: Id of the vehicle the appointment is for
  */
 const appoints_create = async (req, res) => {
+  //start by getting the clientId from the header
+  decodedId = helpers.getDecodedToken(req)
   //the way creation is going to work, create the object in the db. Then
   //get the estimated time for all the services and assign it to the total_estimated_time
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.garageId = await Garage.findById(newAppointment.garageId)
-  newAppointment.client = await Client.findById(newAppointment.client)
+  newAppointment.client = await Client.findById(decodedId)
   newAppointment.date = new Date(newAppointment.date)
   try {
     const appointment = await Appointment.create(newAppointment)
@@ -506,10 +508,11 @@ const appoints_get_availability_by_date = async (req, res) => {
 
   //*If there are no available appointments, then inform the client
   if (!totalAvailableTimes.length && !timesThatWorkForClient.length) {
-    res.status(200).json({
-      message: 'There is no room for that appointment today!',
-    })
-    return
+    return res.status(200).json([
+      {
+        message: 'There is no room for that appointment today!',
+      },
+    ])
   }
   //check to make sure there wasn't a free mech.
   if (!responseSent) {
@@ -541,10 +544,10 @@ const appoints_get_availability_by_date = async (req, res) => {
         //if they want PM
         return res
           .status(200)
-          .json(totalAvailableTimes[totalAvailableTimes.length - 1])
+          .json([totalAvailableTimes[totalAvailableTimes.length - 1]])
       } else {
         //they want am
-        return res.status(200).json(totalAvailableTimes[0])
+        return res.status(200).json([totalAvailableTimes[0]])
       }
     } else {
       //we have multiple available appoints

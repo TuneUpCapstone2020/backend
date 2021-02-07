@@ -9,6 +9,7 @@ const vehicleRoutes = require('./routes/vehicleRoutes')
 const appointmentRoutes = require('./routes/appointmentRoutes')
 const garageRoutes = require('./routes/garageRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
+const packageRoutes = require('./routes/packageRoutes')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware')
 
@@ -90,6 +91,9 @@ app.use('/api/vehicle', vehicleRoutes)
 
 //catalog routes
 app.use('/api/catalog', catalogRoutes)
+
+//package routes
+app.use('/api/package', packageRoutes)
 
 //apply to every route
 app.get('*', checkClient)

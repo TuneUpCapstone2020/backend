@@ -15,3 +15,5 @@ router.put('/', appointmentController.package_update)
 router.put('/publish', appointmentController.package_publish_or_unpublish)
 //Delete
 router.delete('/', appointmentController.package_delete)
+
+module.exports = router

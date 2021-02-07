@@ -270,3 +270,15 @@ const package_delete = async (req, res) => {
     })
   }
 }
+
+module.exports = {
+  package_create,
+  package_get_all,
+  package_get_all_published,
+  package_get_all_unpublished,
+  package_get_by_garage,
+  package_get_by_name,
+  package_update,
+  package_publish_or_unpublish,
+  package_delete,
+}

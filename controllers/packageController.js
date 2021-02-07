@@ -1,7 +1,8 @@
-const helper = require('../helpers')
+const helpers = require('../helpers')
 const _ = require('lodash')
 const Garage = require('../models/garage')
 const CatalogService = require('../models/catalogService')
+const Package = require('../models/package')
 
 const handleErrors = (err) => {
   console.warn(
@@ -32,13 +33,13 @@ const handleErrors = (err) => {
 //Create
 /*
  * Body:
- *  garageId: String of id of the garage the package is for.
+ *  garage: String of id of the garage the package is for.
  *  name: string of name of the package
  *  starting_price: number of cents package starts at
  *  description: string of description of the package
  *  disclaimer: string of disclaimer of the package
- *  servicesIds: array of strings of objectIds of services
- *  servicesQuantity: the amount of a given service to include in package
+ *  services: array of strings of objectIds of services
+ *  serviceQuantity: the amount of a given service to include in package
         !important: the serviceId and serviceQuantity which are related to eachother
         !must have the same index in their own respective arrays
  *  published: boolean of if package is to be published immediately or not (true for yes, false for no)
@@ -46,16 +47,28 @@ const handleErrors = (err) => {
 const package_create = async (req, res) => {
   //todo: make sure its not already in the db
   let newPackage = _.omitBy(req.body, _.isNil)
-  newPackage.garageId = await Garage.findById(newPackage.garageId)
+  newPackage.garage = await Garage.findById(newPackage.garage)
   const services = []
   //for every service id, we must get the object
-  for (serviceId of newPackage.servicesIds) {
-    services.push(await CatalogService.findById(serviceId))
+  if (!newPackage.services) {
+    console.warn(`New package request did not contain any services`)
+    return res.status(400).json({
+      message: 'Please include services with your new package',
+      error: 'Unable to create new package',
+    })
+  }
+  let i = 0
+  for (serviceId of newPackage.services) {
+    services.push({
+      service: await CatalogService.findById(serviceId),
+      quantity: newPackage.serviceQuantity[i],
+    })
+    i++
   }
   newPackage.services = services
   try {
     const package = await Package.create(newPackage)
-    console.log(`New package created at ${helper.getTimeStamp()}`)
+    console.log(`New package created at ${helpers.getTimeStamp()}`)
     console.log(`New package id: ${package._id}`)
     res.status(201).json({
       message: `New package create!`,
@@ -76,11 +89,11 @@ const package_create = async (req, res) => {
 
 //Retrieve
 const package_get_all = (req, res) => {
-  Package.find({ delete: false })
+  Package.find({ deleted: false })
     .sort({ createdAt: -1 })
-    .then((package) => {
+    .then((result) => {
       console.log(`Get all packages @ time: ${helpers.getTimeStamp()}`)
-      res.status(200).json(package)
+      res.status(200).json(result)
     })
     .catch((err) => {
       console.warn(
@@ -95,7 +108,7 @@ const package_get_all = (req, res) => {
 }
 
 const package_get_all_published = (req, res) => {
-  Package.find({ delete: false, publish: true })
+  Package.find({ deleted: false, published: true })
     .sort({ createdAt: -1 })
     .then((package) => {
       console.log(
@@ -116,7 +129,7 @@ const package_get_all_published = (req, res) => {
 }
 
 const package_get_all_unpublished = (req, res) => {
-  Package.find({ delete: false, publish: false })
+  Package.find({ deleted: false, published: false })
     .sort({ createdAt: -1 })
     .then((package) => {
       console.log(
@@ -141,7 +154,7 @@ const package_get_all_unpublished = (req, res) => {
  *  garageId: Id of garage we want to get all the packages for
  */
 const package_get_by_garage = (req, res) => {
-  Package.find({ delete: false, garage: req.query.garageId })
+  Package.find({ deleted: false, garage: req.query.garageId })
     .then((packages) => {
       console.log(`Get packages by garage @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(packages)
@@ -161,7 +174,7 @@ const package_get_by_garage = (req, res) => {
 //In query params: name of package
 //todo: consider looking into fuzzy search/search index or create manually with compass
 const package_get_by_name = (req, res) => {
-  Package.find({ delete: false, name: req.params.name })
+  Package.find({ deleted: false, name: req.query.name })
     .then((packages) => {
       console.log(`Get packages by name @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json({ packages })
@@ -182,11 +195,11 @@ const package_get_by_name = (req, res) => {
 /*
  * just store everything you want to update in the body. 
  * Send every other field as null or just don't send it maybe?
- ! Just make sure you pass the id of the package you want to update!
+ ! Just make sure you pass the id of the package you want to update in the query params!
  */
 const package_update = async (req, res) => {
   const body = _.omitBy(req.body, _.isNil)
-  await Package.findOneAndUpdate(body._id, body, (err, result) => {
+  await Package.findOneAndUpdate(req.query.id, body, (err, result) => {
     if (err) {
       console.warn(
         `An error occured in package_update @ time: ${helpers.getTimeStamp()}`
@@ -208,7 +221,7 @@ const package_update = async (req, res) => {
 //send the id of the package in the query params(call it id), the status of publish will then be toggled
 const package_publish_or_unpublish = async (req, res) => {
   try {
-    let package = await Package.findbyid(req.query.id).catch((err) => {
+    let package = await Package.findById(req.query.id).catch((err) => {
       console.warn(
         `An error occured in package_publish_or_unpublish @ time: ${helpers.getTimeStamp()}`
       )
@@ -216,8 +229,8 @@ const package_publish_or_unpublish = async (req, res) => {
     })
     package.published = !package.published
     package.save()
-    res.status(20).json({
-      message: `package has been updated to: ${package.publiched}`,
+    res.status(200).json({
+      message: `package has been updated to: ${package.published}`,
       id: package._id,
     })
   } catch (err) {

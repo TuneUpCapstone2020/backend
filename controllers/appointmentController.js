@@ -542,10 +542,10 @@ const appoints_get_availability_by_date = async (req, res) => {
         //if they want PM
         return res
           .status(200)
-          .json(totalAvailableTimes[totalAvailableTimes.length - 1])
+          .json([totalAvailableTimes[totalAvailableTimes.length - 1]])
       } else {
         //they want am
-        return res.status(200).json(totalAvailableTimes[0])
+        return res.status(200).json([totalAvailableTimes[0]])
       }
     } else {
       //we have multiple available appoints

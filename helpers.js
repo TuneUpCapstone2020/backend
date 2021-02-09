@@ -1,4 +1,5 @@
 const dateFormat = require('dateformat')
+const jwt = require('jsonwebtoken')
 
 const getTimeStamp = () => {
   let date_ob = new Date()

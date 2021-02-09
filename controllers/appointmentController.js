@@ -61,12 +61,12 @@ const handleErrors = (err) => {
  */
 const appoints_create = async (req, res) => {
   //start by getting the clientId from the header
-  decodedId = helpers.getDecodedToken(req)
+  const token = helpers.getDecodedToken(req)
   //the way creation is going to work, create the object in the db. Then
   //get the estimated time for all the services and assign it to the total_estimated_time
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.garageId = await Garage.findById(newAppointment.garageId)
-  newAppointment.client = await Client.findById(decodedId)
+  newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
   try {
     const appointment = await Appointment.create(newAppointment)

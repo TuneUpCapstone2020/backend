@@ -4,6 +4,7 @@ const Vehicle = require('../models/vehicle')
 const Garage = require('../models/garage')
 const Employee = require('../models/employee')
 const Client = require('../models/client')
+const Package = require('../models/package')
 const _ = require('lodash')
 const __ = require('underscore')
 const { forEach } = require('lodash')
@@ -51,23 +52,53 @@ const handleErrors = (err) => {
 /*
  * body:
  *  date: date object
- *  skill level: highest int of highest service????
- *  total_esimated_time: int of estimated time in minutes
- *  garageId: String of garageid (just the characters, not the ObjectId(...))
- //  client: string of client's id (formatted as above)
+ *  packageId: the Id of the chosen package. 
  *  employee_number: employee which the appoint is assigned to
+ //  skill level: highest int of highest service????
+ //  total_esimated_time: int of estimated time in minutes
+ //  garageId: String of garageid (just the characters, not the ObjectId(...))
+ //  client: string of client's id (formatted as above)
  * Query params:
  *  vehicleId: Id of the vehicle the appointment is for
  */
 const appoints_create = async (req, res) => {
+  //first, we want to make sure that the appointment doesn't already exist
+  //for that date and time with the given mechanic.
+  if (
+    await Appointment.find({
+      deleted: false,
+      date: new Date(req.body.date),
+      employee_num: req.body.employee_number,
+    })
+  ) {
+    res.status(200).json({
+      message:
+        'Appointment already exists with that mechanic. Please chose another time.',
+    })
+  }
+
   //start by getting the clientId from the header
   const token = helpers.getDecodedToken(req)
-  //the way creation is going to work, create the object in the db. Then
-  //get the estimated time for all the services and assign it to the total_estimated_time
+
+  //now, we want to get an array of all the services which are included in the package.
+  const package = await Package.findById(req.body.packageId)
+  let services = []
+  for (let i = 0; i < package.services.length; i++) {
+    services.push({
+      service: package.services[i].service,
+      quantity: package.services[i].quantity,
+    })
+  }
+  //console.log(`services: ${JSON.stringify(services)}`)
+
   let newAppointment = _.omitBy(req.body, _.isNil)
-  newAppointment.garageId = await Garage.findById(newAppointment.garageId)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
+  newAppointment['garage'] = await Garage.findById(package.garage)
+  newAppointment['services'] = services
+  newAppointment['total_estimated_time'] = package.total_estimated_time
+  console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
+
   try {
     const appointment = await Appointment.create(newAppointment)
     console.log(

@@ -39,6 +39,9 @@ const packagesSchema = new Schema(
         },
       },
     ],
+    total_estimated_time: {
+      type: Number, //stored in minutes,
+    },
     published: {
       type: Boolean,
       default: true,

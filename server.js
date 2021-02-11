@@ -41,8 +41,8 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       console.log(
         `Successfully conencted to the ${process.env.DB_NAME} database`
       )
-      app.listen(PORT, HOST)
-      console.log(`Running on http://${HOST}:${PORT}`)
+      app.listen(CLOUD_PORT, '0.0.0.0')
+      console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
     })
     .catch((err) => {
       console.warn(`Unable to connect to ${process.env.DB_NAME}}`)
@@ -62,8 +62,8 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       console.log(
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
-      app.listen(PORT, HOST)
-      console.log(`Running on http://${HOST}:${PORT}`)
+      app.listen(LOCAL_PORT, LOCAL_HOST)
+      console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
     })
     .catch((err) => {
       throw err

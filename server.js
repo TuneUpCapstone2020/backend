@@ -23,8 +23,10 @@ app.use(express.json())
 app.use(cookieParser())
 
 // Constants
-const PORT = process.env.LOCALPORT
-const HOST = process.env.LOCALHOST
+const LOCAL_PORT = process.env.LOCALPORT
+const LOCAL_HOST = process.env.LOCALHOST
+const CLOUD_HOST = process.env.CLOUD_HOST
+const CLOUD_PORT = process.env.CLOUD_PORT
 
 //0 for local deploy, 1 for cloud
 if (process.env.NODE_LOCAL_DEPLOY == 1) {

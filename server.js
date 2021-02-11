@@ -99,7 +99,9 @@ app.get('*', checkClient)
 
 // Home Page
 app.get('/', (req, res) => {
-  res.send('Hello World')
+  res.send(
+    'Welcome to TuneUp! Our Groups 2021 Capstone project. See the github link when it becomes public!'
+  )
 })
 
 //easy postman test

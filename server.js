@@ -22,59 +22,58 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
 
-//when its time to connect to the db, we're going to use something like: (except for either atlas or local depending on where its being deployed)
-//mongoose.connect(`mongodb://${process.env.DB_NAME}:${process.env.DB_PASS}@ds241658.mlab.com:41658/test_db`,(err)=>{
-//  if(err) throw err;
-//  console.log("DB Connected Successfully");
-//})
+// Constants
+const LOCAL_PORT = process.env.LOCALPORT
+const LOCAL_HOST = process.env.LOCALHOST
+const CLOUD_HOST = process.env.CLOUD_HOST
+const CLOUD_PORT = process.env.CLOUD_PORT
 
-//format for atlas db
-//mongodb+srv://capstoneDev:<password>@tuneup-dev.pcwc5.mongodb.net/<dbname>?retryWrites=true&w=majority
-//store db values needed for connection
+//0 for local deploy, 1 for cloud
+if (process.env.NODE_LOCAL_DEPLOY == 1) {
+  //This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
+  const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
+  mongoose
+    .connect(dbURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
+    .then(() => {
+      console.log(
+        `Successfully conencted to the ${process.env.DB_NAME} database`
+      )
+      app.listen(CLOUD_PORT, '0.0.0.0')
+      console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
+    })
+    .catch((err) => {
+      console.warn(`Unable to connect to ${process.env.DB_NAME}}`)
+      console.log(`Error: ${err.message}`)
+    })
+} else {
+  //url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
+  mongoose
+    .connect(`mongodb://mongo:27017`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+      user: 'root',
+      pass: 'root',
+    })
+    .then(() => {
+      console.log(
+        `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
+      )
+      app.listen(LOCAL_PORT, LOCAL_HOST)
+      console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
+    })
+    .catch((err) => {
+      throw err
+    })
+}
 
-//This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
-const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
-// mongoose.connect(dbURI,
-//   {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   }).then(() => {
-//     console.log(`Successfully conencted to the ${process.env.DB_NAME} database`)
-//     app.listen(PORT, HOST)
-//     console.log(`Running on http://${HOST}:${PORT}`)
-//   }).catch((err) => {
-//     console.log('cant connect')
-//     throw err;
-//   });
-
-//url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
 mongoose.Promise = global.Promise
-mongoose
-  .connect(`mongodb://mongo:27017`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    user: 'root',
-    pass: 'root',
-  })
-  .then(() => {
-    console.log(
-      `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
-    )
-    app.listen(PORT, HOST)
-    console.log(`Running on http://${HOST}:${PORT}`)
-  })
-  .catch((err) => {
-    throw err
-  })
 mongoose.set('useFindAndModify', false)
 
-// Constants
-const PORT = process.env.LOCALPORT
-const HOST = process.env.LOCALHOST
-
 //appointment routes
-
 app.use('/api/appointment', appointmentRoutes)
 
 //client routes
@@ -100,7 +99,9 @@ app.get('*', checkClient)
 
 // Home Page
 app.get('/', (req, res) => {
-  res.send('Hello World')
+  res.send(
+    'Welcome to TuneUp! Our Groups 2021 Capstone project. See the github link when it becomes public!'
+  )
 })
 
 //easy postman test

@@ -272,7 +272,7 @@ const catalog_product_update = async (req, res) => {
 
 const catalog_service_update = async (req, res) => {
   const body = _.omitBy(req.body, _.isNil)
-  await catalogService.findOneAndUpdate(
+  await CatalogService.findOneAndUpdate(
     { _id: body._id },
     body,
     (err, result) => {

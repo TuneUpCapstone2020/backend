@@ -2,6 +2,7 @@ const Client = require('../models/client')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const _ = require('lodash')
+const helpers = require('../helpers')
 require('dotenv').config()
 
 //handle errors
@@ -166,7 +167,9 @@ const register_post = async (req, res) => {
 const login_post = async (req, res) => {
   try {
     const client = await Client.login(req.body.email, req.body.password)
-    console.log(`Logged in client ${client.email}`)
+    console.log(
+      `Logged in client ${client.email} @ time ${helpers.getTimeStamp()}`
+    )
     const token = createToken(client._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
     res.status(200).json({
@@ -264,12 +267,24 @@ function getDecodedToken(req) {
   //todo: maybe pass req.headers instead?
   let token = req.headers['x-access-token'] || req.headers['authorization']
   token = token.replace('Bearer ', '')
-  token = jwt.decode(token, process.env.JWT_SECRET)
+  const secret = process.env.JWT_SECRET
+  token = jwt.decode(token, secret)
+
   return token
 }
 
 const hashPassword = async (password) => {
   //const salt = await bcrypt.genSalt() //TODO: add prints to see what the salt is and what the password is.
   //password = await bcrypt.hash(password, salt)
+  // console.log(`Hashing a password!`)
+  // const pass = 'bob'
+  // let passCrypt = await bcrypt.hash(pass, 10, function (err, hash) {
+  //   if (err) {
+  //     console.log(`An error occurred while hashing!`)
+  //     console.log(`Error: ${err.message}`)
+  //   }
+  //   console.log(`Hashed pass is: ${hash}`)
+  // })
+  // console.log(`passCrypt: ${passCrypt}`)
   return password
 }

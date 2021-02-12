@@ -1,5 +1,6 @@
 const dateFormat = require('dateformat')
 const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 const getTimeStamp = () => {
   let date_ob = new Date()
@@ -19,7 +20,7 @@ function getDecodedToken(req) {
   //todo: maybe pass req.headers instead?
   let token = req.headers['x-access-token'] || req.headers['authorization']
   token = token.replace('Bearer ', '')
-  token = jwt.decode(token, 'tuneup secret')
+  token = jwt.decode(token, process.env.JWT_SECRET)
   return token
 }
 module.exports = {

@@ -27,6 +27,7 @@ const LOCAL_PORT = process.env.LOCALPORT
 const LOCAL_HOST = process.env.LOCALHOST
 const CLOUD_HOST = process.env.CLOUD_HOST
 const CLOUD_PORT = process.env.CLOUD_PORT
+const ALLOWED_LISTEN = process.env.ALLOWED_LISTEN
 
 //0 for local deploy, 1 for cloud
 if (process.env.NODE_LOCAL_DEPLOY == 1) {
@@ -41,7 +42,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       console.log(
         `Successfully conencted to the ${process.env.DB_NAME} database`
       )
-      app.listen(CLOUD_PORT, '0.0.0.0')
+      app.listen(CLOUD_PORT, ALLOWED_LISTEN)
       console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
     })
     .catch((err) => {

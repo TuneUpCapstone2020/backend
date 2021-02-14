@@ -23,7 +23,15 @@ function getDecodedToken(req) {
   token = jwt.decode(token, process.env.JWT_SECRET)
   return token
 }
+
+const populateVehicles = () => {
+  const makes = require('./makes.json')
+  const models = require('./models.json')
+  console.log(`makes: ${JSON.stringify(makes)}`)
+}
+
 module.exports = {
   getTimeStamp,
   getDecodedToken,
+  populateVehicles,
 }

@@ -10,6 +10,7 @@ const appointmentRoutes = require('./routes/appointmentRoutes')
 const garageRoutes = require('./routes/garageRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
 const packageRoutes = require('./routes/packageRoutes')
+const helpers = require('./helpers')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware')
 
@@ -39,11 +40,14 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       useUnifiedTopology: true,
     })
     .then(() => {
+      //Print some db connection info
       console.log(
         `Successfully conencted to the ${process.env.DB_NAME} database`
       )
       app.listen(CLOUD_PORT, ALLOWED_LISTEN)
       console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
+
+      //Check to see if all the supported vehicles are in the database.
     })
     .catch((err) => {
       console.warn(`Unable to connect to ${process.env.DB_NAME}}`)
@@ -65,6 +69,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       )
       app.listen(LOCAL_PORT, LOCAL_HOST)
       console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
+      helpers.populateVehicles()
     })
     .catch((err) => {
       throw err

@@ -28,12 +28,16 @@ function getDecodedToken(req) {
 
 const populateVehicles = () => {
   console.log(`Populating vehicles @ time: ${getTimeStamp()}`)
+  //populate collections
   const makes = require('./makes.json')
   const models = require('./models.json')
   VehicleMake.collection.insertMany(makes)
   VehicleModel.collection.insertMany(models)
+
+  //configure indexes
+  VehicleMake.syncIndexes()
+  VehicleModel.syncIndexes()
   console.log(`Done populating vehicles @ time: ${getTimeStamp()}`)
-  //todo: Create indexes
 }
 
 module.exports = {

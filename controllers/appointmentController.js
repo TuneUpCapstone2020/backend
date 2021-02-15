@@ -212,7 +212,8 @@ const appoints_get_availability_by_date = async (req, res) => {
   let responseSent = false
   let totalAvailableTimes = []
   const qualifiedMechanics = await Employee.find({
-    skill_level: req.query.skill_level,
+    //skill_level: req.query.skill_level,
+    skill_level: package.skill_level,
     deleted: false,
   })
     .sort({ employee_number: 'ascending' })

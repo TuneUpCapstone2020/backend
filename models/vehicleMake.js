@@ -8,6 +8,7 @@ const vehicleMakeSchema = new Schema(
     MakeId: {
       type: Number,
       required: true,
+      index: true,
     },
     MakeName: {
       type: String,
@@ -16,6 +17,7 @@ const vehicleMakeSchema = new Schema(
     VehicleTypeId: {
       type: Number,
       required: true,
+      index: true,
     },
     VehicleTypeName: {
       type: String,

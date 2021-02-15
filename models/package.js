@@ -42,6 +42,10 @@ const packagesSchema = new Schema(
     total_estimated_time: {
       type: Number, //stored in minutes,
     },
+    skill_level: {
+      type: Number,
+      default: 0,
+    },
     published: {
       type: Boolean,
       default: true,

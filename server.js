@@ -47,7 +47,28 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       app.listen(CLOUD_PORT, ALLOWED_LISTEN)
       console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
 
-      //Check to see if all the supported vehicles are in the database.
+      //check if default list of vehicles exists. If not, add it.
+      mongoose.connection.db.listCollections().toArray(function (err, names) {
+        if (err) {
+          console.log(err.message)
+        } else {
+          //console.log(`Collections: ${JSON.stringify(names, null, 2)}`)
+          let vehiclesExist = false
+          for (let i = 0; i < names.length; i++) {
+            //console.log(`name${i}: ${JSON.stringify(names[i])}`)
+            if (names[i]['name'].includes('vehicleMakes')) {
+              console.log(`Found it!`)
+              vehiclesExist = true
+              break
+            }
+          }
+          if (!vehiclesExist) {
+            helpers.populateVehicles()
+          }
+        }
+
+        //mongoose.connection.close()
+      })
     })
     .catch((err) => {
       console.warn(`Unable to connect to ${process.env.DB_NAME}}`)
@@ -55,7 +76,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
     })
 } else {
   //url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
-  mongoose
+  const connection = mongoose
     .connect(`mongodb://mongo:27017`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -64,12 +85,35 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       pass: 'root',
     })
     .then(() => {
+      //log connection
       console.log(
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
       app.listen(LOCAL_PORT, LOCAL_HOST)
       console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
-      helpers.populateVehicles()
+
+      //check if default list of vehicles exists. If not, add it.
+      mongoose.connection.db.listCollections().toArray(function (err, names) {
+        if (err) {
+          console.log(err.message)
+        } else {
+          //console.log(`Collections: ${JSON.stringify(names, null, 2)}`)
+          let vehiclesExist = false
+          for (let i = 0; i < names.length; i++) {
+            //console.log(`name${i}: ${JSON.stringify(names[i])}`)
+            if (names[i]['name'].includes('vehicleMakes')) {
+              console.log(`Found it!`)
+              vehiclesExist = true
+              break
+            }
+          }
+          if (!vehiclesExist) {
+            helpers.populateVehicles()
+          }
+        }
+
+        //mongoose.connection.close()
+      })
     })
     .catch((err) => {
       throw err

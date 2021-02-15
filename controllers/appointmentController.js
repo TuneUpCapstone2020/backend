@@ -192,15 +192,21 @@ const appoints_get_by_date = (req, res) => {
 /*
  * in query params we need:
  * appointDate: JS Date object This will indidicate when we want to look
- * appointLength: int of length of appointment stored in minutes
- * skill_level: skill level of the task
- * garageId: the ID of the garage where the client wants to make the appoint
+ * packageId: Id of the package the client is booking an appoitnment for
+ // appointLength: int of length of appointment stored in minutes
+ // skill_level: skill level of the task
+ // garageId: the ID of the garage where the client wants to make the appoint
  * preferredTime: a bool where 0 is AM and 1 is PM
  */
 //todo: use getDay to determine if date provided is weekend or not. If weekend say nahhhhh
 const appoints_get_availability_by_date = async (req, res) => {
-  const garage = await Garage.findById(req.query.garageId)
+  const package = await Packge.findById(req.query.packageId)
+  const garage = await Garage.findById(package.garage)
   const date = new Date(req.query.appointDate)
+
+  // const garage = await Garage.findById(req.query.garageId)
+  // const date = new Date(req.query.appointDate)
+  const appointLength = package.total_estimated_time
   let timesThatWorkForClient = []
   let mechFreeAllDay = false
   let responseSent = false
@@ -279,7 +285,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                 garage.opening_time
 
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
-              if (req.query.appointLength <= timeBefore) {
+              if (appointLength <= timeBefore) {
                 //in this loop, we start at the opening time (i=0) and loop in 15 minute increments
                 //the amount of valid time slots the appointment can start
                 //ex: if garage opens at 8:30 and first appointment is at 9:45, we can book at 30 minute
@@ -328,7 +334,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               )
               const hourAppointEnds = Math.floor(endTimeOfAppoint / 60)
               const minuteAppointEnds = endTimeOfAppoint - hourAppointEnds * 60
-              if (req.query.appointLength <= timeBetweenAppoints) {
+              if (appointLength <= timeBetweenAppoints) {
                 for (
                   var i = 0;
                   i < timeBetweenAppoints / timeBlockGranularity - 1;
@@ -356,7 +362,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               (result[result.length - 1].date.getHours() * 60 +
                 result[result.length - 1].date.getMinutes() + //start time of last apt
                 result[result.length - 1].total_estimated_time)
-            if (timeUntilClose >= req.query.appointLength) {
+            if (timeUntilClose >= appointLength) {
               const hourOfLastAppointEnd = Math.floor(
                 (result[result.length - 1].date.getHours() * 60 +
                   result[result.length - 1].date.getMinutes() + //start time of last apt
@@ -402,7 +408,7 @@ const appoints_get_availability_by_date = async (req, res) => {
                 result[0].date.getMinutes() -
                 garage.opening_time
               //now, if that time is enough time to schedule the appointment, we see how many start times would work
-              if (req.query.appointLength <= timeBefore) {
+              if (appointLength <= timeBefore) {
                 //in this loop, we start at the opening time (i=0) and loop in 15 minute increments
                 //the amount of valid time slots the appointment can start
                 //ex: if garage opens at 8:30 and first appointment is at 9:45, we can book at 30 minute
@@ -435,7 +441,7 @@ const appoints_get_availability_by_date = async (req, res) => {
               (result[result.length - 1].date.getHours() * 60 +
                 result[result.length - 1].date.getMinutes() + //start time of last apt
                 result[result.length - 1].total_estimated_time)
-            if (timeUntilClose >= req.query.appointLength) {
+            if (timeUntilClose >= appointLength) {
               const minutesBetweenLastAptAndEndOfDay =
                 garage.closing_time -
                 (result[result.length - 1].date.getHours() * 60 +

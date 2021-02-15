@@ -58,5 +58,23 @@ const packagesSchema = new Schema(
   { timestamps: true }
 )
 
+packagesSchema.pre('save', async function (next) {
+  const services = this.services
+  let skill_level = 0
+  console.log(`Services: ${JSON.stringify(services)}`)
+  for (let i of services) {
+    console.log(`i: ${i}`)
+    console.log(`i.service: ${i.service}`)
+    const service = await CatalogService.findById(i.service).exec()
+    console.log(`service: ${JSON.stringify(service)}`)
+    console.log(`skill_level: ${service.skill_level}`)
+    //console.log(`service: ${JSON.stringify(service)}`)
+    if (service.skill_level > skill_level) {
+      skill_level = service.skill_level
+    }
+  }
+  this.skill_level = skill_level
+})
+
 const Package = mongoose.model('Package', packagesSchema)
 module.exports = Package

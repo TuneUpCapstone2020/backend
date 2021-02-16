@@ -62,6 +62,7 @@ const handleErrors = (err) => {
  *  vehicleId: Id of the vehicle the appointment is for
  */
 const appoints_create = async (req, res) => {
+  //todo: check the entire duration of the appointment, not just the start time.
   //first, we want to make sure that the appointment doesn't already exist
   //for that date and time with the given mechanic.
   if (
@@ -71,7 +72,10 @@ const appoints_create = async (req, res) => {
       employee_num: req.body.employee_number,
     })
   ) {
-    res.status(200).json({
+    console.log(
+      `Attempted duplicate appointment made @time: ${helpers.getTimeStamp()}`
+    )
+    return res.status(200).json({
       message:
         'Appointment already exists with that mechanic. Please chose another time.',
     })
@@ -82,6 +86,7 @@ const appoints_create = async (req, res) => {
 
   //now, we want to get an array of all the services which are included in the package.
   const package = await Package.findById(req.body.packageId)
+  //console.log(`package.garage: ${JSON.stringify(package.garage, null, 2)}`)
   let services = []
   for (let i = 0; i < package.services.length; i++) {
     services.push({
@@ -94,13 +99,14 @@ const appoints_create = async (req, res) => {
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
-  newAppointment['garage'] = await Garage.findById(package.garage)
+  newAppointment['garageId'] = await Garage.findById(package.garage)
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
-  console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
+  //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
   try {
     const appointment = await Appointment.create(newAppointment)
+    //console.log(`Appointment: ${JSON.stringify(appointment, null, 2)}`)
     console.log(
       `New appointment created for: ${
         appointment.date

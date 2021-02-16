@@ -200,7 +200,7 @@ const appoints_get_by_date = (req, res) => {
  */
 //todo: use getDay to determine if date provided is weekend or not. If weekend say nahhhhh
 const appoints_get_availability_by_date = async (req, res) => {
-  const package = await Packge.findById(req.query.packageId)
+  const package = await Package.findById(req.query.packageId)
   const garage = await Garage.findById(package.garage)
   const date = new Date(req.query.appointDate)
 

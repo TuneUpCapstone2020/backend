@@ -71,7 +71,10 @@ const appoints_create = async (req, res) => {
       employee_num: req.body.employee_number,
     })
   ) {
-    res.status(200).json({
+    console.log(
+      `Attempted duplicate appointment made @time: ${helpers.getTimeStamp()}`
+    )
+    return res.status(200).json({
       message:
         'Appointment already exists with that mechanic. Please chose another time.',
     })

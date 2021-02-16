@@ -42,9 +42,9 @@ const vehicle_models_get_all = (req, res) => {
     })
 }
 
-//send modelId as int in query params
+//send makeId as int in query params
 const vehicle_models_get_by_make_id = (req, res) => {
-  VehicleModel.find({ Model_ID: req.query.modelId })
+  VehicleModel.find({ Make_ID: req.query.makeId })
     .then((model) => {
       console.log(`Get vehicle by model ID @ time: ${helpers.getTimeStamp()}`)
       res.status(200).json(model)
@@ -60,7 +60,6 @@ const vehicle_models_get_by_make_id = (req, res) => {
       })
     })
 }
-
 module.exports = {
   vehicle_make_get_all,
   vehicle_models_get_all,

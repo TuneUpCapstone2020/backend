@@ -98,13 +98,16 @@ const appoints_create = async (req, res) => {
   }
   //console.log(`services: ${JSON.stringify(services)}`)
 
+  console.log(`body: ${JSON.stringify(req.body)}`)
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
   newAppointment['garageId'] = await Garage.findById(package.garage)
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
-  //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
+  console.log(`package.skill_level ${package.skill_level}`)
+  newAppointment['skill_level'] = package.skill_level
+  console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
   try {
     const appointment = await Appointment.create(newAppointment)

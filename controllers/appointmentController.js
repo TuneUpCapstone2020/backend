@@ -53,7 +53,7 @@ const handleErrors = (err) => {
  * body:
  *  date: date object
  *  packageId: the Id of the chosen package. 
- *  employee_number: employee which the appoint is assigned to
+ *  employee_num: employee which the appoint is assigned to
  //  skill level: highest int of highest service????
  //  total_esimated_time: int of estimated time in minutes
  //  garageId: String of garageid (just the characters, not the ObjectId(...))
@@ -70,7 +70,7 @@ const appoints_create = async (req, res) => {
       await Appointment.find({
         deleted: false,
         date: new Date(req.body.date),
-        employee_num: req.body.employee_number,
+        employee_num: req.body.employee_num,
       })
     ).length
   ) {
@@ -98,16 +98,16 @@ const appoints_create = async (req, res) => {
   }
   //console.log(`services: ${JSON.stringify(services)}`)
 
-  console.log(`body: ${JSON.stringify(req.body)}`)
+  //console.log(`body: ${JSON.stringify(req.body)}`)
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
   newAppointment['garageId'] = await Garage.findById(package.garage)
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
-  console.log(`package.skill_level ${package.skill_level}`)
   newAppointment['skill_level'] = package.skill_level
-  console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
+  //console.log(`package ${package}`)
+  //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
   try {
     const appointment = await Appointment.create(newAppointment)

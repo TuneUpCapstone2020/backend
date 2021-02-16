@@ -1,5 +1,7 @@
 const dateFormat = require('dateformat')
 const jwt = require('jsonwebtoken')
+const VehicleMake = require('./models/vehicleMake')
+const VehicleModel = require('./models/vehicleModel')
 require('dotenv').config()
 
 const getTimeStamp = () => {
@@ -23,7 +25,23 @@ function getDecodedToken(req) {
   token = jwt.decode(token, process.env.JWT_SECRET)
   return token
 }
+
+const populateVehicles = () => {
+  console.log(`Populating vehicles @ time: ${getTimeStamp()}`)
+  //populate collections
+  const makes = require('./makes.json')
+  const models = require('./models.json')
+  VehicleMake.collection.insertMany(makes)
+  VehicleModel.collection.insertMany(models)
+
+  //configure indexes
+  VehicleMake.syncIndexes()
+  VehicleModel.syncIndexes()
+  console.log(`Done populating vehicles @ time: ${getTimeStamp()}`)
+}
+
 module.exports = {
   getTimeStamp,
   getDecodedToken,
+  populateVehicles,
 }

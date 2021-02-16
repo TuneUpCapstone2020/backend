@@ -266,9 +266,12 @@ module.exports = {
 function getDecodedToken(req) {
   //todo: maybe pass req.headers instead?
   let token = req.headers['x-access-token'] || req.headers['authorization']
+  //console.log(`Token1: ${token}`)
   token = token.replace('Bearer ', '')
+  //console.log(`Token2: ${token}`)
   const secret = process.env.JWT_SECRET
   token = jwt.decode(token, secret)
+  //console.log(`Token3: ${token}`)
 
   return token
 }

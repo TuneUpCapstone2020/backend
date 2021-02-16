@@ -66,16 +66,18 @@ const appoints_create = async (req, res) => {
   //first, we want to make sure that the appointment doesn't already exist
   //for that date and time with the given mechanic.
   if (
-    await Appointment.find({
-      deleted: false,
-      date: new Date(req.body.date),
-      employee_num: req.body.employee_number,
-    })
+    (
+      await Appointment.find({
+        deleted: false,
+        date: new Date(req.body.date),
+        employee_num: req.body.employee_number,
+      })
+    ).length
   ) {
     console.log(
       `Attempted duplicate appointment made @time: ${helpers.getTimeStamp()}`
     )
-    return res.status(200).json({
+    return res.status(400).json({
       message:
         'Appointment already exists with that mechanic. Please chose another time.',
     })

@@ -1,5 +1,8 @@
 const dateFormat = require('dateformat')
 const jwt = require('jsonwebtoken')
+const VehicleMake = require('./models/vehicleMake')
+const VehicleModel = require('./models/vehicleModel')
+require('dotenv').config()
 
 const getTimeStamp = () => {
   let date_ob = new Date()
@@ -19,10 +22,26 @@ function getDecodedToken(req) {
   //todo: maybe pass req.headers instead?
   let token = req.headers['x-access-token'] || req.headers['authorization']
   token = token.replace('Bearer ', '')
-  token = jwt.decode(token, 'tuneup secret')
+  token = jwt.decode(token, process.env.JWT_SECRET)
   return token
 }
+
+const populateVehicles = () => {
+  console.log(`Populating vehicles @ time: ${getTimeStamp()}`)
+  //populate collections
+  const makes = require('./makes.json')
+  const models = require('./models.json')
+  VehicleMake.collection.insertMany(makes)
+  VehicleModel.collection.insertMany(models)
+
+  //configure indexes
+  VehicleMake.syncIndexes()
+  VehicleModel.syncIndexes()
+  console.log(`Done populating vehicles @ time: ${getTimeStamp()}`)
+}
+
 module.exports = {
   getTimeStamp,
   getDecodedToken,
+  populateVehicles,
 }

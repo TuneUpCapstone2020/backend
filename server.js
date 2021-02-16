@@ -10,6 +10,8 @@ const appointmentRoutes = require('./routes/appointmentRoutes')
 const garageRoutes = require('./routes/garageRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
 const packageRoutes = require('./routes/packageRoutes')
+const makeAndModelRoutes = require('./routes/vehicleMakeAndModelRoutes')
+const helpers = require('./helpers')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware')
 
@@ -27,6 +29,7 @@ const LOCAL_PORT = process.env.LOCALPORT
 const LOCAL_HOST = process.env.LOCALHOST
 const CLOUD_HOST = process.env.CLOUD_HOST
 const CLOUD_PORT = process.env.CLOUD_PORT
+const ALLOWED_LISTEN = process.env.ALLOWED_LISTEN
 
 //0 for local deploy, 1 for cloud
 if (process.env.NODE_LOCAL_DEPLOY == 1) {
@@ -38,11 +41,35 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       useUnifiedTopology: true,
     })
     .then(() => {
+      //Print some db connection info
       console.log(
         `Successfully conencted to the ${process.env.DB_NAME} database`
       )
-      app.listen(CLOUD_PORT, '0.0.0.0')
+      app.listen(CLOUD_PORT, ALLOWED_LISTEN)
       console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
+
+      //check if default list of vehicles exists. If not, add it.
+      mongoose.connection.db.listCollections().toArray(function (err, names) {
+        if (err) {
+          console.log(err.message)
+        } else {
+          //console.log(`Collections: ${JSON.stringify(names, null, 2)}`)
+          let vehiclesExist = false
+          for (let i = 0; i < names.length; i++) {
+            //console.log(`name${i}: ${JSON.stringify(names[i])}`)
+            if (names[i]['name'].includes('vehiclemakes')) {
+              console.log(`Vehice Makes and models already exists.`)
+              vehiclesExist = true
+              break
+            }
+          }
+          if (!vehiclesExist) {
+            helpers.populateVehicles()
+          }
+        }
+
+        //mongoose.connection.close()
+      })
     })
     .catch((err) => {
       console.warn(`Unable to connect to ${process.env.DB_NAME}}`)
@@ -50,7 +77,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
     })
 } else {
   //url format should follow: 'mongodb://localhost:27017/your_database_name', we might need to add DB name as well
-  mongoose
+  const connection = mongoose
     .connect(`mongodb://mongo:27017`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -59,11 +86,35 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       pass: 'root',
     })
     .then(() => {
+      //log connection
       console.log(
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
       app.listen(LOCAL_PORT, LOCAL_HOST)
       console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
+
+      //check if default list of vehicles exists. If not, add it.
+      mongoose.connection.db.listCollections().toArray(function (err, names) {
+        if (err) {
+          console.log(err.message)
+        } else {
+          //console.log(`Collections: ${JSON.stringify(names, null, 2)}`)
+          let vehiclesExist = false
+          for (let i = 0; i < names.length; i++) {
+            //console.log(`name${i}: ${JSON.stringify(names[i])}`)
+            if (names[i]['name'].includes('vehiclemakes')) {
+              console.log(`Vehice Makes and models already exists.`)
+              vehiclesExist = true
+              break
+            }
+          }
+          if (!vehiclesExist) {
+            helpers.populateVehicles()
+          }
+        }
+
+        //mongoose.connection.close()
+      })
     })
     .catch((err) => {
       throw err
@@ -93,6 +144,9 @@ app.use('/api/catalog', catalogRoutes)
 
 //package routes
 app.use('/api/package', packageRoutes)
+
+//makeAndModel routes
+app.use('/api/makeandmodel', makeAndModelRoutes)
 
 //apply to every route
 app.get('*', checkClient)

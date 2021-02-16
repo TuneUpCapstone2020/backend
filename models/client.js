@@ -2,6 +2,8 @@ const mongoose = require('mongoose')
 const { isEmail } = require('validator')
 const Schema = mongoose.Schema
 const Vehicle = require('./vehicle')
+const bcrypt = require('bcrypt')
+const bcryptjs = require('bcryptjs')
 
 const clientSchema = new Schema(
   {
@@ -56,6 +58,11 @@ const clientSchema = new Schema(
 //fire function before doc saved to db
 clientSchema.pre('save', async function (next) {
   this.full_name = `${this.first_name} ${this.last_name}`
+  if (this.isModified('password')) {
+    //this.password = await bcrypt.hash(this.password, 10)
+    //this.password = await bcrypt.hashSync(this.password, 8)
+    this.password = await bcryptjs.hash(this.password, 8)
+  }
   next()
 })
 
@@ -64,7 +71,8 @@ clientSchema.statics.login = async function (email, password) {
   const client = await this.findOne({ email, deleted: false })
   if (client) {
     //const auth = await bcrypt.compare(password, client.password)
-    const auth = (await password) === client.password
+    //const auth = (await password) === client.password //old bcrypt version -> this line is thus depricated
+    const auth = await bcryptjs.compare(password, client.password)
     if (auth) {
       return client
     }

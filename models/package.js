@@ -42,6 +42,10 @@ const packagesSchema = new Schema(
     total_estimated_time: {
       type: Number, //stored in minutes,
     },
+    skill_level: {
+      type: Number,
+      default: 0,
+    },
     published: {
       type: Boolean,
       default: true,
@@ -53,6 +57,19 @@ const packagesSchema = new Schema(
   },
   { timestamps: true }
 )
+
+packagesSchema.pre('save', async function (next) {
+  const services = this.services
+  let skill_level = 0
+  console.log(`Services: ${JSON.stringify(services)}`)
+  for (let i of services) {
+    const service = await CatalogService.findById(i.service).exec()
+    if (service.skill_level > skill_level) {
+      skill_level = service.skill_level
+    }
+  }
+  this.skill_level = skill_level
+})
 
 const Package = mongoose.model('Package', packagesSchema)
 module.exports = Package

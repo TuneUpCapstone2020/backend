@@ -102,10 +102,22 @@ const appoints_create = async (req, res) => {
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
-  newAppointment['garageId'] = await Garage.findById(package.garage)
+  const garage = await Garage.findById(package.garage)
+  newAppointment['garageId'] = garage
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
+  newAppointment['description'] =
+    newAppointment.date +
+    ';' +
+    garage.name +
+    ';' +
+    package.name +
+    ';' +
+    package.starting_price +
+    ';' +
+    package.total_estimated_time
+  console.log(`desc: ${newAppointment.description}`)
   //console.log(`package ${package}`)
   //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
@@ -118,6 +130,8 @@ const appoints_create = async (req, res) => {
       } @ time: ${helpers.getTimeStamp()}`
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
+    //add to response:
+    //date, garage name, package name, estiated price, estimated time,
     res.status(201).json({
       message: 'New Appointment created!',
       appointment: appointment._id,

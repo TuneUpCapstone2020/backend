@@ -108,7 +108,7 @@ const appoints_create = async (req, res) => {
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
   newAppointment['description'] =
-    newAppointment.date +
+    newAppointment.date.toISOString() +
     ';' +
     garage.name +
     ';' +

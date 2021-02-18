@@ -914,9 +914,9 @@ const appoints_get_by_employee = (req, res) => {
     })
 }
 const appoints_get_by_client = (req, res) => {
-  token = helpers.getDecodedToken(req)
+  let token = helpers.getDecodedToken(req)
   Appointment.find({
-    client: token._id,
+    client: token.id,
     deleted: false,
     archived: false,
   })

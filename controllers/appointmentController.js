@@ -914,6 +914,27 @@ const appoints_get_by_employee = (req, res) => {
     })
 }
 const appoints_get_by_client = (req, res) => {
+  token = helpers.getDecodedToken(req)
+  Appointment.find({
+    client: token._id,
+    deleted: false,
+    archived: false,
+  })
+    .then((result) => {
+      console.log(`Get appoint by user @ time: ${helpers.getTimeStamp()}`)
+      res.status(200).json(result)
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in appoints_get_by_user @ time: ${helpers.getTimeStamp()}`
+      )
+      res.status(400).json({
+        message: 'An error occured!',
+        error: err.message,
+      })
+    })
+}
+const appoints_get_by_client_id = (req, res) => {
   Appointment.find({
     client: req.query.client_id,
     deleted: false,
@@ -1209,6 +1230,7 @@ module.exports = {
   appoints_get_by_date,
   appoints_get_by_employee,
   appoints_get_by_client,
+  appoints_get_by_client_id,
   appoints_get_by_date_and_employee,
   appoints_get_by_date_and_client,
   appoints_get_by_date_range,

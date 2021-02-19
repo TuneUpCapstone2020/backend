@@ -1070,7 +1070,7 @@ const appoints_get_by_vehicle = async (req, res) => {
           })
         })
     }
-    //res.status(200).json(appoints)
+    res.status(200).json(appoints)
   } catch (err) {
     console.warn(
       `An error occured in appoints_get_by_vehicle @ time: ${helpers.getTimeStamp()}`

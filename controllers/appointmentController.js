@@ -1061,7 +1061,9 @@ const appoints_get_by_vehicle = async (req, res) => {
         archived: false,
       })
         .then((result) => {
-          appoints.push(result)
+          console.log(`${JSON.stringify(result)}`)
+          if(result != null)
+            appoints.push(result)
         })
         .catch((err) => {
           console.warn(
@@ -1074,11 +1076,7 @@ const appoints_get_by_vehicle = async (req, res) => {
           })
         })
     }
-    if (appoints.length > 0) {
-      res.status(200).json(appoints)
-    } else {
-      res.status(200).json([])
-    }
+    res.status(200).json(appoints)
   } catch (err) {
     console.warn(
       `An error occured in appoints_get_by_vehicle @ time: ${helpers.getTimeStamp()}`

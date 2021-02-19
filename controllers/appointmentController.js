@@ -132,9 +132,7 @@ const appoints_create = async (req, res) => {
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
-    res.status(201).json({
-      appointment: appointment,
-    })
+    res.status(201).json(appointment)
   } catch (err) {
     const errors = handleErrors(err)
     console.warn(
@@ -1043,6 +1041,53 @@ const appoints_get_by_date_range = (req, res) => {
       )
     })
 }
+//in query params: vehicleId
+const appoints_get_by_vehicle = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findOne({
+      _id: req.query.vehicleId,
+      deleted: false,
+    }).exec()
+    const appoints = []
+    console.log(`${JSON.stringify(vehicle)}`)
+    console.log(`${JSON.stringify(vehicle.appointments)}`)
+    const appointIds = vehicle.appointments
+    //console.log(`appoints: ${JSON.stringify(appointIds)}`)
+    for (let i = 0; i < appointIds.length; i++) {
+      //console.log(`appointment: ${JSON.stringify(appointIds[i]._id)}`)
+      await Appointment.findOne({
+        _id: appointIds[i]._id,
+        deleted: false,
+        archived: false,
+      })
+        .then((result) => {
+          console.log(`${JSON.stringify(result)}`)
+          if(result != null)
+            appoints.push(result)
+        })
+        .catch((err) => {
+          console.warn(
+            `An error occured in appoints_get_by_vehicle @ time: ${helpers.getTimeStamp()}`
+          )
+          console.log(`Error: ${err.message}`)
+          return res.status(400).json({
+            message: 'Unable to get appointments for that vehicle',
+            error: err.message,
+          })
+        })
+    }
+    res.status(200).json(appoints)
+  } catch (err) {
+    console.warn(
+      `An error occured in appoints_get_by_vehicle @ time: ${helpers.getTimeStamp()}`
+    )
+    console.log(`Error: ${err.message}`)
+    res.status(400).json({
+      message: 'Unable to get appoints for the vehicle',
+      error: err.message,
+    })
+  }
+}
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1243,6 +1288,7 @@ module.exports = {
   appoints_get_by_employee,
   appoints_get_by_client,
   appoints_get_by_client_id,
+  appoints_get_by_vehicle,
   appoints_get_by_date_and_employee,
   appoints_get_by_date_and_client,
   appoints_get_by_date_range,

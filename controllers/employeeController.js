@@ -1,5 +1,7 @@
 const Employee = require('../models/employee')
+const Garage = require('../models/garage')
 const jwt = require('jsonwebtoken')
+const helpers = require('../helpers')
 const _ = require('lodash')
 require('dotenv').config()
 
@@ -148,6 +150,7 @@ const employee_logout = (req, res) => {
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
 
+//In query params put the garageId
 const employee_create = async (req, res) => {
   try {
     const employee = await Employee.findOne({
@@ -176,8 +179,14 @@ const employee_create = async (req, res) => {
         }
       )
     } else {
+      //create the employee
       const employee = await Employee.create(req.body)
       console.log(`Created employee ${employee._id}`)
+
+      //now add that employee to the garage they work at
+      const garage = await Garage.findById(req.query.garageId)
+      garage.employees.addToSet(employee)
+      garage.save()
       res.status(201).json({
         message: 'New employee created!',
         client: employee._id,

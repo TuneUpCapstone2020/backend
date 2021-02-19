@@ -1042,12 +1042,14 @@ const appoints_get_by_date_range = (req, res) => {
     })
 }
 //in query params: vehicleId
-const appoints_get_by_vehicle = (req, res) => {
+const appoints_get_by_vehicle = async (req, res) => {
   try {
-    const vehicle = Vehicle.findById(req.query.vehicleId).exec()
+    const vehicle = await Vehicle.findById(req.query.vehicleId).exec()
     const appoints = []
+    console.log(`${JSON.stringify(vehicle)}`);
     for (appointment in vehicle.appointments) {
-      Appointment.findById(appointment._id)
+      console.log(`${JSON.stringify(appointment)}`);
+      await Appointment.findById(appointment._id)
         .then((result) => {
           appoints.push(result)
         })

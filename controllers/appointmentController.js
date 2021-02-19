@@ -132,9 +132,7 @@ const appoints_create = async (req, res) => {
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
-    res.status(201).json({
-      appointment: appointment,
-    })
+    res.status(201).json(appointment)
   } catch (err) {
     const errors = handleErrors(err)
     console.warn(

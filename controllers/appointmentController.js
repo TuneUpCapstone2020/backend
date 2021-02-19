@@ -1055,7 +1055,11 @@ const appoints_get_by_vehicle = async (req, res) => {
     //console.log(`appoints: ${JSON.stringify(appointIds)}`)
     for (let i = 0; i < appointIds.length; i++) {
       //console.log(`appointment: ${JSON.stringify(appointIds[i]._id)}`)
-      await Appointment.findOne({ _id: appointIds[i]._id, deleted: false })
+      await Appointment.findOne({
+        _id: appointIds[i]._id,
+        deleted: false,
+        archived: false,
+      })
         .then((result) => {
           appoints.push(result)
         })

@@ -1041,6 +1041,39 @@ const appoints_get_by_date_range = (req, res) => {
       )
     })
 }
+//in query params: vehicleId
+const appoints_get_by_vehicle = (req, res) => {
+  try {
+    const vehicle = Vehicle.findById(req.query.vehicleId).exec()
+    const appoints = []
+    for (appointment in vehicle.appointments) {
+      Appointment.findById(appointment._id)
+        .then((result) => {
+          appoints.push(result)
+        })
+        .catch((err) => {
+          console.warn(
+            `An error occured in appoints_get_by_vehicle @ time: ${helpers.getTimeStamp()}`
+          )
+          console.log(`Error: ${err.message}`)
+          return res.status(400).json({
+            message: 'Unable to get appointments for that vehicle',
+            error: err.message,
+          })
+        })
+    }
+    res.status(200).json(appoints)
+  } catch (err) {
+    console.warn(
+      `An error occured in appoints_get_by_vehicle @ time: ${helpers.getTimeStamp()}`
+    )
+    console.log(`Error: ${err.message}`)
+    res.status(400).json({
+      message: 'Unable to get appoints for the vehicle',
+      error: err.message,
+    })
+  }
+}
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1241,6 +1274,7 @@ module.exports = {
   appoints_get_by_employee,
   appoints_get_by_client,
   appoints_get_by_client_id,
+  appoints_get_by_vehicle,
   appoints_get_by_date_and_employee,
   appoints_get_by_date_and_client,
   appoints_get_by_date_range,

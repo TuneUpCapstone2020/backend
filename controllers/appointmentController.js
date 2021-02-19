@@ -133,9 +133,7 @@ const appoints_create = async (req, res) => {
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
     res.status(201).json({
-      message: 'New Appointment created!',
-      appointment: appointment._id,
-      date: appointment.date,
+      appointment: appointment,
     })
   } catch (err) {
     const errors = handleErrors(err)

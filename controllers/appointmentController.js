@@ -1046,10 +1046,12 @@ const appoints_get_by_vehicle = async (req, res) => {
   try {
     const vehicle = await Vehicle.findById(req.query.vehicleId).exec()
     const appoints = []
-    console.log(`${JSON.stringify(vehicle)}`);
-    for (appointment in vehicle.appointments) {
-      console.log(`${JSON.stringify(appointment)}`);
-      await Appointment.findById(appointment._id)
+    //console.log(`${JSON.stringify(vehicle)}`)
+    const appointIds = vehicle.appointments
+    //console.log(`appoints: ${JSON.stringify(appointIds)}`)
+    for (let i = 0; i < appointIds.length; i++) {
+      //console.log(`appointment: ${JSON.stringify(appointIds[i]._id)}`)
+      await Appointment.findById(appointIds[i]._id)
         .then((result) => {
           appoints.push(result)
         })

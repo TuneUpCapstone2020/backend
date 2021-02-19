@@ -1044,7 +1044,9 @@ const appoints_get_by_date_range = (req, res) => {
 //in query params: vehicleId
 const appoints_get_by_vehicle = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findById(req.query.vehicleId).exec()
+    const vehicle = await Vehicle.findById(req.query.vehicleId, {
+      delete: false,
+    }).exec()
     const appoints = []
     //console.log(`${JSON.stringify(vehicle)}`)
     const appointIds = vehicle.appointments
@@ -1053,7 +1055,7 @@ const appoints_get_by_vehicle = async (req, res) => {
       //console.log(`appointment: ${JSON.stringify(appointIds[i]._id)}`)
       await Appointment.findById(appointIds[i]._id)
         .then((result) => {
-          appoints.push(result)
+          if (!result.deleted) appoints.push(result)
         })
         .catch((err) => {
           console.warn(

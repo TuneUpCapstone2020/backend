@@ -1102,7 +1102,8 @@ const appoints_get_by_vehicle = async (req, res) => {
 /*
  * In query params:
  * - date: the date of the appoints to get
- * - appointment_status: the status of the appointment to get
+ * - appointment_status_lower: the lower limit status of the appointment to get
+ * - appointment_status_upper: the upper limit of the status
  */
 const appoints_get_by_date_and_appoint_status = async (req, res) => {
   const date = new Date(req.query.date)
@@ -1115,7 +1116,10 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
     },
     deleted: false,
     archived: false,
-    appointment_status: req.query.appointment_status,
+    appointment_status: {
+      $gte: req.query.appointment_status_lower,
+      $lte: req.query.appointment_status_upper,
+    },
   })
     .then(async (appointments) => {
       console.log(

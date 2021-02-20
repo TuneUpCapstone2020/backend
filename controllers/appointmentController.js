@@ -1105,6 +1105,7 @@ const appoints_get_by_vehicle = async (req, res) => {
  * - appointment_status: the status of the appointment to get
  */
 const appoints_get_by_date_and_appoint_status = (req, res) => {
+  const date = new Date(req.query.date)
   let nextDate = new Date(req.query.date)
   nextDate.setDate(nextDate.getDate() + 1)
   Appointment.find({
@@ -1146,7 +1147,7 @@ const appoints_get_by_date_and_appoint_status = (req, res) => {
       })
     })
 }
-const appoints_get_client_and_employee_by_appoint_id = (req, res) => {}
+
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })

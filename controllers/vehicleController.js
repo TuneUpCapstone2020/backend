@@ -193,10 +193,7 @@ const vehicle_delete = async (req, res) => {
           // })
         } else {
           console.log(`Vehicle deleted ${result._id}`)
-          res.status(200).json({
-            message: 'Vehicle deleted!',
-            vehicle: result._id,
-          })
+          res.status(200).json(result.appoinments)
         }
       }
     )

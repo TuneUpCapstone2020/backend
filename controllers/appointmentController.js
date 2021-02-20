@@ -1104,7 +1104,7 @@ const appoints_get_by_vehicle = async (req, res) => {
  * - date: the date of the appoints to get
  * - appointment_status: the status of the appointment to get
  */
-const appoints_get_by_date_and_appoint_status = (req, res) => {
+const appoints_get_by_date_and_appoint_status = async (req, res) => {
   const date = new Date(req.query.date)
   let nextDate = new Date(req.query.date)
   nextDate.setDate(nextDate.getDate() + 1)
@@ -1117,17 +1117,18 @@ const appoints_get_by_date_and_appoint_status = (req, res) => {
     archived: false,
     appointment_status: req.query.appointment_status,
   })
-    .then((appointments) => {
+    .then( async (appointments) => {
       console.log(
         `Get appoint by date and appoint status @ time: ${helpers.getTimeStamp()}`
       )
       //const response = []
       for (appointment of appointments) {
-        const client = Client.findById(appointment.client._id)
-        const employee = Employee.findOne({
-          employee_num: appointment.employee_num,
+        const client = await Client.findById(appointment.client)
+        const employee = await Employee.findOne({
+          employee_number: appointment.employee_num,
         })
-
+        //console.log(`client: ${JSON.stringify(appointment.client)}`)
+        //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)
         appointment.description =
           appointment.description +
           ';' +

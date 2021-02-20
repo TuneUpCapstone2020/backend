@@ -1127,11 +1127,16 @@ const appoints_get_by_date_and_appoint_status = (req, res) => {
         const employee = Employee.findOne({
           employee_num: appointment.employee_num,
         })
-        appointment.description.push(
-          appointment.date.toISOString(),
-          client.full_name,
-          employee.first_name + ' ' + employee.last_name
-        )
+
+        appointment.description =
+          appointment.description +
+          ';' +
+          client.full_name +
+          ';' +
+          employee.first_name +
+          ' ' +
+          employee.last_name
+
         //response.push(appointment)
       }
       res.status(200).json(appointments)

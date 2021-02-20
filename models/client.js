@@ -65,6 +65,39 @@ clientSchema.pre('save', async function (next) {
   }
   next()
 })
+clientSchema.pre('update', async function (next) {
+  this.full_name = `${this.first_name} ${this.last_name}`
+  if (this.isModified('password')) {
+    //this.password = await bcrypt.hash(this.password, 10)
+    //this.password = await bcrypt.hashSync(this.password, 8)
+    this.password = await bcryptjs.hash(this.password, 8)
+  }
+  next()
+})
+
+//todo: test when this is implemented (look at how it was done in vehicle)
+// clientSchema.post('update', async function (document) {
+//   if (this.isModified('deleted')) {
+//     console.log(`deletion detected!`)
+//     const vehicles = document.vehicles
+//     console.log(`Vehicles: ${JSON.stringify(vehicles, null, 2)}`)
+//     for (vehicle in vehicles) {
+//       let vehicleObj = await Vehicle.findByIdAndUpdate(vehicle._id, {
+//         deleted: true,
+//       })
+//       console.log(`vehicle: ${JSON.stringify(vehicleObj, null, 2)}`)
+//       for (appointment in vehicleObj.appointments) {
+//         const appointmentObj = await Appointment.findByIdAndUpdate(
+//           appointment._id,
+//           {
+//             delete: true,
+//           }
+//         )
+//         console.log(`AppointObj: ${JSON.stringify(appointObj, null, 2)}`)
+//       }
+//     }
+//   }
+// })
 
 //static method to login user
 clientSchema.statics.login = async function (email, password) {

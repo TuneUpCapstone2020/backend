@@ -193,7 +193,12 @@ const vehicle_delete = async (req, res) => {
           // })
         } else {
           console.log(`Vehicle deleted ${result._id}`)
-          res.status(200).json(result.appoinments)
+          const response = [];
+          for(appoint of result.appointments){
+            response.push(appoint._id)
+          }
+          //res.status(200).json(result.appoinments)
+          res.status(200).send(response)
         }
       }
     )

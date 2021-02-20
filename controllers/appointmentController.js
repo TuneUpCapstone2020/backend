@@ -1117,7 +1117,7 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
     archived: false,
     appointment_status: req.query.appointment_status,
   })
-    .then( async (appointments) => {
+    .then(async (appointments) => {
       console.log(
         `Get appoint by date and appoint status @ time: ${helpers.getTimeStamp()}`
       )
@@ -1127,6 +1127,11 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
         const employee = await Employee.findOne({
           employee_number: appointment.employee_num,
         })
+        const vehicle = await Vehicle.findOne({
+          'appointments._id': appointment._id,
+        })
+        console.log(`vehicle: ${JSON.stringify(vehicle, null, 2)}`)
+        //console.log(`appointment: ${JSON.stringify(appointment, null, 2)}`)
         //console.log(`client: ${JSON.stringify(appointment.client)}`)
         //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)
         appointment.description =
@@ -1136,7 +1141,13 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
           ';' +
           employee.first_name +
           ' ' +
-          employee.last_name
+          employee.last_name +
+          ';' +
+          vehicle.year +
+          ' ' +
+          vehicle.make +
+          ' ' +
+          vehicle.model
 
         //response.push(appointment)
       }

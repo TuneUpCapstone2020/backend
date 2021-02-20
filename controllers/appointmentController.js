@@ -1098,6 +1098,73 @@ const appoints_get_by_vehicle = async (req, res) => {
     })
   }
 }
+
+/*
+ * In query params:
+ * - date: the date of the appoints to get
+ * - appointment_status: the status of the appointment to get
+ */
+const appoints_get_by_date_and_appoint_status = async (req, res) => {
+  const date = new Date(req.query.date)
+  let nextDate = new Date(req.query.date)
+  nextDate.setDate(nextDate.getDate() + 1)
+  Appointment.find({
+    date: {
+      $gte: date.toISOString(),
+      $lt: nextDate.toISOString(),
+    },
+    deleted: false,
+    archived: false,
+    appointment_status: req.query.appointment_status,
+  })
+    .then(async (appointments) => {
+      console.log(
+        `Get appoint by date and appoint status @ time: ${helpers.getTimeStamp()}`
+      )
+      //const response = []
+      for (appointment of appointments) {
+        const client = await Client.findById(appointment.client)
+        const employee = await Employee.findOne({
+          employee_number: appointment.employee_num,
+        })
+        const vehicle = await Vehicle.findOne({
+          'appointments._id': appointment._id,
+        })
+        console.log(`vehicle: ${JSON.stringify(vehicle, null, 2)}`)
+        //console.log(`appointment: ${JSON.stringify(appointment, null, 2)}`)
+        //console.log(`client: ${JSON.stringify(appointment.client)}`)
+        //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)
+        appointment.description =
+          appointment.description +
+          ';' +
+          client.full_name +
+          ';' +
+          employee.first_name +
+          ' ' +
+          employee.last_name +
+          ';' +
+          vehicle.year +
+          ' ' +
+          vehicle.make +
+          ' ' +
+          vehicle.model
+
+        //response.push(appointment)
+      }
+      res.status(200).json(appointments)
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occurred in: appoints_get_by_date_and_appoint_status @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to get appointments!',
+        error: err.message,
+      })
+    })
+}
+
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1340,6 +1407,7 @@ module.exports = {
   appoints_get_by_vehicle,
   appoints_get_by_date_and_employee,
   appoints_get_by_date_and_client,
+  appoints_get_by_date_and_appoint_status,
   appoints_get_by_date_range,
   appoints_get_one_by_id,
   appoints_get_availability_by_date,

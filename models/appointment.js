@@ -86,6 +86,14 @@ const appointmentSchema = new Schema(
     description: {
       type: String,
     },
+    appointment_status: {
+      type: Number,
+      default: 0,
+    },
+    valet_required: {
+      type: Boolean,
+      default: false,
+    },
     archived: {
       type: Boolean,
       default: false,

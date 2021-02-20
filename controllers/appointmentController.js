@@ -54,6 +54,7 @@ const handleErrors = (err) => {
  *  date: date object
  *  packageId: the Id of the chosen package. 
  *  employee_num: employee which the appoint is assigned to
+ *  valet_required: 0 for no, 1 for yes
  //  skill level: highest int of highest service????
  //  total_esimated_time: int of estimated time in minutes
  //  garageId: String of garageid (just the characters, not the ObjectId(...))
@@ -250,9 +251,10 @@ const appoints_get_availability_by_date = async (req, res) => {
     // }
     const times = []
     const nextDay = new Date(date)
-    console.log(`date: ${date}`)
+    //console.log(`date: ${date}`)
     nextDay.setDate(nextDay.getDate() + 1)
 
+    if (responseSent) return
     await Appointment.find(
       {
         date: {
@@ -275,14 +277,14 @@ const appoints_get_availability_by_date = async (req, res) => {
             error: err.message,
           })
         } else {
-          console.log(`date: ${date}`)
+          //console.log(`date: ${date}`)
 
           //sloppy check to see if there has been a mech who is free all day
           // console.log(`Checking avails for day: ${result.date}`)
           if (mechFreeAllDay && !responseSent) {
-            res.status(200).json(timesThatWorkForClient)
             responseSent = true
-            return
+            //console.log(`sending response`);
+            return res.status(200).json(timesThatWorkForClient)
           }
           // console.log(`Appointments: ${result}`)
           // console.log(`Appoints length: ${result.length}`)
@@ -499,7 +501,7 @@ const appoints_get_availability_by_date = async (req, res) => {
             }
             totalAvailableTimes = totalAvailableTimes.concat(times)
           } else {
-            console.log(`date: ${date}`)
+            //console.log(`date: ${date}`)
 
             const freeMechTimes = []
             mechFreeAllDay = true
@@ -538,9 +540,9 @@ const appoints_get_availability_by_date = async (req, res) => {
                 employee: mechanic.employee_number,
               })
             }
-            console.log(
-              `freeMechTimes: ${JSON.stringify(freeMechTimes, null, 2)}`
-            )
+            // console.log(
+            //   `freeMechTimes: ${JSON.stringify(freeMechTimes, null, 2)}`
+            // )
             for (const time of freeMechTimes) {
               //if hours >12, ampm==1, else == 2
               if (
@@ -557,8 +559,11 @@ const appoints_get_availability_by_date = async (req, res) => {
               )
             }
 
-            responseSent = true
-            return res.status(200).json(timesThatWorkForClient)
+            if (!responseSent) {
+              //console.log(`response sent 2`);
+              responseSent = true
+              return res.status(200).json(timesThatWorkForClient)
+            }
           }
         }
       }
@@ -567,6 +572,8 @@ const appoints_get_availability_by_date = async (req, res) => {
 
   //*If there are no available appointments, then inform the client
   if (!totalAvailableTimes.length && !timesThatWorkForClient.length) {
+    //console.log(`response 3`);
+    responseSent = true
     return res.status(200).json([
       {
         message: 'There is no room for that appointment today!',
@@ -601,11 +608,13 @@ const appoints_get_availability_by_date = async (req, res) => {
       )
       if (req.query.preferredTime) {
         //if they want PM
+        //console.log(`response 4`);
         return res
           .status(200)
           .json([totalAvailableTimes[totalAvailableTimes.length - 1]])
       } else {
         //they want am
+        //console.log(`response 5`);
         return res.status(200).json([totalAvailableTimes[0]])
       }
     } else {
@@ -616,8 +625,10 @@ const appoints_get_availability_by_date = async (req, res) => {
           timesToReturn.push(timesThatWorkForClient[i])
         }
         // console.log(`timesThatWorkForClient: ${JSON.stringify(timesThatWorkForClient)}`)
+        //console.log(`response 6`);
         return res.status(200).json(timesToReturn)
       } else {
+        //console.log(`response 7`);
         return res.status(200).json(timesThatWorkForClient)
       }
     }
@@ -1062,8 +1073,7 @@ const appoints_get_by_vehicle = async (req, res) => {
       })
         .then((result) => {
           console.log(`${JSON.stringify(result)}`)
-          if(result != null)
-            appoints.push(result)
+          if (result != null) appoints.push(result)
         })
         .catch((err) => {
           console.warn(
@@ -1238,6 +1248,45 @@ const appoints_update_start_time = async (req, res) => {
       })
     })
 }
+
+/*
+ * In query params:
+ * - appointId: id of appoint to be updated
+ * In Body:
+ * - newValue: int of new appoint status
+ */
+const appoints_update_status = async (req, res) => {
+  await Appointment.findByIdAndUpdate(
+    req.query.appointId,
+    {
+      appointment_status: req.body.newValue,
+    },
+    { new: true },
+    (err, result) => {
+      if (err) {
+        console.warn(
+          `An error occured in appoints_update_status @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+        res.status(400).json({
+          message: 'Unable to update appointment status!',
+          error: err.message,
+        })
+      } else {
+        console.log(
+          `Updated status of appointment: ${
+            result._id
+          } @ time: ${helpers.getTimeStamp()}`
+        )
+        res.status(200).json({
+          message: 'Updated appointment status!',
+          appointment: result._id,
+          status: result.appointment_status,
+        })
+      }
+    }
+  )
+}
 //? I dont think this is needed since we're updating the endtime when
 //? we mark the appointment as complete
 const appoints_update_end_time = (req, res) => {}
@@ -1302,6 +1351,7 @@ module.exports = {
   appoints_update,
   appoints_complete,
   appoints_update_start_time,
+  appoints_update_status,
   //D
   appoints_delete,
 }

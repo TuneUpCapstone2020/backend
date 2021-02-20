@@ -1098,6 +1098,55 @@ const appoints_get_by_vehicle = async (req, res) => {
     })
   }
 }
+
+/*
+ * In query params:
+ * - date: the date of the appoints to get
+ * - appointment_status: the status of the appointment to get
+ */
+const appoints_get_by_date_and_appoint_status = (req, res) => {
+  let nextDate = new Date(req.query.date)
+  nextDate.setDate(nextDate.getDate() + 1)
+  Appointment.find({
+    date: {
+      $gte: date.toISOString(),
+      $lt: nextDate.toISOString(),
+    },
+    deleted: false,
+    archived: false,
+    appointment_status: req.query.appointment_status,
+  })
+    .then((appointments) => {
+      console.log(
+        `Get appoint by date and appoint status @ time: ${helpers.getTimeStamp()}`
+      )
+      //const response = []
+      for (appointment of appointments) {
+        const client = Client.findById(appointment.client._id)
+        const employee = Employee.findOne({
+          employee_num: appointment.employee_num,
+        })
+        appoitnment.description.push(
+          appointment.date.toISOString(),
+          client.full_name,
+          employee.first_name + ' ' + employee.last_name
+        )
+        //response.push(appointment)
+      }
+      res.status(200).json(appointments)
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occurred in: appoints_get_by_date_and_appoint_status @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to get appointments!',
+        error: err.message,
+      })
+    })
+}
+const appoints_get_client_and_employee_by_appoint_id = (req, res) => {}
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1340,6 +1389,7 @@ module.exports = {
   appoints_get_by_vehicle,
   appoints_get_by_date_and_employee,
   appoints_get_by_date_and_client,
+  appoints_get_by_date_and_appoint_status,
   appoints_get_by_date_range,
   appoints_get_one_by_id,
   appoints_get_availability_by_date,

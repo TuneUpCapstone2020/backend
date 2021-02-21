@@ -1121,6 +1121,8 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
       $lte: req.query.appointment_status_upper,
     },
   })
+    .sort({ date: 'ascending' })
+
     .then(async (appointments) => {
       console.log(
         `Get appoint by date and appoint status @ time: ${helpers.getTimeStamp()}`

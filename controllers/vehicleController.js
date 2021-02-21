@@ -182,24 +182,29 @@ const vehicle_delete = async (req, res) => {
     await Vehicle.findOneAndUpdate(
       { _id: req.query._id },
       { deleted: true },
+      { new: true },
       (err, result) => {
         if (err) {
           console.warn(`An error occured in vehicle_delete!`)
-          res.status(400).json({
-            message: 'An error occured!',
-            error: err.message,
-          })
+          console.log(`Error: ${err.message}`)
+          // res.status(400).json({
+          //   message: 'An error occured!',
+          //   error: err.message,
+          // })
         } else {
           console.log(`Vehicle deleted ${result._id}`)
-          res.status(200).json({
-            message: 'Vehicle deleted!',
-            vehicle: result._id,
-          })
+          const response = [];
+          for(appoint of result.appointments){
+            response.push(appoint._id)
+          }
+          //res.status(200).json(result.appoinments)
+          res.status(200).send(response)
         }
       }
     )
   } catch (err) {
-    console.log(`An error occured in vehicle_delete!`)
+    console.warn(`An error occured in vehicle_delete!`)
+    console.log(`Error: ${err.message}`)
     res.status(400).json({
       message: 'An error occured!',
       error: err.message,

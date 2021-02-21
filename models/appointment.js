@@ -51,6 +51,10 @@ const appointmentSchema = new Schema(
           type: Number,
           default: 1,
         },
+        service_is_complete: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     total_estimated_time: {
@@ -93,6 +97,9 @@ const appointmentSchema = new Schema(
     valet_required: {
       type: Boolean,
       default: false,
+    },
+    customer_note: {
+      type: String,
     },
     archived: {
       type: Boolean,

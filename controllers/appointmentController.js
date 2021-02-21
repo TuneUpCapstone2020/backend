@@ -55,6 +55,7 @@ const handleErrors = (err) => {
  *  packageId: the Id of the chosen package. 
  *  employee_num: employee which the appoint is assigned to
  *  valet_required: 0 for no, 1 for yes
+ *  customer_note: the user's message describing the issue
  //  skill level: highest int of highest service????
  //  total_esimated_time: int of estimated time in minutes
  //  garageId: String of garageid (just the characters, not the ObjectId(...))
@@ -1102,7 +1103,8 @@ const appoints_get_by_vehicle = async (req, res) => {
 /*
  * In query params:
  * - date: the date of the appoints to get
- * - appointment_status: the status of the appointment to get
+ * - appointment_status_lower: the lower limit status of the appointment to get
+ * - appointment_status_upper: the upper limit of the status
  */
 const appoints_get_by_date_and_appoint_status = async (req, res) => {
   const date = new Date(req.query.date)
@@ -1115,8 +1117,13 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
     },
     deleted: false,
     archived: false,
-    appointment_status: req.query.appointment_status,
+    appointment_status: {
+      $gte: req.query.appointment_status_lower,
+      $lte: req.query.appointment_status_upper,
+    },
   })
+    .sort({ date: 'ascending' })
+
     .then(async (appointments) => {
       console.log(
         `Get appoint by date and appoint status @ time: ${helpers.getTimeStamp()}`

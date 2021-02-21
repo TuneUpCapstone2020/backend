@@ -49,6 +49,31 @@ const vehicleSchema = new Schema(
   { timestamps: true }
 )
 
+// vehicleSchema.pre('findOneAndUpdate', function (next) {
+//   console.log(`1`)
+//   this.wasMofidied = this.isModified('deleted')
+//   console.log(`2`)
+//   next()
+// })
+vehicleSchema.post('findOneAndUpdate', async function (document) {
+  // console.log(`update called!`)
+  // console.log(`document: ${JSON.stringify(document, null, 2)}`)
+  // console.dir(`this: ${this.model}`, 4)
+  // // if (this.Modified('deleted')) {
+  // if (document.deleted == this.model.deleted) {
+  //   console.log(`modified!!!!`)
+  // }
+  if (document.deleted) {
+    const appoints = document.appointments
+    //console.log(`appoints: ${JSON.stringify(appoints, null, 2)}`)
+    for (appoint of appoints) {
+      //console.log(`appoint.id: ${appoint._id}`)
+      await Appointment.findByIdAndUpdate(appoint._id, { deleted: true })
+    }
+  }
+  //next()
+})
+
 vehicleSchema.statics.addAppointment = async function (vehicleId, appointment) {
   const vehicle = await this.findById(vehicleId).exec()
   if (vehicle) {

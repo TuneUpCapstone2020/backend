@@ -1212,6 +1212,25 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
       })
     })
 }
+//in query params: appointId
+const appoints_get_progress_by_id = (req, res) => {
+  Appointment.findById(req.query.appointId).then((appointment) => {
+    res.status
+      .json({
+        status: appointment.appointment_status,
+      })
+      .catch((err) => {
+        console.warn(
+          `An error occured in appoints_get_progress_by_id @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+        res.status(400).json({
+          message: 'An error occured!',
+          error: err.message,
+        })
+      })
+  })
+}
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1461,6 +1480,7 @@ module.exports = {
   appoints_get_one_by_id,
   appoints_get_availability_by_date,
   appoints_get_free_days_of_week,
+  appoints_get_progress_by_id,
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,

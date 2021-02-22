@@ -12,6 +12,7 @@ router.get('/product/name', catalogController.catalog_product_get_by_name)
 router.get('/product/product_number', catalogController.catalog_product_get_by_garage_product_number)
 router.get('/product/sku', catalogController.catalog_product_get_by_sku)
 router.get('/service', catalogController.catalog_service_get_all)
+router.get('/service/many', catalogController.catalog_service_get_names_by_ids)
 router.get('/service/name', catalogController.catalog_service_get_by_name)
 router.get('/service/service_number', catalogController.catalog_service_get_by_service_number)
 

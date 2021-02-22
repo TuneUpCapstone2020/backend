@@ -937,11 +937,32 @@ const appoints_get_by_employee = (req, res) => {
 }
 
 //send empployee_num in query params
-const appoints_get_nearest_appoint_by_employee = (req, res) => {
-  Appointment.find({ employee_num: req.query.employee_num })
+const appoints_get_nearest_appoint_by_employee = async (req, res) => {
+  await Appointment.find({ employee_num: req.query.employee_num })
     .sort({ date: 'ascending' })
     .then((appointments) => {
-      res.status(200).send(appointments[0])
+      Appointment.findById(appointments[0]._id).then((appointment) => {
+        const employee = await Employee.findOne({
+          employee_number: appointment.employee_num,
+        })
+        const vehicle = await Vehicle.findOne({
+          'appointments._id': appointment._id,
+        })
+        appointment.description =
+          appointment.description +
+          ';' +
+          employee.first_name +
+          ' ' +
+          employee.last_name +
+          ';' +
+          vehicle.year +
+          ' ' +
+          vehicle.make +
+          ' ' +
+          vehicle.model
+
+        res.status(200).json(appointment)
+      })
     })
     .catch((err) => {
       console.warn(
@@ -1156,7 +1177,7 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
         const vehicle = await Vehicle.findOne({
           'appointments._id': appointment._id,
         })
-        console.log(`vehicle: ${JSON.stringify(vehicle, null, 2)}`)
+        //console.log(`vehicle: ${JSON.stringify(vehicle, null, 2)}`)
         //console.log(`appointment: ${JSON.stringify(appointment, null, 2)}`)
         //console.log(`client: ${JSON.stringify(appointment.client)}`)
         //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)

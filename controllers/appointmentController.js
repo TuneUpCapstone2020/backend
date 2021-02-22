@@ -935,6 +935,25 @@ const appoints_get_by_employee = (req, res) => {
       })
     })
 }
+
+//send empployee_num in query params
+const appointes_get_nearest_appoint_by_employee = (req, res) => {
+  Appointment.find({ employee_num: req.query.employee_num })
+    .sort({ date: 'ascending' })
+    .then((appointments) => {
+      res.status(200).send(appointments[0])
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in appoints_get_nearest_appoint_by_employee @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to get appointments',
+        error: err.message,
+      })
+    })
+}
 const appoints_get_by_client = (req, res) => {
   let token = helpers.getDecodedToken(req)
   Appointment.find({
@@ -1416,6 +1435,7 @@ module.exports = {
   appoints_get_by_date_and_client,
   appoints_get_by_date_and_appoint_status,
   appoints_get_by_date_range,
+  appoints_get_nearest_appoint_by_employee,
   appoints_get_one_by_id,
   appoints_get_availability_by_date,
   appoints_get_free_days_of_week,

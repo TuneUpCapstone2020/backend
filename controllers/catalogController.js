@@ -196,12 +196,12 @@ const catalog_service_get_by_service_number = (req, res) => {
     })
 }
 //in query params: serviceIds: array of objectIds of services for which names are to be returned
-const catalog_service_get_names_by_ids = (req, res) => {
+const catalog_service_get_names_by_ids = async (req, res) => {
   const names = []
   try {
     for (const id of req.query.serviceIds) {
       console.log(`id: ${id}`);
-      let service = CatalogService.findById(id)
+      let service = await CatalogService.findById(id)
       names.push(service.name)
     }
     res.status(200).json(names)

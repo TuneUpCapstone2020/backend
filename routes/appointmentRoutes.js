@@ -8,7 +8,7 @@ router.post('/', appointmentController.appoints_create)
 //Retrieve
 router.get('/', appointmentController.appoints_get_all)
 router.get('/employee', appointmentController.appoints_get_by_employee)
-router.get('/employee', appointmentController.appoints_get_nearest_appoint_by_employee)
+router.get('/employee/nearest', appointmentController.appoints_get_nearest_appoint_by_employee)
 router.get('/client', appointmentController.appoints_get_by_client)
 router.get('/client/id', appointmentController.appoints_get_by_client_id)
 router.get('/id', appointmentController.appoints_get_one_by_id)

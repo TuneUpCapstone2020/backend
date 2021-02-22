@@ -955,8 +955,6 @@ const appoints_get_nearest_appoint_by_employee = async (req, res) => {
           appointment.description +
           ';' +
           employee.first_name +
-          ' ' +
-          employee.last_name +
           ';' +
           vehicle.year +
           ' ' +

@@ -939,7 +939,7 @@ const appoints_get_by_employee = (req, res) => {
     })
 }
 
-//send empployee_num in query params
+//send employee_num in query params
 const appoints_get_nearest_appoint_by_employee = async (req, res) => {
   await Appointment.find({ employee_num: req.query.employee_num })
     .sort({ date: 'ascending' })
@@ -1212,7 +1212,6 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
       })
     })
 }
-
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1273,6 +1272,7 @@ const archived_appoints_get_by_id = (req, res) => {
       })
     })
 }
+
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
 //START: ENDPOINTS FOR PUT REQUESTS (Update)
 //todo: re-calculate estimated appointment time

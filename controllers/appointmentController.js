@@ -234,6 +234,9 @@ const appoints_get_availability_by_date = async (req, res) => {
   let mechFreeAllDay = false
   let responseSent = false
   let totalAvailableTimes = []
+  console.log(
+    `Getting appointments for ${date.toISOString()} @ time: ${helpers.getTimeStamp()}`
+  )
   const qualifiedMechanics = await Employee.find({
     //skill_level: req.query.skill_level,
     skill_level: package.skill_level,

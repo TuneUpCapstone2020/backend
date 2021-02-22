@@ -12,6 +12,7 @@ router.get('/employee/nearest', appointmentController.appoints_get_nearest_appoi
 router.get('/client', appointmentController.appoints_get_by_client)
 router.get('/client/id', appointmentController.appoints_get_by_client_id)
 router.get('/id', appointmentController.appoints_get_one_by_id)
+router.get('/id/progress', appointmentController.appoints_get_progress_by_id)
 router.get('/date', appointmentController.appoints_get_by_date)
 router.get('/vehicle', appointmentController.appoints_get_by_vehicle)
 router.get('/date/employee', appointmentController.appoints_get_by_date_and_employee)

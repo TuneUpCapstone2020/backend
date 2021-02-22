@@ -1330,6 +1330,13 @@ const appoints_update = async (req, res) => {
     })
   }
 }
+
+/*
+ * In query params:
+ * - id: appoint id to be marked as complete
+ * body:
+ * - labour_time: man hours spent on appointment
+ */
 const appoints_complete = async (req, res) => {
   const appointment = await Appointment.findByIdAndUpdate(
     req.query._id,
@@ -1337,6 +1344,7 @@ const appoints_complete = async (req, res) => {
       archived: true,
       end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
       labour_time: req.body.labour_time,
+      appointment_satus: 13,
     },
     (err, result) => {
       if (err) {
@@ -1351,6 +1359,7 @@ const appoints_complete = async (req, res) => {
         console.log(
           `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
         )
+
         res.status(200).json({
           message: 'Appointment marked as complete!',
           id: result._id,

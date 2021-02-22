@@ -937,7 +937,7 @@ const appoints_get_by_employee = (req, res) => {
 }
 
 //send empployee_num in query params
-const appointes_get_nearest_appoint_by_employee = (req, res) => {
+const appoints_get_nearest_appoint_by_employee = (req, res) => {
   Appointment.find({ employee_num: req.query.employee_num })
     .sort({ date: 'ascending' })
     .then((appointments) => {

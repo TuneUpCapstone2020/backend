@@ -199,8 +199,9 @@ const catalog_service_get_by_service_number = (req, res) => {
 const catalog_service_get_names_by_ids = (req, res) => {
   const names = []
   try {
-    for (id of req.query.serviceIds) {
-      let service = CatalogService.findOne(id)
+    for (const id of req.query.serviceIds) {
+      console.log(`id: ${id}`);
+      let service = CatalogService.findById(id)
       names.push(service.name)
     }
     res.status(200).json(names)

@@ -1336,7 +1336,7 @@ const appoints_update = async (req, res) => {
 // * - serviceId: id of service we want to mark as complete
 // !note this does not mark the appoint as complete, it'll toggle it.
 const appoints_complete_service = async (req, res) => {
-  Appointment.findById(req.query.appointId).then((err, appointment) => {
+  await Appointment.findById(req.query.appointId).then((err, appointment) => {
     if (err) {
       console.warn(
         `An error occured in appoints_complete_service @ time: ${helpers.getTimeStamp}`
@@ -1362,7 +1362,7 @@ const appoints_complete_service = async (req, res) => {
         message: 'Updated service status',
       })
     }
-  }).catch
+  })
 }
 
 /*
@@ -1385,6 +1385,7 @@ const appoints_complete = async (req, res) => {
         console.warn(
           `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
         )
+        console.log(`Error: ${err.message}`)
         res.status(400).json({
           message: 'Unable to mark appointment as complete!',
           error: err.message,

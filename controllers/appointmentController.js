@@ -950,24 +950,28 @@ const appoints_get_nearest_appoint_by_employee = async (req, res) => {
     .sort({ date: 'ascending' })
     .then(async (appointments) => {
       Appointment.findById(appointments[0]._id).then(async (appointment) => {
-        const employee = await Employee.findOne({
-          employee_number: appointment.employee_num,
-        })
-        const vehicle = await Vehicle.findOne({
-          'appointments._id': appointment._id,
-        })
-        appointment.description =
-          appointment.description +
-          ';' +
-          employee.first_name +
-          ';' +
-          vehicle.year +
-          ' ' +
-          vehicle.make +
-          ' ' +
-          vehicle.model
+        if (appointment) {
+          const employee = await Employee.findOne({
+            employee_number: appointment.employee_num,
+          })
+          const vehicle = await Vehicle.findOne({
+            'appointments._id': appointment._id,
+          })
+          appointment.description =
+            appointment.description +
+            ';' +
+            employee.first_name +
+            ';' +
+            vehicle.year +
+            ' ' +
+            vehicle.make +
+            ' ' +
+            vehicle.model
 
-        res.status(200).json(appointment)
+          res.status(200).json(appointment)
+        } else {
+          res.status(200).json([])
+        }
       })
     })
     .catch((err) => {
@@ -1245,7 +1249,7 @@ const appoints_get_appointment_service_progress_by_id = (req, res) => {
       let completeServiceCount = 0
       const services = appointment.services
       for (let i = 0; i < services.length; i++, totalServiceCount++) {
-        console.log(`${services[i].service.service_is_complete}`);
+        console.log(`${services[i].service.service_is_complete}`)
         if (services[i].service_is_complete) {
           completeServiceCount++
         }

@@ -29,6 +29,7 @@ router.put('/', appointmentController.appoints_update)
 router.put('/complete', appointmentController.appoints_complete)
 router.put('/start', appointmentController.appoints_update_start_time)
 router.put('/status', appointmentController.appoints_update_status)
+router.put('/service', appointmentController.appoints_complete_service)
 //Delete
 router.delete('/', appointmentController.appoints_delete)
 

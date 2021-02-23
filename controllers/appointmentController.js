@@ -949,30 +949,34 @@ const appoints_get_nearest_appoint_by_employee = async (req, res) => {
   })
     .sort({ date: 'ascending' })
     .then(async (appointments) => {
-      Appointment.findById(appointments[0]._id).then(async (appointment) => {
-        if (appointment) {
-          const employee = await Employee.findOne({
-            employee_number: appointment.employee_num,
-          })
-          const vehicle = await Vehicle.findOne({
-            'appointments._id': appointment._id,
-          })
-          appointment.description =
-            appointment.description +
-            ';' +
-            employee.first_name +
-            ';' +
-            vehicle.year +
-            ' ' +
-            vehicle.make +
-            ' ' +
-            vehicle.model
+      if (typeof appointments !== 'undefined' && appointments) {
+        Appointment.findById(appointments[0]._id).then(async (appointment) => {
+          if (appointment) {
+            const employee = await Employee.findOne({
+              employee_number: appointment.employee_num,
+            })
+            const vehicle = await Vehicle.findOne({
+              'appointments._id': appointment._id,
+            })
+            appointment.description =
+              appointment.description +
+              ';' +
+              employee.first_name +
+              ';' +
+              vehicle.year +
+              ' ' +
+              vehicle.make +
+              ' ' +
+              vehicle.model
 
-          res.status(200).json(appointment)
-        } else {
-          res.status(200).json([])
-        }
-      })
+            res.status(200).json(appointment)
+          } else {
+            res.status(200).json([])
+          }
+        })
+      } else {
+        res.status(200).json([])
+      }
     })
     .catch((err) => {
       console.warn(

@@ -1245,7 +1245,8 @@ const appoints_get_appointment_service_progress_by_id = (req, res) => {
       let completeServiceCount = 0
       const services = appointment.services
       for (let i = 0; i < services.length; i++, totalServiceCount++) {
-        if (services[i].service.service_is_complete) {
+        console.log(`${services[i].service.service_is_complete}`);
+        if (services[i].service_is_complete) {
           completeServiceCount++
         }
       }

@@ -1378,7 +1378,7 @@ const appoints_complete = async (req, res) => {
       archived: true,
       end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
       //labour_time: req.body.labour_time,
-      appointment_satus: 13,
+      appointment_status: 13,
     },
     (err, result) => {
       if (err) {

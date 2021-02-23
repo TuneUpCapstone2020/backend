@@ -1236,6 +1236,33 @@ const appoints_get_progress_by_id = (req, res) => {
       })
   })
 }
+
+//in query params: appointId
+const appoints_get_appointment_service_progress_by_id = (req, res) => {
+  Appointment.findById(req.query.appointId)
+    .then((appointment) => {
+      let totalServiceCount = 0
+      let completeServiceCount = 0
+      const services = appointment.services
+      for (let i = 0; i < services.length; i++, totalServiceCount++) {
+        if (services[i].service.service_is_complete) {
+          completeServiceCount++
+        }
+      }
+      res.status(200).json([completeServiceCount, totalServiceCount])
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in appoints_get_appointment_service_progress_by_id @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to get appointment service progress',
+        error: err.message,
+      })
+    })
+}
+
 const archived_appoints_get_all = (req, res) => {
   Appointment.find({ deleted: false, archived: true })
     .sort({ createdAt: -1 })
@@ -1533,6 +1560,7 @@ module.exports = {
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,
+  appoints_get_appointment_service_progress_by_id,
   //U
   appoints_update,
   appoints_complete,

@@ -943,7 +943,7 @@ const appoints_get_by_employee = (req, res) => {
 const appoints_get_nearest_appoint_by_employee = async (req, res) => {
   await Appointment.find({
     employee_num: req.query.employee_num,
-    delete: false,
+    deleted: false,
     archived: false,
     appointment_status: 3,
   })

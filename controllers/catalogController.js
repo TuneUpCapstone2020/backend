@@ -96,7 +96,7 @@ const catalog_service_create_new = async (req, res) => {
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)
 const catalog_product_get_all = (req, res) => {
   CatalogProduct.find({ deleted: false })
-    .sort({ createdAt: -1 })
+    .sort({ sku: 'ascending' })
     .then((result) => {
       res.status(200).json(result)
     })
@@ -200,7 +200,7 @@ const catalog_service_get_names_by_ids = async (req, res) => {
   const names = []
   try {
     for (const id of req.query.serviceIds) {
-      console.log(`id: ${id}`);
+      console.log(`id: ${id}`)
       let service = await CatalogService.findById(id)
       names.push(service.name)
     }

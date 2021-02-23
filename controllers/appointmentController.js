@@ -1252,6 +1252,7 @@ const appoints_get_appointment_service_progress_by_id = (req, res) => {
       res.status(200).json({
         completeServiceCount: completeServiceCount,
         totalServiceCount: totalServiceCount,
+        appointment_status: appointment.appointment_status,
       })
     })
     .catch((err) => {

@@ -1373,7 +1373,7 @@ const appoints_complete_service = async (req, res) => {
  */
 const appoints_complete = async (req, res) => {
   const appointment = await Appointment.findByIdAndUpdate(
-    req.query._id,
+    req.query.id,
     {
       archived: true,
       end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!

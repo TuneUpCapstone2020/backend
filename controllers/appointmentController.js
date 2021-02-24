@@ -949,30 +949,30 @@ const appoints_get_nearest_appoint_by_employee = async (req, res) => {
   })
     .sort({ date: 'ascending' })
     .then(async (appointments) => {
-      console.log(`appointments: ${appointments}`);
+      console.log(`appointments: ${appointments}`)
       if (appointments.length) {
         Appointment.findById(appointments[0]._id).then(async (appointment) => {
-            const employee = await Employee.findOne({
-              employee_number: appointment.employee_num,
-            })
-            const vehicle = await Vehicle.findOne({
-              'appointments._id': appointment._id,
-            })
-            appointment.description =
-              appointment.description +
-              ';' +
-              employee.first_name +
-              ';' +
-              vehicle.year +
-              ' ' +
-              vehicle.make +
-              ' ' +
-              vehicle.model
+          const employee = await Employee.findOne({
+            employee_number: appointment.employee_num,
+          })
+          const vehicle = await Vehicle.findOne({
+            'appointments._id': appointment._id,
+          })
+          appointment.description =
+            appointment.description +
+            ';' +
+            employee.first_name +
+            ';' +
+            vehicle.year +
+            ' ' +
+            vehicle.make +
+            ' ' +
+            vehicle.model
 
-            res.status(200).json(appointment)
+          res.status(200).json(appointment)
         })
       } else {
-        res.status(200).json({message: 'No appointment'})
+        res.status(200).json({ message: 'No appointment' })
       }
     })
     .catch((err) => {

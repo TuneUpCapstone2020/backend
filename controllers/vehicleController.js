@@ -118,10 +118,7 @@ const vehicle_post = async (req, res) => {
             console.log(
               `Deleted vehicle has been remade with the following info: ${result}`
             )
-            res.status(201).json({
-              message: 'New vehicle created!',
-              vehicle: result._id,
-            })
+            res.status(201).json(vehicle)
           }
         }
       )
@@ -130,10 +127,7 @@ const vehicle_post = async (req, res) => {
       const vehicle = await Vehicle.create(req.body)
       await Client.addVehicle(decodedId.id, vehicle)
       console.log(`Vehicle ${vehicle.license} added to client ${decodedId.id}`)
-      res.status(201).json({
-        message: 'New vehicle created!',
-        vehicle: vehicle._id,
-      })
+      res.status(201).json(vehicle)
     }
   } catch (err) {
     console.warn('An error occured in vehicle_post')

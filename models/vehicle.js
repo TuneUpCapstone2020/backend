@@ -64,6 +64,10 @@ const vehicleSchema = new Schema(
           type: String,
           default: undefined,
         },
+        inspection_tier: {
+          type: Number,
+          default: 2,
+        },
       },
     ],
     health_attributes_summary: {

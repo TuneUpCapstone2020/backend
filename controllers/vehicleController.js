@@ -89,6 +89,16 @@ const vehicle_get_by_licence = (req, res) => {
     })
 }
 
+// Send id in query params
+const vehicle_get_health_attributes_by_vehicle_id = (req, res) => {
+  const vehicle = await Vehicle.findById(req.query.id)
+  res.status(200).json({
+    'attributes': vehicle.health_attributes,
+    'summary' : vehicle.health_attributes_summary
+  }
+    )
+}
+
 //END: ENDPOINTS FOR GET REQUESTS
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
@@ -211,6 +221,7 @@ const vehicle_delete = async (req, res) => {
 module.exports = {
   vehicle_get_all,
   vehicle_get_all_of_client,
+  vehicle_get_health_attributes_by_vehicle_id,
   vehicle_post,
   vehicle_get_by_licence,
   vehicle_update,

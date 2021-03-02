@@ -1,0 +1,87 @@
+const mongoose = require('mongoose')
+const Schema = mongoose.Schema
+const Appointment = require('./appointment')
+
+const vehicleSchema = new Schema(
+  {
+    make: {
+      type: String,
+      required: [true, 'Please enter make'],
+    },
+    model: {
+      type: String,
+      required: [true, 'Please enter model'],
+    },
+    nickname: {
+      type: String,
+    },
+    license: {
+      type: String,
+      required: [true, 'Please enter license plate'],
+      unique: true,
+      index: true,
+    },
+    year: {
+      type: Number,
+      required: [true, 'Please enter year'],
+    },
+    mileage: {
+      type: Number,
+      required: [true, 'Please enter mileage'],
+    },
+    vin_number: {
+      type: String,
+      //unique: true
+    },
+    deleted: {
+      type: Boolean,
+      default: false,
+    },
+    appointments: [
+      {
+        appointment: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Appointment',
+        },
+      },
+    ],
+  },
+  { timestamps: true }
+)
+
+// vehicleSchema.pre('findOneAndUpdate', function (next) {
+//   console.log(`1`)
+//   this.wasMofidied = this.isModified('deleted')
+//   console.log(`2`)
+//   next()
+// })
+vehicleSchema.post('findOneAndUpdate', async function (document) {
+  // console.log(`update called!`)
+  // console.log(`document: ${JSON.stringify(document, null, 2)}`)
+  // console.dir(`this: ${this.model}`, 4)
+  // // if (this.Modified('deleted')) {
+  // if (document.deleted == this.model.deleted) {
+  //   console.log(`modified!!!!`)
+  // }
+  if (document.deleted) {
+    const appoints = document.appointments
+    //console.log(`appoints: ${JSON.stringify(appoints, null, 2)}`)
+    for (appoint of appoints) {
+      //console.log(`appoint.id: ${appoint._id}`)
+      await Appointment.findByIdAndUpdate(appoint._id, { deleted: true })
+    }
+  }
+  //next()
+})
+
+vehicleSchema.statics.addAppointment = async function (vehicleId, appointment) {
+  const vehicle = await this.findById(vehicleId).exec()
+  if (vehicle) {
+    vehicle.appointments.push(appointment._id)
+    console.log(`Added new appointment to vehicle: ${appointment._id}`)
+    vehicle.save()
+  } else throw Error('Vehicle not found')
+}
+
+const Vehicle = mongoose.model('Vehicle', vehicleSchema)
+module.exports = Vehicle

@@ -234,6 +234,9 @@ const appoints_get_availability_by_date = async (req, res) => {
   let mechFreeAllDay = false
   let responseSent = false
   let totalAvailableTimes = []
+  console.log(
+    `Getting appointments for ${date.toISOString()} @ time: ${helpers.getTimeStamp()}`
+  )
   const qualifiedMechanics = await Employee.find({
     //skill_level: req.query.skill_level,
     skill_level: package.skill_level,
@@ -935,6 +938,54 @@ const appoints_get_by_employee = (req, res) => {
       })
     })
 }
+
+//send employee_num in query params
+const appoints_get_nearest_appoint_by_employee = async (req, res) => {
+  await Appointment.find({
+    employee_num: req.query.employee_num,
+    deleted: false,
+    archived: false,
+    appointment_status: 3,
+  })
+    .sort({ date: 'ascending' })
+    .then(async (appointments) => {
+      console.log(`appointments: ${appointments}`)
+      if (appointments.length) {
+        Appointment.findById(appointments[0]._id).then(async (appointment) => {
+          const employee = await Employee.findOne({
+            employee_number: appointment.employee_num,
+          })
+          const vehicle = await Vehicle.findOne({
+            'appointments._id': appointment._id,
+          })
+          appointment.description =
+            appointment.description +
+            ';' +
+            employee.first_name +
+            ';' +
+            vehicle.year +
+            ' ' +
+            vehicle.make +
+            ' ' +
+            vehicle.model
+
+          res.status(200).json(appointment)
+        })
+      } else {
+        res.status(200).json({ message: 'No appointment' })
+      }
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in appoints_get_nearest_appoint_by_employee @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to get appointments',
+        error: err.message,
+      })
+    })
+}
 const appoints_get_by_client = (req, res) => {
   let token = helpers.getDecodedToken(req)
   Appointment.find({
@@ -1137,7 +1188,7 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
         const vehicle = await Vehicle.findOne({
           'appointments._id': appointment._id,
         })
-        console.log(`vehicle: ${JSON.stringify(vehicle, null, 2)}`)
+        //console.log(`vehicle: ${JSON.stringify(vehicle, null, 2)}`)
         //console.log(`appointment: ${JSON.stringify(appointment, null, 2)}`)
         //console.log(`client: ${JSON.stringify(appointment.client)}`)
         //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)
@@ -1167,6 +1218,56 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
       console.log(`Error: ${err.message}`)
       res.status(400).json({
         message: 'Unable to get appointments!',
+        error: err.message,
+      })
+    })
+}
+//in query params: appointId
+const appoints_get_progress_by_id = (req, res) => {
+  Appointment.findById(req.query.appointId).then((appointment) => {
+    res.status
+      .json({
+        status: appointment.appointment_status,
+      })
+      .catch((err) => {
+        console.warn(
+          `An error occured in appoints_get_progress_by_id @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+        res.status(400).json({
+          message: 'An error occured!',
+          error: err.message,
+        })
+      })
+  })
+}
+
+//in query params: appointId
+const appoints_get_appointment_service_progress_by_id = (req, res) => {
+  Appointment.findById(req.query.appointId)
+    .then((appointment) => {
+      let totalServiceCount = 0
+      let completeServiceCount = 0
+      const services = appointment.services
+      for (let i = 0; i < services.length; i++, totalServiceCount++) {
+        console.log(`${services[i].service.service_is_complete}`)
+        if (services[i].service_is_complete) {
+          completeServiceCount++
+        }
+      }
+      res.status(200).json({
+        completeServiceCount: completeServiceCount,
+        totalServiceCount: totalServiceCount,
+        appointment_status: appointment.appointment_status,
+      })
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in appoints_get_appointment_service_progress_by_id @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to get appointment service progress',
         error: err.message,
       })
     })
@@ -1232,6 +1333,7 @@ const archived_appoints_get_by_id = (req, res) => {
       })
     })
 }
+
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
 //START: ENDPOINTS FOR PUT REQUESTS (Update)
 //todo: re-calculate estimated appointment time
@@ -1265,19 +1367,62 @@ const appoints_update = async (req, res) => {
     })
   }
 }
+
+//in query params:
+// * - appointId: id of appointment that we need to update the service for
+// * - serviceId: id of service we want to mark as complete
+// !note this does not mark the appoint as complete, it'll toggle it.
+const appoints_complete_service = async (req, res) => {
+  Appointment.findById(req.query.appointId)
+    .then((appointment) => {
+      //console.log(`service: ${appointment}`)
+      services = appointment.services
+      //console.log(`services: ${services}`)
+      for (let i = 0; i < services.length; i++) {
+        let service = services[i]
+        if (service.service.toString() === req.query.serviceId.toString()) {
+          service.service_is_complete = !service.service_is_complete
+        }
+      }
+      //console.log(`services: ${services}`)
+      appointment.save()
+      res.status(200).json({
+        message: 'Updated service status',
+      })
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in appoints_complete_service @ time: ${helpers.getTimeStamp}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'Unable to update service status!',
+        error: err.message,
+      })
+    })
+}
+
+/*
+ * In query params:
+ * - id: appoint id to be marked as complete
+ * body:
+ * - labour_time: man hours spent on appointment
+ */
 const appoints_complete = async (req, res) => {
   const appointment = await Appointment.findByIdAndUpdate(
-    req.query._id,
+    req.query.id,
     {
       archived: true,
       end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
-      labour_time: req.body.labour_time,
+      //labour_time: req.body.labour_time,
+      appointment_status: 13,
     },
     (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
         )
+        console.log(`Error: ${err.message}`)
         res.status(400).json({
           message: 'Unable to mark appointment as complete!',
           error: err.message,
@@ -1286,6 +1431,7 @@ const appoints_complete = async (req, res) => {
         console.log(
           `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
         )
+
         res.status(200).json({
           message: 'Appointment marked as complete!',
           id: result._id,
@@ -1416,17 +1562,21 @@ module.exports = {
   appoints_get_by_date_and_client,
   appoints_get_by_date_and_appoint_status,
   appoints_get_by_date_range,
+  appoints_get_nearest_appoint_by_employee,
   appoints_get_one_by_id,
   appoints_get_availability_by_date,
   appoints_get_free_days_of_week,
+  appoints_get_progress_by_id,
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,
+  appoints_get_appointment_service_progress_by_id,
   //U
   appoints_update,
   appoints_complete,
   appoints_update_start_time,
   appoints_update_status,
+  appoints_complete_service,
   //D
   appoints_delete,
 }

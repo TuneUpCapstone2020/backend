@@ -205,10 +205,7 @@ const employee_login = async (req, res) => {
     console.log(`Logged in employee ${employee.employee_number}`)
     const token = createToken(employee._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-    res.status(200).json({
-      message: 'Employee logged in!',
-      employee: employee._id,
-    })
+    res.status(200).json(employee)
   } catch (err) {
     console.warn(`An error occured in employee_login`)
     const errors = handleErrors(err)

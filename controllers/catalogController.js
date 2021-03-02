@@ -96,7 +96,7 @@ const catalog_service_create_new = async (req, res) => {
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)
 const catalog_product_get_all = (req, res) => {
   CatalogProduct.find({ deleted: false })
-    .sort({ createdAt: -1 })
+    .sort({ sku: 'ascending' })
     .then((result) => {
       res.status(200).json(result)
     })
@@ -194,6 +194,27 @@ const catalog_service_get_by_service_number = (req, res) => {
         error: err,
       })
     })
+}
+//in query params: serviceIds: array of objectIds of services for which names are to be returned
+const catalog_service_get_names_by_ids = async (req, res) => {
+  const names = []
+  try {
+    for (const id of req.query.serviceIds) {
+      console.log(`id: ${id}`)
+      let service = await CatalogService.findById(id)
+      names.push(service.name)
+    }
+    res.status(200).json(names)
+  } catch (err) {
+    console.warn(
+      `An error occured in catalog_service_get_namaes_by_ids @ time: ${helpers.getTimeStamp()}`
+    )
+    console.log(`Error: ${err.message}`)
+    res.status(400).json({
+      message: 'Unable to get serivces',
+      error: err.message,
+    })
+  }
 }
 //END: ENDPOINT FOR GET REQUESTS
 
@@ -410,6 +431,7 @@ module.exports = {
   catalog_service_get_all,
   catalog_service_get_by_name,
   catalog_service_get_by_service_number,
+  catalog_service_get_names_by_ids,
   catalog_product_update,
   catalog_service_update,
   catalog_product_delete,

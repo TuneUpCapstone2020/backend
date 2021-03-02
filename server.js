@@ -11,6 +11,7 @@ const garageRoutes = require('./routes/garageRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
 const packageRoutes = require('./routes/packageRoutes')
 const makeAndModelRoutes = require('./routes/vehicleMakeAndModelRoutes')
+const valetRouteRoutes = require('./routes/valetRouteRoutes')
 const helpers = require('./helpers')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware')
@@ -147,6 +148,9 @@ app.use('/api/package', packageRoutes)
 
 //makeAndModel routes
 app.use('/api/makeandmodel', makeAndModelRoutes)
+
+//valetRoutes
+app.use('/api/valet', valetRouteRoutes)
 
 //apply to every route
 app.get('*', checkClient)

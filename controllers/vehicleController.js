@@ -90,13 +90,12 @@ const vehicle_get_by_licence = (req, res) => {
 }
 
 // Send id in query params
-const vehicle_get_health_attributes_by_vehicle_id = (req, res) => {
+const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
   res.status(200).json({
-    'attributes': vehicle.health_attributes,
-    'summary' : vehicle.health_attributes_summary
-  }
-    )
+    attributes: vehicle.health_attributes,
+    summary: vehicle.health_attributes_summary,
+  })
 }
 
 //END: ENDPOINTS FOR GET REQUESTS
@@ -185,9 +184,7 @@ const vehicle_update = async (req, res) => {
  !   make sure that the indexes for the services do not change!
  *  health_attributes_summary: The mechs summary for the latest inspection. (older notes will be overwritten.)
  */
-const vehicle_update_health_attributes = (req, res) => {
-
-}
+const vehicle_update_health_attributes = (req, res) => {}
 
 //END: ENDPOINTS FOR PUT REQUESTS
 

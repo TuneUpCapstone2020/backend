@@ -45,6 +45,30 @@ const vehicleSchema = new Schema(
         },
       },
     ],
+    health_attributes: [
+      {
+        attribute: {
+          type: String,
+          default: undefined,
+        },
+        status: {
+          type: int,
+          default: 0,
+        },
+        attribute_applicable_to_vehicle: {
+          type: Boolean,
+          default: true,
+        },
+        system: {
+          type: String,
+          default: undefined,
+        },
+      },
+    ],
+    health_attributes_summary: {
+      type: String,
+      default: undefined,
+    },
   },
   { timestamps: true }
 )

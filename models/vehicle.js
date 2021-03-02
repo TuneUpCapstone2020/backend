@@ -68,6 +68,10 @@ const vehicleSchema = new Schema(
           type: Number,
           default: 2,
         },
+        attribute_image: {
+          data: Buffer,
+          contentType: String,
+        },
       },
     ],
     health_attributes_summary: {

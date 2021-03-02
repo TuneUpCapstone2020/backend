@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const Appointment = require('./appointment')
+const helpers = require('../helpers')
 
 const vehicleSchema = new Schema(
   {
@@ -52,7 +53,7 @@ const vehicleSchema = new Schema(
           default: undefined,
         },
         status: {
-          type: int,
+          type: Number,
           default: 0,
         },
         attribute_applicable_to_vehicle: {
@@ -106,6 +107,26 @@ vehicleSchema.statics.addAppointment = async function (vehicleId, appointment) {
     vehicle.save()
   } else throw Error('Vehicle not found')
 }
+
+vehicleSchema.pre('save', async function (next) {
+  console.log(`Pre called!`)
+  console.log(`Attribute length: ${this.health_attributes.length}`)
+  if (this.health_attributes.length == 0) {
+    // console.log(
+    //   `Populating vehicle attributes @ time: ${helpers.getTimeStamp()}`
+    // )
+    //const vehicle = await Vehicle.findById(this._id)
+    const attributes = require('../attributes.json')
+
+    for (attribute of attributes) {
+      this.health_attributes.push(attribute)
+    }
+    // console.log(
+    //   `Done populating vehicle attributes @ time: ${helpers.getTimeStamp()}`
+    // )
+  }
+  next()
+})
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 module.exports = Vehicle

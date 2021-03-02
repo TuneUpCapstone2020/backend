@@ -1,0 +1,63 @@
+[
+	{
+		"attribute": "Parking Brake",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Brake Pedal",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Clutch Pedal",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Driver Seat Belt",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Flashers",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Hazard Lights",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Parking Brake",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Rear-View Mirror",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Side Mirrors",
+		"system" : "Interior"
+	},
+	{
+		"attribute": "Accessory Belt(s)",
+		"system" : "Under the Hood"
+	},
+	{
+		"attribute": "Hood Latch",
+		"system" : "Under the Hood"
+	},
+	{
+		"attribute": "Air Filter",
+		"system" : "Under the Hood"
+	},
+	{
+		"attribute": "Battery",
+		"system" : "Under the Hood"
+	},
+	{
+		"attribute": "Battery Cables",
+		"system" : "Under the Hood"
+	},
+	{
+		"attribute": "Aleternator",
+		"system" : "Under the Hood"
+	}
+]
+		

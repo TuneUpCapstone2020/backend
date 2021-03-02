@@ -117,8 +117,6 @@ vehicleSchema.statics.addAppointment = async function (vehicleId, appointment) {
 }
 
 vehicleSchema.pre('save', async function (next) {
-  console.log(`Pre called!`)
-  console.log(`Attribute length: ${this.health_attributes.length}`)
   if (this.health_attributes.length == 0) {
     // console.log(
     //   `Populating vehicle attributes @ time: ${helpers.getTimeStamp()}`

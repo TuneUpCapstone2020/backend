@@ -20,6 +20,12 @@ const valetRouteSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    trip_start_time: {
+      type: Date,
+    },
+    trip_end_time: {
+      tpye: Date,
+    },
   },
   { timestamps: true }
 )

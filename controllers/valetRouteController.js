@@ -116,29 +116,31 @@ const route_add_point_by_appointment_id = async (req, res) => {
     })
 }
 
-//send appointmentId in body
+//send appointmentId in query params
 const route_end_valet_trip_by_appointment_id = async (req, res) => {
   await ValetRoute.findOneAndUpdate(
-    { appointment: req.body.appointmentId },
-    { trip_end_time: Date.now() }
+    { appointment: req.query.appointmentId },
+    { trip_end_time: Date.now() },
+    (err, result) => {
+      if (err) {
+        console.warn(
+          `An error occured in route_end_valet_trip_by_appointment_id @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+        res.status(400).json({
+          message: 'An error occurred while ending the trip. Please try again!',
+          error: err.message,
+        })
+      }
+      {
+        res.status(200).json({
+          message: 'Route Completed!',
+          end_time: result.trip_end_time,
+          route_id: result._id,
+        })
+      }
+    }
   )
-    .then((route) => {
-      res.status(200).json({
-        message: 'Route Completed!',
-        route_id: route._id,
-        end_time: route.trip_end_time,
-      })
-    })
-    .catch((err) => {
-      console.warn(
-        `An error occured in route_end_valet_trip_by_appointment_id @ time: ${helpers.getTimeStamp()}`
-      )
-      console.log(`Error: ${err.message}`)
-      res.status(400).json({
-        message: 'An error occurred while ending the trip. Please try again!',
-        error: err.message,
-      })
-    })
 }
 module.exports = {
   route_create,

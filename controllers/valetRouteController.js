@@ -3,6 +3,9 @@ const Appointment = require('../models/appointment')
 const _ = require('lodash')
 const helpers = require('../helpers')
 
+const nodeGeocoder = require('node-geocoder')
+const options = { provider: 'openstreetmap' }
+const geoCoder = nodeGeocoder(options)
 //START: ENDPOINTS FOR CREATE
 
 /*
@@ -85,6 +88,32 @@ const route_get_coordinates_by_appointment_id = async (req, res) => {
     })
 }
 
+/*
+ * In query params:
+ *  address: address for which the lat and lon are required
+ */
+const route_get_lat_and_long_from_address = async (req, res) => {
+  await geoCoder
+    .geocode(req.query.address)
+    .then((latAndLon) => {
+      console.log(`latnlon: ${JSON.stringify(latAndLon, null, 2)}`)
+      res.status(200).json({
+        lat: latAndLon[0].latitude,
+        lon: latAndLon[0].longitude,
+      })
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in route_get_lat_and_long_from_address @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'unable to get lat and lon from address!',
+        error: err.message,
+      })
+    })
+}
+
 //end retrieve
 
 //start update endpoints
@@ -146,6 +175,7 @@ module.exports = {
   route_create,
   route_get_coordinates_by_route_id,
   route_get_coordinates_by_appointment_id,
+  route_get_lat_and_long_from_address,
   route_add_point_by_appointment_id,
   route_end_valet_trip_by_appointment_id,
 }

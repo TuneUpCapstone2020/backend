@@ -19,7 +19,8 @@ const route_create = async (req, res) => {
   }
   await ValetRoute.create({
     appointment: appointment,
-    gps_coordinates: gps_coordinates,
+    // gps_coordinates: gps_coordinates,
+    gps_coordinates: { coordinates: [body.coordinates] },
   })
     .then((result) => {
       console.log(`Create new valet route @ time: ${helpers.getTimeStamp()}`)

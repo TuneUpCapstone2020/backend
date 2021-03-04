@@ -12,5 +12,6 @@ router.get('/appointment', valetRouteController.route_get_coordinates_by_appoint
 
 //Update
 router.put('/', valetRouteController.route_add_point_by_appointment_id)
+router.put('/complete', valetRouteController.route_end_valet_trip_by_appointment_id)
 
 module.exports = router

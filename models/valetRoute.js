@@ -22,9 +22,11 @@ const valetRouteSchema = new Schema(
     },
     trip_start_time: {
       type: Date,
+      default: Date.now(),
     },
     trip_end_time: {
-      tpye: Date,
+      type: Date,
+      default: Date.now(),
     },
   },
   { timestamps: true }

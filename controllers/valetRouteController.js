@@ -117,9 +117,35 @@ const route_add_point_by_appointment_id = async (req, res) => {
       console.log(`Error: ${err.message}`)
     })
 }
+
+//send appointmentId in body
+const route_end_valet_trip_by_appointment_id = async (req, res) => {
+  await ValetRoute.findOneAndUpdate(
+    { appointment: req.body.appointmentId },
+    { trip_end_time: Date.now() }
+  )
+    .then((route) => {
+      res.status(200).json({
+        message: 'Route Completed!',
+        route_id: route._id,
+        end_time: route.trip_end_time,
+      })
+    })
+    .catch((err) => {
+      console.warn(
+        `An error occured in route_end_valet_trip_by_appointment_id @ time: ${helpers.getTimeStamp()}`
+      )
+      console.log(`Error: ${err.message}`)
+      res.status(400).json({
+        message: 'An error occurred while ending the trip. Please try again!',
+        error: err.message,
+      })
+    })
+}
 module.exports = {
   route_create,
   route_get_coordinates_by_route_id,
   route_get_coordinates_by_appointment_id,
   route_add_point_by_appointment_id,
+  route_end_valet_trip_by_appointment_id,
 }

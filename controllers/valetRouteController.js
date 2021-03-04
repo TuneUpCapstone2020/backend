@@ -14,13 +14,11 @@ const helpers = require('../helpers')
 const route_create = async (req, res) => {
   const appointment = await Appointment.findById(req.query.appointmentId)
   let body = _.omitBy(req.body, _.isNil)
-  const gps_coordinates = {
-    coordinates: [body.coordinates],
-  }
   await ValetRoute.create({
     appointment: appointment,
     // gps_coordinates: gps_coordinates,
     gps_coordinates: { coordinates: [body.coordinates] },
+    start_time: Date.now(),
   })
     .then((result) => {
       console.log(`Create new valet route @ time: ${helpers.getTimeStamp()}`)

@@ -78,6 +78,10 @@ const vehicleSchema = new Schema(
       type: String,
       default: undefined,
     },
+    latest_insepction_tier: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 )

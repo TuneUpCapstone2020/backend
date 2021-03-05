@@ -89,11 +89,16 @@ const vehicle_get_by_licence = (req, res) => {
     })
 }
 
-// Send id in query params
+// Send id in query params as well as the associated inspection_tier
 const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
+  const allAttributes = vehicle.health_attributes
+  const filteredAttributes = allAttributes.filter(
+    (attribute) => (attribute.inspection_tier == req.query.inspection_tier)
+  )
   res.status(200).json({
-    attributes: vehicle.health_attributes,
+    //attributes: vehicle.health_attributes,
+    attributes: filteredAttributes,
     summary: vehicle.health_attributes_summary,
   })
 }
@@ -177,8 +182,8 @@ const vehicle_update = async (req, res) => {
 }
 
 /*
- * In files: send the image. rename the image as the index of the attribute its associated to. rename
- *            The image name will then be used to know which attribute its so be saved under/associated to
+ * In files: send the image. rename the image as the index of the attribute its associated to.
+ *            The image name will then be used to know which attribute its to be saved under/associated to
  * In body:
  *  health_attributes: An array which has the same structure and names as in the health_attributes part of the model. 
  !   make sure that the indexes for the services do not change!

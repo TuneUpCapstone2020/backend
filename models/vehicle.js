@@ -68,9 +68,8 @@ const vehicleSchema = new Schema(
           type: Number,
           default: 2,
         },
-        attribute_image: {
-          data: Buffer,
-          contentType: String,
+        attribute_image_url: {
+          type: String,
         },
       },
     ],

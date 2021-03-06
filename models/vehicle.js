@@ -54,7 +54,7 @@ const vehicleSchema = new Schema(
         },
         status: {
           type: Number,
-          default: 0,
+          default: 2,
         },
         attribute_applicable_to_vehicle: {
           type: Boolean,
@@ -70,6 +70,7 @@ const vehicleSchema = new Schema(
         },
         attribute_image_url: {
           type: String,
+          default: undefined,
         },
       },
     ],

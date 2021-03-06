@@ -89,6 +89,25 @@ const vehicle_get_by_licence = (req, res) => {
     })
 }
 
+//send appointmentId in query params
+const vehicle_get_vehicle_id_by_appointment_id = (req, res) => {
+  try{
+  const vehicle = await Vehicle.findOne({appointment: req.query.appointId})
+  res.status(200).json({
+    message: 'Vehicle found!',
+    id: vehicle._id
+  })
+  } catch (err){
+    console.warn(`An error occured in vehicle_get_vehicle_id_by_appointment_id @ time: ${helpers.getTimeStamp()}`);
+    console.log(`Error: ${err.message}`);
+    res.status(400).json({
+      message: 'Unable to get vehicleid',
+      error: err.message,
+    })
+  }
+  
+  
+}
 // Send id in query params as well as the associated inspection_tier
 const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
@@ -237,6 +256,7 @@ module.exports = {
   vehicle_get_all,
   vehicle_get_all_of_client,
   vehicle_get_health_attributes_by_vehicle_id,
+  vehicle_get_vehicle_id_by_appointment_id,
   vehicle_post,
   vehicle_get_by_licence,
   vehicle_update,

@@ -71,9 +71,6 @@ const vehicleSchema = new Schema(
         attribute_image_url: {
           type: String,
         },
-        attribute_image_key: {
-          type: String,
-        },
       },
     ],
     health_attributes_summary: {

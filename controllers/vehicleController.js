@@ -93,10 +93,7 @@ const vehicle_get_by_licence = (req, res) => {
 const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
   try {
     const vehicle = await Vehicle.findOne({ appointment: req.query.appointId })
-    res.status(200).json({
-      message: 'Vehicle found!',
-      id: vehicle._id,
-    })
+    res.status(200).send(vehicle._id)
   } catch (err) {
     console.warn(
       `An error occured in vehicle_get_vehicle_id_by_appointment_id @ time: ${helpers.getTimeStamp()}`

@@ -10,7 +10,7 @@ const __ = require('underscore')
 const { forEach } = require('lodash')
 const minimumMechanicLevel = 4
 const timeBlockGranularity = 30
-const timeSlotsToReturn = 5
+const timeSlotsToReturn = 8
 //START: Error Handlers
 const handleErrors = (err) => {
   console.warn(err.message, err.code)

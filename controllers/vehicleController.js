@@ -89,6 +89,37 @@ const vehicle_get_by_licence = (req, res) => {
     })
 }
 
+//send appointmentId in query params
+const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
+  try {
+    const vehicle = await Vehicle.findOne({ appointment: req.query.appointId })
+    res.status(200).send(vehicle._id)
+  } catch (err) {
+    console.warn(
+      `An error occured in vehicle_get_vehicle_id_by_appointment_id @ time: ${helpers.getTimeStamp()}`
+    )
+    console.log(`Error: ${err.message}`)
+    res.status(400).json({
+      message: 'Unable to get vehicleid',
+      error: err.message,
+    })
+  }
+}
+// Send id in query params as well as the associated inspection_tier
+const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
+  const vehicle = await Vehicle.findById(req.query.id)
+  const allAttributes = vehicle.health_attributes
+  const filteredAttributes = allAttributes.filter(
+    (attribute) => attribute.inspection_tier == req.query.inspection_tier
+  )
+  res.status(200).json({
+    //attributes: vehicle.health_attributes,
+    attributes: filteredAttributes,
+    summary: vehicle.health_attributes_summary,
+    latest_insepction_tier: vehicle.latest_insepction_tier,
+  })
+}
+
 //END: ENDPOINTS FOR GET REQUESTS
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
@@ -167,6 +198,16 @@ const vehicle_update = async (req, res) => {
   }
 }
 
+/*
+ * In files: send the image. rename the image as the index of the attribute its associated to.
+ *            The image name will then be used to know which attribute its to be saved under/associated to
+ * In body:
+ *  health_attributes: An array which has the same structure and names as in the health_attributes part of the model. 
+ !   make sure that the indexes for the services do not change!
+ *  health_attributes_summary: The mechs summary for the latest inspection. (older notes will be overwritten.)
+ */
+const vehicle_update_health_attributes = (req, res) => {}
+
 //END: ENDPOINTS FOR PUT REQUESTS
 
 //START: ENDPOINTS FOR DELETE REQUESTS (Delete)
@@ -187,8 +228,8 @@ const vehicle_delete = async (req, res) => {
           // })
         } else {
           console.log(`Vehicle deleted ${result._id}`)
-          const response = [];
-          for(appoint of result.appointments){
+          const response = []
+          for (appoint of result.appointments) {
             response.push(appoint._id)
           }
           //res.status(200).json(result.appoinments)
@@ -211,6 +252,8 @@ const vehicle_delete = async (req, res) => {
 module.exports = {
   vehicle_get_all,
   vehicle_get_all_of_client,
+  vehicle_get_health_attributes_by_vehicle_id,
+  vehicle_get_vehicle_id_by_appointment_id,
   vehicle_post,
   vehicle_get_by_licence,
   vehicle_update,

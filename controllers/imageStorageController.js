@@ -21,14 +21,20 @@ const image_upload = async (req, res) => {
       })
     }
 
-    return res.json({ imageUrl: req.file.location })
+    return res.json({
+      message: 'Image successfully uploaded',
+      imageUrl: req.file.location,
+    })
   })
 }
 
 //send the image url in the query params
 const image_download = async (req, res) => {
   console.log(`imageUrl: ${req.query.imageUrl}`)
-  const params = { Bucket: process.env.AWSBucketName, Key: req.query.imageUrl }
+  const imageUrlSplit = req.query.imageUrl.split('/')
+  const imageKey = imageUrlSplit[imageUrlSplit.length - 1]
+  console.log(`ImageKey: ${imageKey}`)
+  const params = { Bucket: process.env.AWSBucketName, Key: imageKey }
   s3.getObject(params, function (err, result) {
     if (err) {
       console.warn(

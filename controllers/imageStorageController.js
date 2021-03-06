@@ -20,7 +20,6 @@ const image_upload = async (req, res) => {
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })
     }
-
     return res.json({
       message: 'Image successfully uploaded',
       imageUrl: req.file.location,
@@ -46,15 +45,14 @@ const image_download = async (req, res) => {
         error: err.message,
       })
     } else {
-      res.writeHead(200, { 'Content-Type': 'image/jpeg' })
+      res.writeHead(200, { 'Content-Type': 'image' })
       res.write(result.Body, 'binary')
       res.end(null, 'binary')
     }
   })
 }
 const fileFilter = (req, file, cb) => {
-  // if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-  if (file.mimetype === 'image/jpeg') {
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
     cb(null, true)
   } else {
     cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false)

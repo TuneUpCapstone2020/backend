@@ -11,6 +11,7 @@ const garageRoutes = require('./routes/garageRoutes')
 const catalogRoutes = require('./routes/catalogRoutes')
 const packageRoutes = require('./routes/packageRoutes')
 const makeAndModelRoutes = require('./routes/vehicleMakeAndModelRoutes')
+const imageStorageRoutes = require('./routes/imageStorageRoutes')
 const valetRouteRoutes = require('./routes/valetRouteRoutes')
 const helpers = require('./helpers')
 
@@ -59,7 +60,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
           for (let i = 0; i < names.length; i++) {
             //console.log(`name${i}: ${JSON.stringify(names[i])}`)
             if (names[i]['name'].includes('vehiclemakes')) {
-              console.log(`Vehice Makes and models already exists.`)
+              console.log(`Vehilce Makes and models already exists.`)
               vehiclesExist = true
               break
             }
@@ -104,7 +105,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
           for (let i = 0; i < names.length; i++) {
             //console.log(`name${i}: ${JSON.stringify(names[i])}`)
             if (names[i]['name'].includes('vehiclemakes')) {
-              console.log(`Vehice Makes and models already exists.`)
+              console.log(`Vehicle Makes and models already exists.`)
               vehiclesExist = true
               break
             }
@@ -149,6 +150,9 @@ app.use('/api/package', packageRoutes)
 //makeAndModel routes
 app.use('/api/makeandmodel', makeAndModelRoutes)
 
+//image routes
+app.use('/api/image', imageStorageRoutes)
+
 //valetRoutes
 app.use('/api/valet', valetRouteRoutes)
 
@@ -162,7 +166,7 @@ app.get('/', (req, res) => {
   )
 })
 
-//easy postman test
+//easy postman tests
 app.get('/ping/', (req, res) => {
   res.send('PONG')
 })

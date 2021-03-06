@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const Appointment = require('./appointment')
+const helpers = require('../helpers')
 
 const vehicleSchema = new Schema(
   {
@@ -45,6 +46,42 @@ const vehicleSchema = new Schema(
         },
       },
     ],
+    health_attributes: [
+      {
+        attribute: {
+          type: String,
+          default: undefined,
+        },
+        status: {
+          type: Number,
+          default: 2,
+        },
+        attribute_applicable_to_vehicle: {
+          type: Boolean,
+          default: true,
+        },
+        system: {
+          type: String,
+          default: undefined,
+        },
+        inspection_tier: {
+          type: Number,
+          default: 2,
+        },
+        attribute_image_url: {
+          type: String,
+          default: undefined,
+        },
+      },
+    ],
+    health_attributes_summary: {
+      type: String,
+      default: undefined,
+    },
+    latest_insepction_tier: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 )
@@ -82,6 +119,24 @@ vehicleSchema.statics.addAppointment = async function (vehicleId, appointment) {
     vehicle.save()
   } else throw Error('Vehicle not found')
 }
+
+vehicleSchema.pre('save', async function (next) {
+  if (this.health_attributes.length == 0) {
+    // console.log(
+    //   `Populating vehicle attributes @ time: ${helpers.getTimeStamp()}`
+    // )
+    //const vehicle = await Vehicle.findById(this._id)
+    const attributes = require('../attributes.json')
+
+    for (attribute of attributes) {
+      this.health_attributes.push(attribute)
+    }
+    // console.log(
+    //   `Done populating vehicle attributes @ time: ${helpers.getTimeStamp()}`
+    // )
+  }
+  next()
+})
 
 const Vehicle = mongoose.model('Vehicle', vehicleSchema)
 module.exports = Vehicle

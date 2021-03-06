@@ -59,7 +59,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
           for (let i = 0; i < names.length; i++) {
             //console.log(`name${i}: ${JSON.stringify(names[i])}`)
             if (names[i]['name'].includes('vehiclemakes')) {
-              console.log(`Vehice Makes and models already exists.`)
+              console.log(`Vehilce Makes and models already exists.`)
               vehiclesExist = true
               break
             }
@@ -104,7 +104,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
           for (let i = 0; i < names.length; i++) {
             //console.log(`name${i}: ${JSON.stringify(names[i])}`)
             if (names[i]['name'].includes('vehiclemakes')) {
-              console.log(`Vehice Makes and models already exists.`)
+              console.log(`Vehicle Makes and models already exists.`)
               vehiclesExist = true
               break
             }

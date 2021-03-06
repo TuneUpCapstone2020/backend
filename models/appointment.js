@@ -98,6 +98,10 @@ const appointmentSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    valet_pickup_address: {
+      type: Array,
+      default: [],
+    },
     customer_note: {
       type: String,
     },

@@ -102,7 +102,7 @@ const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
     )
     console.log(`Error: ${err.message}`)
     res.status(400).json({
-      message: 'Unable to get vehicleid',
+      message: 'Unable to get vehicleId',
       error: err.message,
     })
   }

@@ -1,5 +1,6 @@
 const Vehicle = require('../models/vehicle')
 const Client = require('../models/client')
+const helpers = require('../helpers')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 require('dotenv').config()

@@ -92,7 +92,9 @@ const vehicle_get_by_licence = (req, res) => {
 //send appointmentId in query params
 const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findOne({ appointment: req.query.appointId })
+    const vehicle = await Vehicle.findOne({
+      appointment: req.query.appointmentId,
+    })
     res.status(200).send(vehicle._id)
   } catch (err) {
     console.warn(

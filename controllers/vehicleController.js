@@ -240,7 +240,7 @@ const vehicle_delete = async (req, res) => {
       }
     )
   } catch (err) {
-    console.warn(`An error occured in vehicle_delete!`)
+    console.warn(`An error occurred in vehicle_delete!`)
     console.log(`Error: ${err.message}`)
     res.status(400).json({
       message: 'An error occured!',

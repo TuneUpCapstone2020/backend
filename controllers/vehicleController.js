@@ -124,6 +124,24 @@ const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   })
 }
 
+//just send vehicleId in request
+const vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier = async (
+  req,
+  res
+) => {
+  const vehicle = await Vehicle.findById(req.query.vehicleId)
+  const allAttributes = vehicle.health_attributes
+  const filteredAttributes = allAttributes.filter(
+    (attribute) => attribute.inspection_tier == vehicle.latest_insepction_tier
+  )
+  res.status(200).json({
+    //attributes: vehicle.health_attributes,
+    attributes: filteredAttributes,
+    summary: vehicle.health_attributes_summary,
+    latest_insepction_tier: vehicle.latest_insepction_tier,
+  })
+}
+
 //END: ENDPOINTS FOR GET REQUESTS
 
 //START: ENDPOINTS FOR POST REQUESTS (Create)
@@ -232,8 +250,8 @@ const vehicle_update_health_attributes = async (req, res) => {
     `vehicle health attributes: ${JSON.stringify(vehicle.health_attributes)}`
   )
   res.status(200).json({
-    message: `Successfully Updated vehicle health attributes!`
-    id: vehicle._id
+    message: `Successfully Updated vehicle health attributes!`,
+    id: vehicle._id,
   })
 }
 
@@ -282,6 +300,7 @@ module.exports = {
   vehicle_get_all,
   vehicle_get_all_of_client,
   vehicle_get_health_attributes_by_vehicle_id,
+  vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier,
   vehicle_get_vehicle_id_by_appointment_id,
   vehicle_post,
   vehicle_get_by_licence,

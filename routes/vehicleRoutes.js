@@ -15,6 +15,7 @@ router.get('/id', vehicleController.vehicle_get_vehicle_id_by_appointment_id)
 
 //Update
 router.put('/', vehicleController.vehicle_update)
+router.put('/attributes', vehicleController.vehicle_update_health_attributes)
 
 //Delete
 router.delete('/', vehicleController.vehicle_delete)

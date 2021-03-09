@@ -109,6 +109,7 @@ const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
   }
 }
 // Send id in query params as well as the associated inspection_tier
+//todo: sort based on system
 const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
   const allAttributes = vehicle.health_attributes
@@ -202,14 +203,39 @@ const vehicle_update = async (req, res) => {
 }
 
 /*
- * In files: send the image. rename the image as the index of the attribute its associated to.
- *            The image name will then be used to know which attribute its to be saved under/associated to
  * In body:
  *  health_attributes: An array which has the same structure and names as in the health_attributes part of the model. 
  !   make sure that the indexes for the services do not change!
  *  health_attributes_summary: The mechs summary for the latest inspection. (older notes will be overwritten.)
+ *  latest_inspection_tier: the tier of the inspection that was just completed
+ * In query params:
+ *  vehicleId: the id of the vehicle the update belongs to 
  */
-const vehicle_update_health_attributes = (req, res) => {}
+const vehicle_update_health_attributes = async (req, res) => {
+  //here we're simply taking the list that is sent from the backend and using it to update
+  //the values which have been changed.
+  const body = _.omitBy(req.body, _.isNil)
+  const vehicle = await Vehicle.findById(req.query.vehicleId)
+  let health_attributes = vehicle.health_attributes
+  const health_attributes2 = body.health_attributes
+  health_attributes = health_attributes.map((attribute) => {
+    let attribute2 = health_attributes2.find(
+      (a2) => a2.attribute === attribute.attribute
+    )
+    attribute2 ? { ...attribute, ...attribute2 } : attribute
+    if (attribute2) return attribute2
+    else return attribute
+  })
+  vehicle.health_attributes = health_attributes
+  vehicle.save()
+  console.log(
+    `vehicle health attributes: ${JSON.stringify(vehicle.health_attributes)}`
+  )
+  res.status(200).json({
+    message: `Successfully Updated vehicle health attributes!`
+    id: vehicle._id
+  })
+}
 
 //END: ENDPOINTS FOR PUT REQUESTS
 
@@ -260,6 +286,7 @@ module.exports = {
   vehicle_post,
   vehicle_get_by_licence,
   vehicle_update,
+  vehicle_update_health_attributes,
   vehicle_delete,
 }
 

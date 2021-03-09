@@ -12,7 +12,7 @@ aws.config.update({
 
 var s3 = new aws.S3()
 
-//pass the images as multipart/form-data
+//pass the image as multipart/form-data
 //pass the vehicleId and attribute for which the image is associated to in query params
 const image_upload = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.vehicleId)

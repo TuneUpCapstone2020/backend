@@ -51,6 +51,13 @@ const clientSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    deviceId: {
+      type: String,
+    },
+    devicePlatform: {
+      type: String,
+      default: 'android',
+    },
   },
   { timestamps: true }
 )

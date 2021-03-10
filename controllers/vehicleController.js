@@ -118,8 +118,8 @@ const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,
-    attributes: filteredAttributes,
-    summary: vehicle.health_attributes_summary,
+    health_attributes: filteredAttributes,
+    health_attributes_summary: vehicle.health_attributes_summary,
     latest_insepction_tier: vehicle.latest_insepction_tier,
   })
 }
@@ -136,8 +136,8 @@ const vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier = asy
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,
-    attributes: filteredAttributes,
-    summary: vehicle.health_attributes_summary,
+    health_attributes: filteredAttributes,
+    health_attributes_summary: vehicle.health_attributes_summary,
     latest_insepction_tier: vehicle.latest_insepction_tier,
   })
 }

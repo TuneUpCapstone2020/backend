@@ -107,15 +107,28 @@ const client_get_by_phone_number = (req, res) => {
 }
 
 //send clientId in the query params
-const logout_get = (req, res) => {
+const logout_get = async (req, res) => {
   const token = helpers.getDecodedToken(req)
-  Client.findOneAndUpdate(token, {
-    deviceId: '',
-    devicePlatform: '',
-  })
-  console.log(`Logged out client`)
-  res.cookie('jwt', '', { maxAge: 1 })
-  res.status(200).json({ message: 'Token deleted ' })
+  await Client.findOneAndUpdate(
+    token,
+    {
+      deviceId: '',
+      devicePlatform: '',
+    },
+    { new: true },
+    (err, result) => {
+      if (err) {
+        console.warn(
+          `An error occured in logout_get @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+      } else {
+        console.log(`Logged out client`)
+        res.cookie('jwt', '', { maxAge: 1 })
+        res.status(200).json({ message: 'Token deleted ' })
+      }
+    }
+  )
 }
 
 //END: ENDPOINTS FOR GET REQUESTS

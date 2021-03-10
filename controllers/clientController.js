@@ -166,7 +166,12 @@ const register_post = async (req, res) => {
 
 const login_post = async (req, res) => {
   try {
-    const client = await Client.login(req.body.email, req.body.password)
+    const client = await Client.login(
+      req.body.email,
+      req.body.password,
+      req.body.deviceId,
+      req.body.devicePlatform
+    )
     console.log(
       `Logged in client ${client.email} @ time ${helpers.getTimeStamp()}`
     )

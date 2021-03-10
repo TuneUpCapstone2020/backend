@@ -37,6 +37,28 @@ const image_upload = async (req, res) => {
   })
 }
 
+const image_upload_make_logo = async (req, res) => {
+  singleUpload(req, res, function (err) {
+    if (err) {
+      return res.status(422).json({
+        errors: [{ title: 'Image Upload Error', detail: err.message }],
+      })
+    }
+    // const attributes = vehicle.health_attributes
+    // for (attribute of attributes) {
+    //   if (attribute.attribute == req.query.attribute) {
+    //     attribute['attribute_image_url'] = req.file.location
+    //     break
+    //   }
+    // }
+    // vehicle.save()
+    return res.json({
+      message: 'Image successfully uploaded',
+      imageUrl: req.file.location,
+    })
+  })
+}
+
 //send the image url in the query params
 const image_download = async (req, res) => {
   const imageUrlSplit = req.query.imageUrl.split('/')
@@ -96,5 +118,6 @@ const upload = multer({
 const singleUpload = upload.single('image')
 module.exports = {
   image_upload,
+  image_upload_make_logo,
   image_download,
 }

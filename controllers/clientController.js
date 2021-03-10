@@ -110,7 +110,7 @@ const client_get_by_phone_number = (req, res) => {
 const logout_get = async (req, res) => {
   const token = helpers.getDecodedToken(req)
   await Client.findByIdAndUpdate(
-    token,
+    token.id,
     {
       deviceId: '',
       devicePlatform: '',

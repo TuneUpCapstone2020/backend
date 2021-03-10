@@ -13,7 +13,7 @@ const packageRoutes = require('./routes/packageRoutes')
 const makeAndModelRoutes = require('./routes/vehicleMakeAndModelRoutes')
 const imageStorageRoutes = require('./routes/imageStorageRoutes')
 const valetRouteRoutes = require('./routes/valetRouteRoutes')
-const pushNoficationRoute = require('./routes/pushNotificationRoutes')
+const pushNotificationRoutes = require('./routes/pushNotificationRoutes')
 const helpers = require('./helpers')
 
 const { requireAuth, checkClient } = require('./middleware/clientMiddleware')

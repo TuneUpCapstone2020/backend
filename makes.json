@@ -3,7 +3,8 @@
     "MakeId": 440,
     "MakeName": "ASTON MARTIN",
     "VehicleTypeId": 2,
-    "VehicleTypeName": "Passenger Car"
+    "VehicleTypeName": "Passenger Car",
+    "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1615337955871"
   },
   {
     "MakeId": 441,

@@ -106,7 +106,12 @@ const client_get_by_phone_number = (req, res) => {
     })
 }
 
+//send clientId in the query params
 const logout_get = (req, res) => {
+  Client.findOneAndUpdate(req.query.clientId, {
+    deviceId: '',
+    devicePlatform: '',
+  })
   console.log(`Logged out client`)
   res.cookie('jwt', '', { maxAge: 1 })
   res.status(200).json({ message: 'Token deleted ' })

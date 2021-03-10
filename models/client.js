@@ -107,13 +107,21 @@ clientSchema.pre('update', async function (next) {
 // })
 
 //static method to login user
-clientSchema.statics.login = async function (email, password) {
+clientSchema.statics.login = async function (
+  email,
+  password,
+  deviceId,
+  devicePlatform
+) {
   const client = await this.findOne({ email, deleted: false })
   if (client) {
     //const auth = await bcrypt.compare(password, client.password)
     //const auth = (await password) === client.password //old bcrypt version -> this line is thus depricated
     const auth = await bcryptjs.compare(password, client.password)
     if (auth) {
+      client.deviceId = deviceId
+      client.devicePlatform = devicePlatform
+      client.save()
       return client
     }
     throw Error('Incorrect email or password')

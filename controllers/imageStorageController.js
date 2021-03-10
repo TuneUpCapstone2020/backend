@@ -12,7 +12,7 @@ aws.config.update({
 
 var s3 = new aws.S3()
 
-//pass the images as multipart/form-data
+//pass the image as multipart/form-data
 //pass the vehicleId and attribute for which the image is associated to in query params
 const image_upload = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.vehicleId)
@@ -37,9 +37,32 @@ const image_upload = async (req, res) => {
   })
 }
 
+const image_upload_make_logo = async (req, res) => {
+  singleUpload(req, res, function (err) {
+    if (err) {
+      return res.status(422).json({
+        errors: [{ title: 'Image Upload Error', detail: err.message }],
+      })
+    }
+    // const attributes = vehicle.health_attributes
+    // for (attribute of attributes) {
+    //   if (attribute.attribute == req.query.attribute) {
+    //     attribute['attribute_image_url'] = req.file.location
+    //     break
+    //   }
+    // }
+    // vehicle.save()
+    return res.json({
+      message: 'Image successfully uploaded',
+      imageUrl: req.file.location,
+    })
+  })
+}
+
 //send the image url in the query params
 const image_download = async (req, res) => {
   const imageUrlSplit = req.query.imageUrl.split('/')
+  console.log(`Getting image: ${req.query.imageUrl}`)
   s3.getObject(
     {
       Bucket: process.env.AWSBucketName,
@@ -56,18 +79,34 @@ const image_download = async (req, res) => {
           error: err.message,
         })
       } else {
-        res.writeHead(200, { 'Content-Type': 'image' })
+        // res.writeHead(200, { 'Content-Type': 'image' })
+        res.writeHead(200, {
+          'Content-Type': result.ContentType,
+          'Content-Length': result.ContentLength,
+          'Last-Modified': result.LastModified,
+        })
         res.write(result.Body, 'binary')
         res.end(null, 'binary')
+        // res.status(200).send(result.body)
       }
     }
   )
 }
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+  if (
+    file.mimetype === 'image/jpeg' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/webp'
+  ) {
     cb(null, true)
   } else {
-    cb(new Error('Invalid file type, only JPEG and PNG is allowed!'), false)
+    cb(
+      new Error(
+        'Invalid file type, only JPG/JPEG, PNG, and WebP files are allowed!'
+      ),
+      false
+    )
   }
 }
 const upload = multer({
@@ -75,6 +114,7 @@ const upload = multer({
   storage: multerS3({
     s3: s3,
     bucket: process.env.AWSBucketName,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname })
     },
@@ -86,5 +126,6 @@ const upload = multer({
 const singleUpload = upload.single('image')
 module.exports = {
   image_upload,
+  image_upload_make_logo,
   image_download,
 }

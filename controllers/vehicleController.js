@@ -1,5 +1,6 @@
 const Vehicle = require('../models/vehicle')
 const Client = require('../models/client')
+const helpers = require('../helpers')
 const jwt = require('jsonwebtoken')
 const _ = require('lodash')
 require('dotenv').config()
@@ -92,7 +93,9 @@ const vehicle_get_by_licence = (req, res) => {
 //send appointmentId in query params
 const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
   try {
-    const vehicle = await Vehicle.findOne({ appointment: req.query.appointId })
+    const vehicle = await Vehicle.findOne({
+      'appointments._id': req.query.appointmentId,
+    })
     res.status(200).send(vehicle._id)
   } catch (err) {
     console.warn(
@@ -100,12 +103,13 @@ const vehicle_get_vehicle_id_by_appointment_id = async (req, res) => {
     )
     console.log(`Error: ${err.message}`)
     res.status(400).json({
-      message: 'Unable to get vehicleid',
+      message: 'Unable to get vehicleId',
       error: err.message,
     })
   }
 }
 // Send id in query params as well as the associated inspection_tier
+//todo: sort based on system
 const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
   const allAttributes = vehicle.health_attributes
@@ -114,8 +118,26 @@ const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,
-    attributes: filteredAttributes,
-    summary: vehicle.health_attributes_summary,
+    health_attributes: filteredAttributes,
+    health_attributes_summary: vehicle.health_attributes_summary,
+    latest_insepction_tier: vehicle.latest_insepction_tier,
+  })
+}
+
+//just send vehicleId in request
+const vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier = async (
+  req,
+  res
+) => {
+  const vehicle = await Vehicle.findById(req.query.vehicleId)
+  const allAttributes = vehicle.health_attributes
+  const filteredAttributes = allAttributes.filter(
+    (attribute) => attribute.inspection_tier == vehicle.latest_insepction_tier
+  )
+  res.status(200).json({
+    //attributes: vehicle.health_attributes,
+    health_attributes: filteredAttributes,
+    health_attributes_summary: vehicle.health_attributes_summary,
     latest_insepction_tier: vehicle.latest_insepction_tier,
   })
 }
@@ -199,14 +221,39 @@ const vehicle_update = async (req, res) => {
 }
 
 /*
- * In files: send the image. rename the image as the index of the attribute its associated to.
- *            The image name will then be used to know which attribute its to be saved under/associated to
  * In body:
  *  health_attributes: An array which has the same structure and names as in the health_attributes part of the model. 
  !   make sure that the indexes for the services do not change!
  *  health_attributes_summary: The mechs summary for the latest inspection. (older notes will be overwritten.)
+ *  latest_inspection_tier: the tier of the inspection that was just completed
+ * In query params:
+ *  vehicleId: the id of the vehicle the update belongs to 
  */
-const vehicle_update_health_attributes = (req, res) => {}
+const vehicle_update_health_attributes = async (req, res) => {
+  //here we're simply taking the list that is sent from the backend and using it to update
+  //the values which have been changed.
+  const body = _.omitBy(req.body, _.isNil)
+  const vehicle = await Vehicle.findById(req.query.vehicleId)
+  let health_attributes = vehicle.health_attributes
+  const health_attributes2 = body.health_attributes
+  health_attributes = health_attributes.map((attribute) => {
+    let attribute2 = health_attributes2.find(
+      (a2) => a2.attribute === attribute.attribute
+    )
+    attribute2 ? { ...attribute, ...attribute2 } : attribute
+    if (attribute2) return attribute2
+    else return attribute
+  })
+  vehicle.health_attributes = health_attributes
+  vehicle.save()
+  console.log(
+    `vehicle health attributes: ${JSON.stringify(vehicle.health_attributes)}`
+  )
+  res.status(200).json({
+    message: `Successfully Updated vehicle health attributes!`,
+    id: vehicle._id,
+  })
+}
 
 //END: ENDPOINTS FOR PUT REQUESTS
 
@@ -238,7 +285,7 @@ const vehicle_delete = async (req, res) => {
       }
     )
   } catch (err) {
-    console.warn(`An error occured in vehicle_delete!`)
+    console.warn(`An error occurred in vehicle_delete!`)
     console.log(`Error: ${err.message}`)
     res.status(400).json({
       message: 'An error occured!',
@@ -253,10 +300,12 @@ module.exports = {
   vehicle_get_all,
   vehicle_get_all_of_client,
   vehicle_get_health_attributes_by_vehicle_id,
+  vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier,
   vehicle_get_vehicle_id_by_appointment_id,
   vehicle_post,
   vehicle_get_by_licence,
   vehicle_update,
+  vehicle_update_health_attributes,
   vehicle_delete,
 }
 

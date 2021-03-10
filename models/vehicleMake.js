@@ -23,6 +23,9 @@ const vehicleMakeSchema = new Schema(
       type: String,
       required: true,
     },
+    VehicleMakeLogoUrl: {
+      type: String,
+    },
   },
   { timestamps: true }
 )

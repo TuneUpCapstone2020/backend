@@ -108,7 +108,8 @@ const client_get_by_phone_number = (req, res) => {
 
 //send clientId in the query params
 const logout_get = (req, res) => {
-  Client.findOneAndUpdate(req.query.clientId, {
+  const token = helpers.getDecodedToken(req)
+  Client.findOneAndUpdate(token, {
     deviceId: '',
     devicePlatform: '',
   })

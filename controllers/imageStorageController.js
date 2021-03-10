@@ -62,6 +62,7 @@ const image_upload_make_logo = async (req, res) => {
 //send the image url in the query params
 const image_download = async (req, res) => {
   const imageUrlSplit = req.query.imageUrl.split('/')
+  console.log(`Getting image: ${req.query.imageUrl}`)
   s3.getObject(
     {
       Bucket: process.env.AWSBucketName,
@@ -78,9 +79,15 @@ const image_download = async (req, res) => {
           error: err.message,
         })
       } else {
-        res.writeHead(200, { 'Content-Type': 'image' })
+        // res.writeHead(200, { 'Content-Type': 'image' })
+        res.writeHead(200, {
+          'Content-Type': result.ContentType,
+          'Content-Length': result.ContentLength,
+          'Last-Modified': result.LastModified,
+        })
         res.write(result.Body, 'binary')
         res.end(null, 'binary')
+        // res.status(200).send(result.body)
       }
     }
   )
@@ -107,6 +114,7 @@ const upload = multer({
   storage: multerS3({
     s3: s3,
     bucket: process.env.AWSBucketName,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     metadata: function (req, file, cb) {
       cb(null, { fieldName: file.fieldname })
     },

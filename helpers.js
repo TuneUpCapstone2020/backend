@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const VehicleMake = require('./models/vehicleMake')
 const VehicleModel = require('./models/vehicleModel')
 const Vehicle = require('./models/vehicle')
+const Client = require('./models/client')
 const { keys } = require('lodash')
 require('dotenv').config()
 
@@ -61,13 +62,13 @@ const populateVehicleAttributes = async (vehicleId) => {
  *  body: the body of the notification
  */
 const createPushNotification = async (clientId, title, body) => {
-  client = Client.findById(clientId)
+  const client = await Client.findById(clientId)
   if (client.devicePlatform === 'android') {
-    let message = new gcm.message({
-      notification: {
+    let message = new gcm.Message({
+      to: client.deviceId,
+      data: {
         title: title,
         body: body,
-        notification: 'notification_important',
       },
     })
 
@@ -79,7 +80,7 @@ const createPushNotification = async (clientId, title, body) => {
       (err, response) => {
         if (err) {
           console.warn(
-            `An error occurred in send_push_notification @ time: ${helpers.getTimeStamp()}`
+            `An error occurred in send_push_notification @ time: ${getTimeStamp()}`
           )
           console.log(`Error: ${err.message}`)
           // res.status(400).json({

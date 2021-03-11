@@ -75,7 +75,7 @@ const createPushNotification = async (clientId, title, body) => {
     sender.send(
       message,
       {
-        registrationTokens: client.deviceId,
+        registrationTokens: [client.deviceId],
       },
       (err, response) => {
         if (err) {
@@ -97,9 +97,9 @@ const createPushNotification = async (clientId, title, body) => {
           console.log(
             `Push notification sent to: 
             \n client: ${client._id} 
-            \n device: ${client._id} 
-            \n time: ${helpers.getTimeStamp()}
-            \n response: ${response}`
+            \n device: ${client.deviceId} 
+            \n time: ${getTimeStamp()}
+            \n response: ${JSON.stringify(response, null, 2)}`
           )
           return {
             message: 'Push notification sent to client!',

@@ -6,6 +6,16 @@ const Vehicle = require('./models/vehicle')
 const { keys } = require('lodash')
 require('dotenv').config()
 
+//push notification specific imports
+const admin = require('firebase-admin')
+const gcm = require('node-gcm')
+const sender = new gcm.Sender(process.env.FCMServerKey)
+const serviceAccount = require('./tuneup-3120a-firebase-adminsdk-l360f-a83c80b9c3.json')
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+})
+
 const getTimeStamp = () => {
   let date_ob = new Date()
   return dateFormat(date_ob, 'isoDateTime')

@@ -1493,15 +1493,29 @@ const appoints_update_status = async (req, res) => {
           error: err.message,
         })
       } else {
+        //Logging
         console.log(
           `Updated status of appointment: ${
             result._id
           } @ time: ${helpers.getTimeStamp()}`
         )
+
+        //Create Push notification
+        const title = 'Vehicle appointment update'
+        const body =
+          'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        const response = helpers.createPushNotification(
+          result.client,
+          title,
+          body
+        )
+
+        //Response
         res.status(200).json({
           message: 'Updated appointment status!',
           appointment: result._id,
           status: result.appointment_status,
+          push_notification_response: response,
         })
       }
     }

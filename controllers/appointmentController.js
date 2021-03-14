@@ -1293,8 +1293,9 @@ const archived_appoints_get_all = (req, res) => {
     })
 }
 const archived_appoints_get_by_user = (req, res) => {
+  const token = helpers.getDecodedToken(req)
   Appointment.find({
-    client: req.query.user_id,
+    client: token.id,
     deleted: false,
     archived: true,
   })

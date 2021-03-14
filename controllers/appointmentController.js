@@ -1507,7 +1507,8 @@ const appoints_update_status = async (req, res) => {
         const response = helpers.createPushNotification(
           result.client,
           title,
-          body
+          body,
+          result
         )
 
         //Response

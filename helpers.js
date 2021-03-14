@@ -70,8 +70,7 @@ const createPushNotification = async (clientId, title, body, payload) => {
       data: {
         title: title,
         body: body,
-        payload,
-        payload,
+        payload: payload,
       },
     })
 

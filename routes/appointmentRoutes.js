@@ -25,6 +25,7 @@ router.get('/date/availability/range', appointmentController.appoints_get_free_d
 router.get('/archived', appointmentController.archived_appoints_get_all)
 router.get('/archived/user', appointmentController.archived_appoints_get_by_user)
 router.get('/archived/id', appointmentController.archived_appoints_get_by_id)
+router.get('/archived/vehicle', appointmentController.archived_appoints_get_by_vehicle)
 //Update
 router.put('/', appointmentController.appoints_update)
 router.put('/complete', appointmentController.appoints_complete)

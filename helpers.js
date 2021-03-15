@@ -133,10 +133,20 @@ const createPushNotification = async (clientId, title, body, payload) => {
   }
 }
 
+const printJson = (object) => {
+  return JSON.stringify(object, null, 2)
+}
+
+const printError = (err, location) => {
+  console.warn(`An error occured in ${location} @ time ${getTimeStamp()}`)
+  console.log(`Error: ${err.message}`)
+}
 module.exports = {
   getTimeStamp,
   getDecodedToken,
   populateVehicles,
   populateVehicleAttributes,
   createPushNotification,
+  printJson,
+  printError,
 }

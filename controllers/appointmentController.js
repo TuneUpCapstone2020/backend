@@ -1339,58 +1339,28 @@ const archived_appoints_get_by_id = (req, res) => {
 
 //send vehicleId in query params
 const archived_appoints_get_by_vehicle = async (req, res) => {
-  const vehicle = await Vehicle.findById(req.query.vehicleId).populate({
-    path: 'appointments',
-  })
-  // console.log(`vehicle: ${helpers.printJson(vehicle.appointments)}`)
-  // res.status(200).json(vehicle)
-  Vehicle.aggregate(
-    //   [
-    //   {
-    //     $lookup: {
-    //       from: 'appointments',
-    //       localField: 'appointments._id',
-    //       foreignField: '_id',
-    //       as: 'appointmentList',
-    //     },
-    //   },
-    //   {
-    //     $unwind: {
-    //       path: '$appointmentList',
-    //       preserveNullAndEmptyArrays: false,
-    //     },
-    //   },
-    //   {
-    //     $match: {
-    //       'appointmentList.deleted': false,
-    //       'appointmentList.archived': true,
-    //       // 'appointmentList._id': vehicle._id,
-    //     },
-    //   },
-    // ]
-    [
-      {
-        $lookup: {
-          from: 'appointments',
-          localField: 'appointments._id',
-          foreignField: '_id',
-          as: 'appointmentList',
-        },
+  Vehicle.aggregate([
+    {
+      $lookup: {
+        from: 'appointments',
+        localField: 'appointments._id',
+        foreignField: '_id',
+        as: 'appointmentList',
       },
-      {
-        $match: {
-          'appointmentList.deleted': false,
-          'appointmentList.archived': true,
-          _id: ObjectId(req.query.vehicleId),
-        },
+    },
+    {
+      $match: {
+        'appointmentList.deleted': false,
+        'appointmentList.archived': true,
+        _id: ObjectId(req.query.vehicleId),
       },
-      {
-        $group: {
-          _id: '$appointmentList',
-        },
+    },
+    {
+      $group: {
+        _id: '$appointmentList',
       },
-    ]
-  ).exec((err, result) => {
+    },
+  ]).exec((err, result) => {
     if (err) {
       helpers.printError(err, 'archived_appoints_get_by_vehicle')
       res.status(400).json({
@@ -1404,11 +1374,6 @@ const archived_appoints_get_by_vehicle = async (req, res) => {
       res.status(200).json(result[0]._id)
     }
   })
-  // ]).then((result) => {
-  //   console.log(`Appoint: ${helpers.printJson(result)}`)
-  //   res.status(200).json(result.appointmentList)
-  // })
-  //console.log(`appointments: ${JSON.stringify(appoints, null, 2)}`)
 }
 
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)

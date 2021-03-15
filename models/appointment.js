@@ -41,6 +41,7 @@ const appointmentSchema = new Schema(
     },
     services: [
       {
+        _id: false,
         service: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'CatalogService',
@@ -62,6 +63,7 @@ const appointmentSchema = new Schema(
     },
     products: [
       {
+        _id: false,
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'CatalogProduct',

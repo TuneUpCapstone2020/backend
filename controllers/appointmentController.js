@@ -11,6 +11,8 @@ const { forEach } = require('lodash')
 const minimumMechanicLevel = 4
 const timeBlockGranularity = 30
 const timeSlotsToReturn = 8
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 //START: Error Handlers
 const handleErrors = (err) => {
   console.warn(err.message, err.code)
@@ -1292,9 +1294,9 @@ const archived_appoints_get_all = (req, res) => {
       })
     })
 }
-const archived_appoints_get_by_user = (req, res) => {
+const archived_appoints_get_by_user = async (req, res) => {
   const token = helpers.getDecodedToken(req)
-  Appointment.find({
+  await Appointment.find({
     client: token.id,
     deleted: false,
     archived: true,
@@ -1333,6 +1335,80 @@ const archived_appoints_get_by_id = (req, res) => {
         error: err.message,
       })
     })
+}
+
+//send vehicleId in query params
+const archived_appoints_get_by_vehicle = async (req, res) => {
+  const vehicle = await Vehicle.findById(req.query.vehicleId).populate({
+    path: 'appointments',
+  })
+  // console.log(`vehicle: ${helpers.printJson(vehicle.appointments)}`)
+  // res.status(200).json(vehicle)
+  Vehicle.aggregate(
+    //   [
+    //   {
+    //     $lookup: {
+    //       from: 'appointments',
+    //       localField: 'appointments._id',
+    //       foreignField: '_id',
+    //       as: 'appointmentList',
+    //     },
+    //   },
+    //   {
+    //     $unwind: {
+    //       path: '$appointmentList',
+    //       preserveNullAndEmptyArrays: false,
+    //     },
+    //   },
+    //   {
+    //     $match: {
+    //       'appointmentList.deleted': false,
+    //       'appointmentList.archived': true,
+    //       // 'appointmentList._id': vehicle._id,
+    //     },
+    //   },
+    // ]
+    [
+      {
+        $lookup: {
+          from: 'appointments',
+          localField: 'appointments._id',
+          foreignField: '_id',
+          as: 'appointmentList',
+        },
+      },
+      {
+        $match: {
+          'appointmentList.deleted': false,
+          'appointmentList.archived': true,
+          _id: ObjectId(req.query.vehicleId),
+        },
+      },
+      {
+        $group: {
+          _id: '$appointmentList',
+        },
+      },
+    ]
+  ).exec((err, result) => {
+    if (err) {
+      helpers.printError(err, 'archived_appoints_get_by_vehicle')
+      res.status(400).json({
+        message: 'Unable to get archived appointments!',
+        error: err.message,
+      })
+    } else {
+      // console.log(`complete res: ${helpers.printJson(result)}`)
+      // console.log(`appointList[0]: ${helpers.printJson(result[0]['_id'])}`)
+      // console.log(`appointList.id: ${helpers.printJson(result[0]._id)}`)
+      res.status(200).json(result[0]._id)
+    }
+  })
+  // ]).then((result) => {
+  //   console.log(`Appoint: ${helpers.printJson(result)}`)
+  //   res.status(200).json(result.appointmentList)
+  // })
+  //console.log(`appointments: ${JSON.stringify(appoints, null, 2)}`)
 }
 
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
@@ -1586,6 +1662,7 @@ module.exports = {
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,
+  archived_appoints_get_by_vehicle,
   appoints_get_appointment_service_progress_by_id,
   //U
   appoints_update,

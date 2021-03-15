@@ -41,7 +41,7 @@ const employeeSchema = new Schema(
       required: [true, 'Please enter address'],
     },
     wage: {
-      type: mongoose.Schema.Types.Decimal128,
+      type: Number,
       required: [true, 'Please enter wage'],
     },
     skill_level: {

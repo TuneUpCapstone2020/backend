@@ -106,10 +106,29 @@ const client_get_by_phone_number = (req, res) => {
     })
 }
 
-const logout_get = (req, res) => {
-  console.log(`Logged out client`)
-  res.cookie('jwt', '', { maxAge: 1 })
-  res.status(200).json({ message: 'Token deleted ' })
+//send clientId in the query params
+const logout_get = async (req, res) => {
+  const token = helpers.getDecodedToken(req)
+  await Client.findByIdAndUpdate(
+    token.id,
+    {
+      deviceId: '',
+      devicePlatform: '',
+    },
+    { new: true },
+    (err, result) => {
+      if (err) {
+        console.warn(
+          `An error occured in logout_get @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+      } else {
+        console.log(`Logged out client`)
+        res.cookie('jwt', '', { maxAge: 1 })
+        res.status(200).json({ message: 'Token deleted ' })
+      }
+    }
+  )
 }
 
 //END: ENDPOINTS FOR GET REQUESTS
@@ -166,7 +185,12 @@ const register_post = async (req, res) => {
 
 const login_post = async (req, res) => {
   try {
-    const client = await Client.login(req.body.email, req.body.password)
+    const client = await Client.login(
+      req.body.email,
+      req.body.password,
+      req.body.deviceId,
+      req.body.devicePlatform
+    )
     console.log(
       `Logged in client ${client.email} @ time ${helpers.getTimeStamp()}`
     )

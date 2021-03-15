@@ -11,6 +11,8 @@ const { forEach } = require('lodash')
 const minimumMechanicLevel = 4
 const timeBlockGranularity = 30
 const timeSlotsToReturn = 8
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 //START: Error Handlers
 const handleErrors = (err) => {
   console.warn(err.message, err.code)
@@ -1292,9 +1294,10 @@ const archived_appoints_get_all = (req, res) => {
       })
     })
 }
-const archived_appoints_get_by_user = (req, res) => {
-  Appointment.find({
-    client: req.query.user_id,
+const archived_appoints_get_by_user = async (req, res) => {
+  const token = helpers.getDecodedToken(req)
+  await Appointment.find({
+    client: token.id,
     deleted: false,
     archived: true,
   })
@@ -1332,6 +1335,52 @@ const archived_appoints_get_by_id = (req, res) => {
         error: err.message,
       })
     })
+}
+
+//send vehicleId in query params
+const archived_appoints_get_by_vehicle = async (req, res) => {
+  Vehicle.aggregate([
+    {
+      $lookup: {
+        from: 'appointments',
+        localField: 'appointments._id',
+        foreignField: '_id',
+        as: 'appointmentList',
+      },
+    },
+    {
+      $unwind: {
+        path: '$appointmentList',
+      },
+    },
+    {
+      $match: {
+        'appointmentList.deleted': false,
+        'appointmentList.archived': true,
+        _id: ObjectId(req.query.vehicleId),
+      },
+    },
+    {
+      $group: {
+        _id: '$appointmentList',
+      },
+    },
+  ]).exec((err, result) => {
+    if (err) {
+      helpers.printError(err, 'archived_appoints_get_by_vehicle')
+      res.status(400).json({
+        message: 'Unable to get archived appointments!',
+        error: err.message,
+      })
+    } else {
+      const retVal = []
+      for (appoint of result) {
+        retVal.push(appoint['_id'])
+      }
+      // console.log(`retVal ${helpers.printJson(retVal)}`)
+      res.status(200).json(retVal)
+    }
+  })
 }
 
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
@@ -1493,15 +1542,30 @@ const appoints_update_status = async (req, res) => {
           error: err.message,
         })
       } else {
+        //Logging
         console.log(
           `Updated status of appointment: ${
             result._id
           } @ time: ${helpers.getTimeStamp()}`
         )
+
+        //Create Push notification
+        const title = 'Vehicle appointment update'
+        const body =
+          'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        const response = helpers.createPushNotification(
+          result.client,
+          title,
+          body,
+          result
+        )
+
+        //Response
         res.status(200).json({
           message: 'Updated appointment status!',
           appointment: result._id,
           status: result.appointment_status,
+          push_notification_response: response,
         })
       }
     }
@@ -1570,6 +1634,7 @@ module.exports = {
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,
+  archived_appoints_get_by_vehicle,
   appoints_get_appointment_service_progress_by_id,
   //U
   appoints_update,

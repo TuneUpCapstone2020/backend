@@ -1349,6 +1349,11 @@ const archived_appoints_get_by_vehicle = async (req, res) => {
       },
     },
     {
+      $unwind: {
+        path: '$appointmentList',
+      },
+    },
+    {
       $match: {
         'appointmentList.deleted': false,
         'appointmentList.archived': true,
@@ -1368,10 +1373,12 @@ const archived_appoints_get_by_vehicle = async (req, res) => {
         error: err.message,
       })
     } else {
-      // console.log(`complete res: ${helpers.printJson(result)}`)
-      // console.log(`appointList[0]: ${helpers.printJson(result[0]['_id'])}`)
-      // console.log(`appointList.id: ${helpers.printJson(result[0]._id)}`)
-      res.status(200).json(result[0]._id)
+      const retVal = []
+      for (appoint of result) {
+        retVal.push(appoint['_id'])
+      }
+      // console.log(`retVal ${helpers.printJson(retVal)}`)
+      res.status(200).json(retVal)
     }
   })
 }

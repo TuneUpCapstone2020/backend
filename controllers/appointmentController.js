@@ -58,6 +58,7 @@ const handleErrors = (err) => {
  *  employee_num: employee which the appoint is assigned to
  *  valet_required: 0 for no, 1 for yes
  *  customer_note: the user's message describing the issue
+ *  customer_image_urls: an array of strings of the urls for the images
  //  skill level: highest int of highest service????
  //  total_esimated_time: int of estimated time in minutes
  //  garageId: String of garageid (just the characters, not the ObjectId(...))

@@ -12,9 +12,23 @@ aws.config.update({
 
 var s3 = new aws.S3()
 
+const image_upload = async (req, res) => {
+  singleUpload(req, res, function (err) {
+    if (err) {
+      return res.status(422).json({
+        errors: [{ title: 'Image Upload Error', detail: err.message }],
+      })
+    }
+    return res.json({
+      message: 'Image successfully uploaded',
+      imageUrl: req.file.location,
+    })
+  })
+}
+
 //pass the image as multipart/form-data
 //pass the vehicleId and attribute for which the image is associated to in query params
-const image_upload = async (req, res) => {
+const image_upload_inspection_image = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.vehicleId)
   singleUpload(req, res, function (err) {
     if (err) {
@@ -126,6 +140,7 @@ const upload = multer({
 const singleUpload = upload.single('image')
 module.exports = {
   image_upload,
+  image_upload_inspection_image,
   image_upload_make_logo,
   image_download,
 }

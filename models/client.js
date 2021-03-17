@@ -58,6 +58,9 @@ const clientSchema = new Schema(
       type: String,
       default: 'android',
     },
+    profile_image_url: {
+      type: String,
+    },
   },
   { timestamps: true }
 )

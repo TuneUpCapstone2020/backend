@@ -158,10 +158,9 @@ const register_post = async (req, res) => {
             console.log(`Deleted client recreated: ${result._id}`)
             const token = createToken(result._id)
             res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-            res.status(200).json({
-              message: 'Client created!',
-              client: result._id,
-            })
+            result.password = ""
+            result.deviceId = ""
+            res.status(200).json(result)
           }
         }
       )
@@ -171,10 +170,9 @@ const register_post = async (req, res) => {
       console.log(`Created client ${client.email}`)
       const token = createToken(client._id)
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-      res.status(201).json({
-        message: 'New client created!',
-        client: client._id,
-      })
+      client.password = ""
+      client.deviceId = ""
+      res.status(201).json(client)
     }
   } catch (err) {
     console.warn(`An error occured in register_post`)
@@ -196,10 +194,9 @@ const login_post = async (req, res) => {
     )
     const token = createToken(client._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-    res.status(200).json({
-      message: 'Client logged in!',
-      client: client._id,
-    })
+    client.password = ""
+    client.deviceId = ""
+    res.status(200).json(client)
   } catch (err) {
     console.warn(`An error occured in login_post`)
     const errors = handleErrors(err)

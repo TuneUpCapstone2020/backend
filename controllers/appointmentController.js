@@ -1519,7 +1519,7 @@ const appoints_complete = async (req, res) => {
             }
             final_price =
               final_price +
-              garage.standard_hourly_rate * appointment.labour_time
+              garage.standard_hourly_rate * appointment.labour_time * 60
 
             appointment['final_price'] = final_price
             appointment.save()

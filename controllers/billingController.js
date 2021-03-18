@@ -111,7 +111,6 @@ const generate_all_bills_for_client = async (req, res) => {
 
 //send appoitnmentId in query params
 const generate_appointment_cost_breakdown = async (req, res) => {
-  const appointment = Appointment.finbyid(req.query.appointmentId)
   await Appointment.aggregate([
     {
       $match: {

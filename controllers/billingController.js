@@ -143,11 +143,13 @@ const generate_appointment_cost_breakdown = async (req, res) => {
     } else {
       const productInfoToReturn = []
       const serviceInfoToReturn = []
-      for (product of appointment.catalogProducts) {
-        productInfoToReturn.push({
-          name: product.name,
-          price: product.sell_price,
-        })
+      if (appointment.catalogProducts) {
+        for (product of appointment.catalogProducts) {
+          productInfoToReturn.push({
+            name: product.name,
+            price: product.sell_price,
+          })
+        }
       }
       for (service of appointment.catalogServices) {
         serviceInfoToReturn.push({

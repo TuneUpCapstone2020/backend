@@ -10,21 +10,11 @@ const generate_all_bills_for_client = async (req, res) => {
   //need make model dat service final price
   //second page needs complete cost breakdown
   const token = helpers.getDecodedToken(req)
-  const client = {}
-  if (token) {
-    client = Client.findById(token.id)
-  } else {
-    client = Client.findById(req.query.clientId)
-  }
-  const appointments = []
-  //   for (vehicle of client.vehicles) {
-  //     const vehicleDocument = await Vehicle.findById(vehicle)
-  //     for (appointment of vehicleDocument.appointments) {
-  //       appointments.push(await Appointment.findById(appointment))
-  //     }
-  //   }
-
-  appointments = Client.aggregate([
+  const client = token
+    ? await Client.findById(token.id)
+    : await Client.findById(req.query.clientId)
+  console.log(`Start: ${process.hrtime()}`)
+  await Client.aggregate([
     {
       $lookup: {
         from: 'vehicles',

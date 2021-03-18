@@ -107,3 +107,6 @@ const generate_all_bills_for_client = async (req, res) => {
   }
   res.status(200).json(appointsWithDetailsToReturn)
 }
+module.exports = {
+  generate_all_bills_for_client,
+}

@@ -1,4 +1,3 @@
-const Appointment = require('../models/appointment')
 const helpers = require('../helpers')
 const Client = require('../models/client')
 const Vehicle = require('../models/vehicle')
@@ -11,7 +10,7 @@ const generate_all_bills_for_client = async (req, res) => {
   //need make model dat service final price
   //second page needs complete cost breakdown
   const token = helpers.getDecodedToken(req)
-  const client
+  const client = {}
   if (token) {
     client = Client.findById(token.id)
   } else {

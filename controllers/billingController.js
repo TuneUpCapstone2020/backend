@@ -167,7 +167,7 @@ const generate_appointment_cost_breakdown = async (req, res) => {
       }
       infoToReturn.push({
         name: 'Labour: ' + appointment.labour_time / 3600 + ' hour(s)',
-        price: garage.standard_hourly_rate,
+        price: garage.standard_hourly_rate * (appointment.labour_time / 3600),
       })
       // infoToReturn.push({
       //   name: 'Total',

@@ -82,7 +82,9 @@ const generate_all_bills_for_client = async (req, res) => {
     } else {
       const appointsWithDetailsToReturn = []
       for (appointment of appointments) {
-        const garage = await Garage.findById(appointment.garageId)
+        const garage = await Garage.findById(
+          appointment.appointmentList.garageId
+        )
         const arrayOfServiceNames = []
         const arrayOfProducts = []
         for (service of appointment.servicesList) {

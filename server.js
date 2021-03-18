@@ -13,6 +13,7 @@ const packageRoutes = require('./routes/packageRoutes')
 const makeAndModelRoutes = require('./routes/vehicleMakeAndModelRoutes')
 const imageStorageRoutes = require('./routes/imageStorageRoutes')
 const valetRouteRoutes = require('./routes/valetRouteRoutes')
+const billingRoutes = require('./routes/billingRoutes')
 // const pushNotificationRoutes = require('./routes/pushNotificationRoutes')
 const helpers = require('./helpers')
 
@@ -156,6 +157,9 @@ app.use('/api/image', imageStorageRoutes)
 
 //valetRoutes
 app.use('/api/valet', valetRouteRoutes)
+
+//billing routes
+app.use('/api/billing', billingRoutes)
 
 //pushNotificationRoutes
 //app.use('/api/notification', pushNotificationRoutes)

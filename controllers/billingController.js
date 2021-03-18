@@ -100,9 +100,7 @@ const generate_all_bills_for_client = async (req, res) => {
           finalPrice: appointment.appointmentList.final_price,
         })
       }
-      res.status(200).json({
-        appointsWithDetailsToReturn,
-      })
+      res.status(200).json(appointsWithDetailsToReturn)
     }
   })
   console.log(`End: ${process.hrtime()}`)

@@ -166,6 +166,7 @@ const generate_appointment_cost_breakdown = async (req, res) => {
             name: product.name + ' x' + appointment.products[i].quantity,
             price: product.sell_price * appointment.products[i].quantity,
           })
+          i++
         }
       }
       infoToReturn.push({

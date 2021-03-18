@@ -1512,10 +1512,10 @@ const appoints_complete = async (req, res) => {
             const garage = await Garage.findById(appointment.garageId)
             let final_price = 0
             for (service of appointment.catalogServices) {
-              final_price = final_price + service.price
+              final_price = final_price + service.price * service.quantity
             }
             for (product of appointment.catalogProducts) {
-              final_price = final_price + product.sell_price
+              final_price = final_price + product.sell_price * product.quantity
             }
             final_price =
               final_price +

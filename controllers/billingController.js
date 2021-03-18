@@ -100,6 +100,7 @@ const generate_all_bills_for_client = async (req, res) => {
           garageName: garage.name,
           make: appointment.vehicleList.make,
           model: appointment.vehicleList.model,
+          year: appointment.vehicleList.year,
           date: appointment.appointmentList.date,
           services: arrayOfServiceNames,
           finalPrice: appointment.appointmentList.final_price,

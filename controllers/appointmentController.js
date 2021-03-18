@@ -1521,7 +1521,7 @@ const appoints_complete = async (req, res) => {
               final_price +
               garage.standard_hourly_rate * appointment.labour_time * 60
 
-            appointmentDocument = Appointment.findByIdAndUpdate(
+            await Appointment.findByIdAndUpdate(
               appointment._id,
               {
                 final_price: final_price,

@@ -71,30 +71,44 @@ const generate_all_bills_for_client = async (req, res) => {
         as: 'productList',
       },
     },
-  ])
+  ]).exec((err, appointments) => {
+    if (err) {
+      helpers.printError(err, 'generate_all_bills_for_client')
+      res.status(400).json({
+        message: 'Unable to get bills',
+        error: err.message,
+      })
+    } else {
+      const appointsWithDetailsToReturn = []
+      for (appointment of appointments) {
+        const arrayOfServiceNames = []
+        const arrayOfProducts = []
+        for (service of appointment.servicesList) {
+          arrayOfServiceNames.push(service.name)
+        }
+        for (product of appointment.productList) {
+          arrayOfProducts.push(product.name)
+        }
 
-  const appointsWithDetailsToReturn = []
-  for (appointment of appointments) {
-    const arrayOfServiceNames = []
-    const arrayOfProducts = []
-    for (service of appointment.servicesList) {
-      arrayOfServiceNames.push(service.name)
+        appointsWithDetailsToReturn.push({
+          appointmentId: appointment.appointmentList._id,
+          vehicleId: appointment.vehicleList._id,
+          make: appointment.vehicleList.make,
+          model: appointment.vehicleList.model,
+          date: appointment.appointmentList.date,
+          services: arrayOfServiceNames,
+          finalPrice: appointment.appointmentList.final_price,
+        })
+      }
+      res.status(200).json({
+        appointsWithDetailsToReturn,
+      })
     }
-    for (product of appoitnment.productList) {
-      arrayOfProducts.push(product.name)
-    }
+  })
+  console.log(`End: ${process.hrtime()}`)
+  // console.log(`Appointments: ${JSON.stringify(appointments, null, 2)}`)
 
-    appointsWithDetailsToReturn.push({
-      appointmentId: 'appointment.appointmentList._id',
-      vehicleId: 'appointment.vehicleList._id',
-      make: 'appointment.vehicleList.make',
-      model: 'appointment.vehicleList.model',
-      date: 'appointment.appointmentList.date',
-      services: 'arrayOfServiceNames',
-      finalPrice: 'appointment.appointmentList.final_price',
-    })
-  }
-  res.status(200).json(appointsWithDetailsToReturn)
+  // res.status(200).json(appointsWithDetailsToReturn)
 }
 module.exports = {
   generate_all_bills_for_client,

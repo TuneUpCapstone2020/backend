@@ -151,17 +151,20 @@ const generate_appointment_cost_breakdown = async (req, res) => {
       console.log(`Appointment: ${appointment}`)
       const garage = await Garage.findById(appointment.garageId)
       const infoToReturn = []
+      let i = 0
       for (service of appointment.catalogServices) {
         infoToReturn.push({
-          name: service.name,
-          price: service.price,
+          name: service.name + ' x' + appointment.services[i].quantity,
+          price: service.price * appointment.services[i].quantity,
         })
+        i++
       }
       if (appointment.catalogProducts) {
+        i = 0
         for (product of appointment.catalogProducts) {
           infoToReturn.push({
-            name: product.name,
-            price: product.sell_price,
+            name: product.name + ' x' + appointment.products[i].quantity,
+            price: product.sell_price * appointment.products[i].quantity,
           })
         }
       }

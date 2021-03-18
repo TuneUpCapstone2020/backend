@@ -2,6 +2,7 @@ const helpers = require('../helpers')
 const Client = require('../models/client')
 const Vehicle = require('../models/vehicle')
 const Appointment = require('../models/appointment')
+const Garage = require('../models/garage')
 const mongoose = require('mongoose')
 const ObjectId = mongoose.Types.ObjectId
 
@@ -141,22 +142,32 @@ const generate_appointment_cost_breakdown = async (req, res) => {
         error: err.message,
       })
     } else {
+      const garage = await Garage.findById(appointment.garageId)
       const productInfoToReturn = []
       const serviceInfoToReturn = []
+      const infoToReturn = []
+      for (service of appointment.catalogServices) {
+        infoToReturn.push({
+          name: service.name,
+          price: service.price,
+        })
+      }
       if (appointment.catalogProducts) {
         for (product of appointment.catalogProducts) {
-          productInfoToReturn.push({
+          infoToReturn.push({
             name: product.name,
             price: product.sell_price,
           })
         }
       }
-      for (service of appointment.catalogServices) {
-        serviceInfoToReturn.push({
-          name: service.name,
-          price: service.price,
-        })
-      }
+      infoToReturn.push({ 
+        name: 'Labour: ' + appointment.labour_time + ' hour(s)',
+        price: garage.standard_hourly_rate
+      })
+      infoToReturn.push({ 
+        name: 'Total',
+        price: appointment.final_price
+      })
 
       res.status(200).json({
         products: productInfoToReturn,

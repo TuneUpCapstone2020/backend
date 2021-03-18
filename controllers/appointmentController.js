@@ -1521,17 +1521,34 @@ const appoints_complete = async (req, res) => {
               final_price +
               garage.standard_hourly_rate * appointment.labour_time * 60
 
-            appointment['final_price'] = final_price
-            appointment.save()
-          }
-        })
-        console.log(
-          `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
-        )
+            appointmentDocument = Appointment.findByIdAndUpdate(
+              appointment._id,
+              {
+                final_price: final_price,
+              },
+              { new: true },
+              (err, result) => {
+                if (err) {
+                  helpers.printError(err, 'appoints_complete')
+                  res.status(400).json({
+                    message: 'Unable to update appointments',
+                    error: err.message,
+                  })
+                } else {
+                  console.log(
+                    `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
+                  )
+                  res.status(200).json({
+                    message: 'Appointment marked as complete!',
+                    id: result._id,
+                  })
+                }
+              }
+            )
 
-        res.status(200).json({
-          message: 'Appointment marked as complete!',
-          id: result._id,
+            // appointment['final_price'] = final_price
+            // appointment.save()
+          }
         })
       }
     }

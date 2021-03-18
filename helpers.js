@@ -24,20 +24,23 @@ const getTimeStamp = () => {
 
 function getDecodedToken(req) {
   //todo: maybe pass req.headers instead?
-  let token = req.headers['x-access-token'] || req.headers['authorization']
-  if (token) {
-    token = token.replace('Bearer ', '').catch((err) => {
-      printError(err, 'getDecodedToken')
-    })
-  } else {
-    console.warn(`An error occured in getDecodedToken`)
-    console.log(
-      `Error: Token undefined (you didn't send the jwt properly or at all)`
-    )
+  try {
+    let token = req.headers['x-access-token'] || req.headers['authorization']
+    if (token) {
+      token = token.replace('Bearer ', '')
+    } else {
+      console.warn(`An error occured in getDecodedToken`)
+      console.log(
+        `Error: Token undefined (you didn't send the jwt properly or at all)`
+      )
+      return
+    }
+    token = jwt.decode(token, process.env.JWT_SECRET)
+    return token
+  } catch (err) {
+    printError(err, 'getDecodedToken')
     return
   }
-  token = jwt.decode(token, process.env.JWT_SECRET)
-  return token
 }
 
 const populateVehicles = () => {

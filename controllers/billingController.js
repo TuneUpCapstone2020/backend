@@ -72,7 +72,7 @@ const generate_all_bills_for_client = async (req, res) => {
         as: 'productList',
       },
     },
-  ]).exec((err, appointments) => {
+  ]).exec(await (err, appointments) => {
     if (err) {
       helpers.printError(err, 'generate_all_bills_for_client')
       res.status(400).json({

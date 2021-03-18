@@ -108,6 +108,67 @@ const generate_all_bills_for_client = async (req, res) => {
 
   // res.status(200).json(appointsWithDetailsToReturn)
 }
+
+//send appoitnmentId in query params
+const generate_appointment_cost_breakdown = async (req, res) => {
+  const appointment = Appointment.finbyid(req.query.appointmentId)
+  await Appointment.aggregate([
+    {
+      $match: {
+        _id: ObjectId(req.query.appointmentId),
+      },
+    },
+    {
+      $lookup: {
+        from: 'catalogservices',
+        localField: 'services.service',
+        foreignField: '_id',
+        as: 'catalogServices',
+      },
+    },
+    {
+      $lookup: {
+        from: 'catalogproducts',
+        localField: 'products.product',
+        foreignField: '_id',
+        as: 'catalogProducts',
+      },
+    },
+  ]).exec((err, appointment) => {
+    if (err) {
+      helpers.printError(err, 'generate_appointment_cost_breakdown')
+      res.status(400).json({
+        message: 'unable to get bill details',
+        error: err.message,
+      })
+    } else {
+      const productInfoToReturn = []
+      const serviceInfoToReturn = []
+      for (product of appointment.catalogProducts) {
+        productInfoToReturn.push({
+          name: product.name,
+          price: product.sell_price,
+        })
+      }
+      for (service of appointment.catalogServices) {
+        serviceInfoToReturn.push({
+          name: service.name,
+          price: service.price,
+        })
+      }
+
+      res.status(200).json({
+        products: productInfoToReturn,
+        services: serviceInfoToReturn,
+        labour: appointment.labour_time,
+        final_price: appointment.final_price,
+      })
+
+      //final cost = total_labour+services+products
+    }
+  })
+}
 module.exports = {
   generate_all_bills_for_client,
+  generate_appointment_cost_breakdown,
 }

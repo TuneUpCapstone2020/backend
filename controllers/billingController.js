@@ -155,22 +155,25 @@ const generate_appointment_cost_breakdown = async (req, res) => {
       for (service of appointment.catalogServices) {
         infoToReturn.push({
           name: service.name + ' x' + appointment.services[i].quantity,
-          price: service.price * appointment.services[i].quantity,
+          price: service.price * appointment.services[i++].quantity,
         })
-        i++
       }
       if (appointment.catalogProducts) {
         i = 0
         for (product of appointment.catalogProducts) {
           infoToReturn.push({
             name: product.name + ' x' + appointment.products[i].quantity,
-            price: product.sell_price * appointment.products[i].quantity,
+            price: product.sell_price * appointment.products[i++].quantity,
           })
-          i++
         }
       }
       infoToReturn.push({
-        name: 'Labour: ' + appointment.labour_time / 3600 + ' hour(s)',
+        name:
+          'Labour: ' +
+          appointment.labour_time / 3600 +
+          ' hour(s) at $' +
+          garage.standard_hourly_rate / 100 +
+          ' /hour',
         price: garage.standard_hourly_rate * (appointment.labour_time / 3600),
       })
       // infoToReturn.push({

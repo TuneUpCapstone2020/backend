@@ -82,6 +82,7 @@ const generate_all_bills_for_client = async (req, res) => {
     } else {
       const appointsWithDetailsToReturn = []
       for (appointment of appointments) {
+        const garage = await Garage.findById(appointment.garageId)
         const arrayOfServiceNames = []
         const arrayOfProducts = []
         for (service of appointment.servicesList) {
@@ -94,6 +95,7 @@ const generate_all_bills_for_client = async (req, res) => {
         appointsWithDetailsToReturn.push({
           appointmentId: appointment.appointmentList._id,
           vehicleId: appointment.vehicleList._id,
+          garageName: garage.name,
           make: appointment.vehicleList.make,
           model: appointment.vehicleList.model,
           date: appointment.appointmentList.date,
@@ -134,7 +136,8 @@ const generate_appointment_cost_breakdown = async (req, res) => {
         as: 'catalogProducts',
       },
     },
-  ]).exec(async (err, appointment) => {
+  ]).exec(async (err, appointments) => {
+    const appointment = appointments.pop()
     if (err) {
       helpers.printError(err, 'generate_appointment_cost_breakdown')
       res.status(400).json({
@@ -144,8 +147,6 @@ const generate_appointment_cost_breakdown = async (req, res) => {
     } else {
       console.log(`Appointment: ${appointment}`)
       const garage = await Garage.findById(appointment.garageId)
-      const productInfoToReturn = []
-      const serviceInfoToReturn = []
       const infoToReturn = []
       for (service of appointment.catalogServices) {
         infoToReturn.push({
@@ -165,12 +166,16 @@ const generate_appointment_cost_breakdown = async (req, res) => {
         name: 'Labour: ' + appointment.labour_time + ' hour(s)',
         price: garage.standard_hourly_rate,
       })
-      infoToReturn.push({
-        name: 'Total',
-        price: appointment.final_price,
-      })
+      // infoToReturn.push({
+      //   name: 'Total',
+      //   price: appointment.final_price,
+      // })
 
-      res.status(200).json(infoToReturn)
+      res.status(200).json({
+        items: infoToReturn,
+        total: appointment.final_price
+      }
+        )
 
       //final cost = total_labour+services+products
     }

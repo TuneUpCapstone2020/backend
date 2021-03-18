@@ -72,7 +72,7 @@ const generate_all_bills_for_client = async (req, res) => {
         as: 'productList',
       },
     },
-  ]).exec(await (err, appointments) => {
+  ]).exec(async (err, appointments) => {
     if (err) {
       helpers.printError(err, 'generate_all_bills_for_client')
       res.status(400).json({
@@ -173,9 +173,8 @@ const generate_appointment_cost_breakdown = async (req, res) => {
 
       res.status(200).json({
         items: infoToReturn,
-        total: appointment.final_price
-      }
-        )
+        total: appointment.final_price,
+      })
 
       //final cost = total_labour+services+products
     }

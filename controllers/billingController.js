@@ -134,7 +134,7 @@ const generate_appointment_cost_breakdown = async (req, res) => {
         as: 'catalogProducts',
       },
     },
-  ]).exec((err, appointment) => {
+  ]).exec(async (err, appointment) => {
     if (err) {
       helpers.printError(err, 'generate_appointment_cost_breakdown')
       res.status(400).json({
@@ -142,6 +142,7 @@ const generate_appointment_cost_breakdown = async (req, res) => {
         error: err.message,
       })
     } else {
+      console.log(`Appointment: ${appointment}`)
       const garage = await Garage.findById(appointment.garageId)
       const productInfoToReturn = []
       const serviceInfoToReturn = []
@@ -160,21 +161,16 @@ const generate_appointment_cost_breakdown = async (req, res) => {
           })
         }
       }
-      infoToReturn.push({ 
+      infoToReturn.push({
         name: 'Labour: ' + appointment.labour_time + ' hour(s)',
-        price: garage.standard_hourly_rate
+        price: garage.standard_hourly_rate,
       })
-      infoToReturn.push({ 
+      infoToReturn.push({
         name: 'Total',
-        price: appointment.final_price
+        price: appointment.final_price,
       })
 
-      res.status(200).json({
-        products: productInfoToReturn,
-        services: serviceInfoToReturn,
-        labour: appointment.labour_time,
-        final_price: appointment.final_price,
-      })
+      res.status(200).json(infoToReturn)
 
       //final cost = total_labour+services+products
     }

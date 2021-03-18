@@ -1463,11 +1463,11 @@ const appoints_complete = async (req, res) => {
     req.query.id,
     {
       archived: true,
-      end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
+      end_time: helpers.getTimeStamp(),
       //labour_time: req.body.labour_time,
       appointment_status: 13,
     },
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
@@ -1478,6 +1478,51 @@ const appoints_complete = async (req, res) => {
           error: err.message,
         })
       } else {
+        Appointment.aggregate([
+          {
+            $match: {
+              _id: ObjectId(result._id),
+            },
+          },
+          {
+            $lookup: {
+              from: 'catalogservices',
+              localField: 'services.service',
+              foreignField: '_id',
+              as: 'catalogServices',
+            },
+          },
+          {
+            $lookup: {
+              from: 'catalogproducts',
+              localField: 'products.product',
+              foreignField: '_id',
+              as: 'catalogProducts',
+            },
+          },
+        ]).exec((err, appointments) => {
+          if (err) {
+            helpers.printErrors(err)
+            res.status(400).json({
+              message: 'Unable to update appointments',
+              error: err.message,
+            })
+          } else {
+            const appointment = appointments.pop()
+            const garage = await  Garage.findById(appointment.garageId)
+            let final_price = 0
+            for (service of appointment.serviceList) {
+              final_price = final_price + service.price
+            }
+            for (product of appointment.productList) {
+              final_price = final_price + product.sell_price
+            }
+            final_price = final_price + garage.standard_hourly_rate * appointment.labour_time
+
+            appointment['final_price'] = final_price
+            appointment.save()
+          }
+        })
         console.log(
           `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
         )

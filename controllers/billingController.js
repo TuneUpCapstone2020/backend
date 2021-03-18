@@ -10,13 +10,13 @@ const generate_all_bills_for_client = async (req, res) => {
   //need make model dat service final price
   //second page needs complete cost breakdown
   const token = helpers.getDecodedToken(req)
-  const client = {}
+  let client = {}
   if (token) {
     client = Client.findById(token.id)
   } else {
     client = Client.findById(req.query.clientId)
   }
-  const appointments = []
+  let appointments = []
   //   for (vehicle of client.vehicles) {
   //     const vehicleDocument = await Vehicle.findById(vehicle)
   //     for (appointment of vehicleDocument.appointments) {

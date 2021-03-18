@@ -1500,7 +1500,7 @@ const appoints_complete = async (req, res) => {
               as: 'catalogProducts',
             },
           },
-        ]).exec((err, appointments) => {
+        ]).exec(async (err, appointments) => {
           if (err) {
             helpers.printErrors(err)
             res.status(400).json({
@@ -1509,7 +1509,7 @@ const appoints_complete = async (req, res) => {
             })
           } else {
             const appointment = appointments.pop()
-            const garage = await  Garage.findById(appointment.garageId)
+            const garage = await Garage.findById(appointment.garageId)
             let final_price = 0
             for (service of appointment.serviceList) {
               final_price = final_price + service.price
@@ -1517,7 +1517,9 @@ const appoints_complete = async (req, res) => {
             for (product of appointment.productList) {
               final_price = final_price + product.sell_price
             }
-            final_price = final_price + garage.standard_hourly_rate * appointment.labour_time
+            final_price =
+              final_price +
+              garage.standard_hourly_rate * appointment.labour_time
 
             appointment['final_price'] = final_price
             appointment.save()

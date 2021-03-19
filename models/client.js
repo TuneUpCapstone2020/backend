@@ -36,6 +36,7 @@ const clientSchema = new Schema(
       unique: true,
       lowercase: true,
       validate: [isEmail, 'Please enter a valid email'],
+      index: true,
     },
     password: {
       type: String,

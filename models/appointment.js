@@ -84,7 +84,9 @@ const appointmentSchema = new Schema(
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
-      required: true,
+    },
+    client_phone_number: {
+      type: String,
     },
     discount: {
       type: Number, //format: 10=10% off, 15=15% off, etc

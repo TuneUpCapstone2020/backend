@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const Employee = require('./employee')
+const Vehicle = require('./vehicle')
+const Appointment = require('./appointment')
 const { isEmail } = require('validator')
 const Schema = mongoose.Schema
 
@@ -48,7 +50,27 @@ const garageSchema = new Schema(
     },
     employees: [
       {
-        employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
+        employee: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Employee',
+        },
+      },
+    ],
+    valet_pickup_queue: [
+      {
+        vehicle: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Vehicle',
+        },
+        appointment: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Appointment',
+        },
+        pickup_time: Date,
+        completed: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     deleted: {
@@ -73,6 +95,20 @@ garageSchema.statics.getOpeningTime = function () {
 garageSchema.statics.getClosingTime = function () {
   return this.closing_time
 }
-
+garageSchema.statics.addVehicleToValetPickupQueue = async function (
+  garageId,
+  vehicle,
+  appointment,
+  time
+) {
+  const garage = await this.findById(garageId)
+  garage.valet_pickup_queue.push({
+    vehicle: vehicle,
+    appoitnment: appointment,
+    pickup_time: time,
+  })
+  garage.save()
+  return
+}
 const Garage = mongoose.model('Garage', garageSchema)
 module.exports = Garage

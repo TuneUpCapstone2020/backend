@@ -67,7 +67,6 @@ const handleErrors = (err) => {
  *  vehicleId: Id of the vehicle the appointment is for
  */
 const appoints_create = async (req, res) => {
-  //todo: check the entire duration of the appointment, not just the start time.
   //first, we want to make sure that the appointment doesn't already exist
   //for that date and time with the given mechanic.
   if (
@@ -122,7 +121,7 @@ const appoints_create = async (req, res) => {
     package.starting_price +
     ';' +
     package.total_estimated_time
-  console.log(`desc: ${newAppointment.description}`)
+  //console.log(`desc: ${newAppointment.description}`)
   //console.log(`package ${package}`)
   //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
@@ -135,8 +134,86 @@ const appoints_create = async (req, res) => {
       } @ time: ${helpers.getTimeStamp()}`
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
+    if (newAppointment.valet_required) {
+      await Garage.addVehicleToValetPickupQueue(
+        package.garage,
+        req.query.vehicleId,
+        appointment._id,
+        newAppointment.date
+      )
+    }
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
+    res.status(201).json(appointment)
+  } catch (err) {
+    const errors = handleErrors(err)
+    console.warn(
+      `An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`
+    )
+    res.status(400).json({ errors })
+  }
+}
+/*
+ * body:
+ *  date: the date of the appointment
+ *  packageId: the package the client chooses
+ *  employee_num: employee which the appoint is assigned to
+ *  customer_note: the user's description of the issue
+ *  client_phone_number: client's phone number
+ * Query params:
+ *
+ */
+const appoints_create_walk_in = async (req, res) => {
+  //check for duplicates
+  if (
+    (
+      await Appointment.find({
+        deleted: false,
+        date: new Date(req.body.date),
+        employee_num: req.body.employee_num,
+      })
+    ).length
+  ) {
+    console.log(
+      `Attempted duplicate appointment made @time: ${helpers.getTimeStamp()}`
+    )
+    return res.status(400).json({
+      message:
+        'Appointment already exists with that mechanic. Please chose another time.',
+    })
+  }
+  const package = await Package.findById(req.body.packageId)
+  let services = []
+  for (let i = 0; i < package.services.length; i++) {
+    services.push({
+      service: package.services[i].service,
+      quantity: package.services[i].quantity,
+    })
+  }
+  let newAppointment = _omitBy(req.body, _.isNil)
+  newAppointment.date = new Date(newAppointment.date)
+  newAppointment['garageId'] = await Garage.findById(package.garage)
+  newAppointment['services'] = services
+  newAppointment['total_estimated_time'] = package.total_estimated_time
+  newAppointment['skill_level'] = package.skill_level
+  newAppointment['description'] =
+    newAppointment.date.toISOString() +
+    ';' +
+    garage.name +
+    ';' +
+    package.name +
+    ';' +
+    package.starting_price +
+    ';' +
+    package.total_estimated_time
+
+  try {
+    const appointment = await Appointment.create(newAppointment)
+    console.log(
+      `New appointment created for: ${
+        appointment.date
+      } @ time: ${helpers.getTimeStamp()}`
+    )
     res.status(201).json(appointment)
   } catch (err) {
     const errors = handleErrors(err)
@@ -603,7 +680,6 @@ const appoints_get_availability_by_date = async (req, res) => {
     )
 
     //*Now we check if the array is empty. If it is, we recommend the closest appointment to the time
-    //todo: test how the sort actually works
     if (!timesThatWorkForClient.length) {
       totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
       console.log(
@@ -944,11 +1020,15 @@ const appoints_get_by_employee = (req, res) => {
 
 //send employee_num in query params
 const appoints_get_nearest_appoint_by_employee = async (req, res) => {
+  const employee = await Employee.findOne({
+    employee_number: req.query.employee_num,
+  })
+  const appointment_status = req.query.employee_num ? 3 : 0
   await Appointment.find({
     employee_num: req.query.employee_num,
     deleted: false,
     archived: false,
-    appointment_status: 3,
+    appointment_status: appointment_status,
   })
     .sort({ date: 'ascending' })
     .then(async (appointments) => {
@@ -1687,6 +1767,7 @@ const appoints_delete = async (req, res) => {
 module.exports = {
   //C
   appoints_create,
+  appoints_create_walk_in,
   //R
   appoints_get_all,
   appoints_get_by_date,

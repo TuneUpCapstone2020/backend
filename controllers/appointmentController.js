@@ -1020,11 +1020,15 @@ const appoints_get_by_employee = (req, res) => {
 
 //send employee_num in query params
 const appoints_get_nearest_appoint_by_employee = async (req, res) => {
+  const employee = await Employee.findOne({
+    employee_number: req.query.employee_num,
+  })
+  const appointment_status = req.query.employee_num ? 3 : 0
   await Appointment.find({
     employee_num: req.query.employee_num,
     deleted: false,
     archived: false,
-    appointment_status: 3,
+    appointment_status: appointment_status,
   })
     .sort({ date: 'ascending' })
     .then(async (appointments) => {

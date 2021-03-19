@@ -1463,11 +1463,11 @@ const appoints_complete = async (req, res) => {
     req.query.id,
     {
       archived: true,
-      end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
+      end_time: helpers.getTimeStamp(),
       //labour_time: req.body.labour_time,
       appointment_status: 13,
     },
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
@@ -1478,13 +1478,84 @@ const appoints_complete = async (req, res) => {
           error: err.message,
         })
       } else {
-        console.log(
-          `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
-        )
+        Appointment.aggregate([
+          {
+            $match: {
+              _id: ObjectId(result._id),
+            },
+          },
+          {
+            $lookup: {
+              from: 'catalogservices',
+              localField: 'services.service',
+              foreignField: '_id',
+              as: 'catalogServices',
+            },
+          },
+          {
+            $lookup: {
+              from: 'catalogproducts',
+              localField: 'products.product',
+              foreignField: '_id',
+              as: 'catalogProducts',
+            },
+          },
+        ]).exec(async (err, appointments) => {
+          if (err) {
+            helpers.printErrors(err)
+            res.status(400).json({
+              message: 'Unable to update appointments',
+              error: err.message,
+            })
+          } else {
+            const appointment = appointments.pop()
+            const garage = await Garage.findById(appointment.garageId)
+            let final_price = 0
+            let i = 0
+            for (service of appointment.catalogServices) {
+              final_price =
+                final_price + service.price * appointment.services[i].quantity
+              i++
+            }
+            i = 0
+            for (product of appointment.catalogProducts) {
+              final_price =
+                final_price +
+                product.sell_price * appointment.products[i].quantity
+              i++
+            }
+            final_price =
+              final_price +
+              garage.standard_hourly_rate * (appointment.labour_time / 3600)
 
-        res.status(200).json({
-          message: 'Appointment marked as complete!',
-          id: result._id,
+            await Appointment.findByIdAndUpdate(
+              appointment._id,
+              {
+                final_price: final_price,
+              },
+              { new: true },
+              (err, result) => {
+                if (err) {
+                  helpers.printError(err, 'appoints_complete')
+                  res.status(400).json({
+                    message: 'Unable to update appointments',
+                    error: err.message,
+                  })
+                } else {
+                  console.log(
+                    `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
+                  )
+                  res.status(200).json({
+                    message: 'Appointment marked as complete!',
+                    id: result._id,
+                  })
+                }
+              }
+            )
+
+            // appointment['final_price'] = final_price
+            // appointment.save()
+          }
         })
       }
     }

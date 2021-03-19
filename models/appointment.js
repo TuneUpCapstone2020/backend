@@ -34,6 +34,7 @@ const appointmentSchema = new Schema(
     final_price: {
       //to be generated when appointment is complete
       type: Number, //stored in cents
+      // default: 0,
     },
     employee_num: {
       type: Number,
@@ -41,7 +42,7 @@ const appointmentSchema = new Schema(
     },
     services: [
       {
-        _id: false,
+        //_id: false,
         service: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'CatalogService',
@@ -63,7 +64,7 @@ const appointmentSchema = new Schema(
     },
     products: [
       {
-        _id: false,
+        //_id: false,
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'CatalogProduct',

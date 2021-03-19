@@ -1764,6 +1764,7 @@ const appoints_delete = async (req, res) => {
 module.exports = {
   //C
   appoints_create,
+  appoints_create_walk_in,
   //R
   appoints_get_all,
   appoints_get_by_date,

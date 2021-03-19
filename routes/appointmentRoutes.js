@@ -5,6 +5,7 @@ const router = express.Router()
 
 //Create
 router.post('/', appointmentController.appoints_create)
+router.post('/walk_in', appointmentController.appoints_create_walk_in)
 //Retrieve
 router.get('/', appointmentController.appoints_get_all)
 router.get('/employee', appointmentController.appoints_get_by_employee)

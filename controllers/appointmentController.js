@@ -135,6 +135,14 @@ const appoints_create = async (req, res) => {
       } @ time: ${helpers.getTimeStamp()}`
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
+    if (newAppointment.valet_required) {
+      await Garage.addVehicleToValetPickupQueue(
+        package.garage,
+        req.query.vehicleId,
+        appointment._id,
+        newAppointment.date
+      )
+    }
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
     res.status(201).json(appointment)
@@ -603,7 +611,6 @@ const appoints_get_availability_by_date = async (req, res) => {
     )
 
     //*Now we check if the array is empty. If it is, we recommend the closest appointment to the time
-    //todo: test how the sort actually works
     if (!timesThatWorkForClient.length) {
       totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
       console.log(

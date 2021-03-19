@@ -95,6 +95,20 @@ garageSchema.statics.getOpeningTime = function () {
 garageSchema.statics.getClosingTime = function () {
   return this.closing_time
 }
-
+garageSchema.statics.addVehicleToValetPickupQueue = async function (
+  garageId,
+  vehicle,
+  appointment,
+  time
+) {
+  const garage = await this.findById(garageId)
+  garage.valet_pickup_queue.push({
+    vehicle: vehicle,
+    appoitnment: appointment,
+    pickup_time: time,
+  })
+  garage.save()
+  return
+}
 const Garage = mongoose.model('Garage', garageSchema)
 module.exports = Garage

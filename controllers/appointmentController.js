@@ -154,14 +154,14 @@ const appoints_create = async (req, res) => {
   }
 }
 /*
- * body: 
+ * body:
  *  date: the date of the appointment
  *  packageId: the package the client chooses
  *  employee_num: employee which the appoint is assigned to
  *  customer_note: the user's description of the issue
- *  client_phone_number: client's phone number 
- * Query params: 
- *  
+ *  client_phone_number: client's phone number
+ * Query params:
+ *
  */
 const appoints_create_walk_in = async (req, res) => {
   //check for duplicates
@@ -207,13 +207,14 @@ const appoints_create_walk_in = async (req, res) => {
     ';' +
     package.total_estimated_time
 
-    try{const appointment = await Appointment.create(newAppointment)
-      console.log(
-        `New appointment created for: ${
-          appointment.date
-        } @ time: ${helpers.getTimeStamp()}`
-      )}
-      res.status(201).json(appointment)
+  try {
+    const appointment = await Appointment.create(newAppointment)
+    console.log(
+      `New appointment created for: ${
+        appointment.date
+      } @ time: ${helpers.getTimeStamp()}`
+    )
+    res.status(201).json(appointment)
   } catch (err) {
     const errors = handleErrors(err)
     console.warn(
@@ -221,9 +222,7 @@ const appoints_create_walk_in = async (req, res) => {
     )
     res.status(400).json({ errors })
   }
-
-
-})
+}
 //END: ENDPOINTS FOR POST REQUESTS (Create)
 
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)

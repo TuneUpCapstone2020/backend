@@ -8,10 +8,10 @@ const handleErrors = (err) => {
     owner: '',
     email: '',
     phone_number: '',
-    address: ''
+    address: '',
   }
 
-  if(err.code === 11000){
+  if (err.code === 11000) {
     errors.email = 'Email already exists'
     return errors
   }
@@ -29,34 +29,35 @@ const handleErrors = (err) => {
 //START: ENDPOINTS FOR GET REQUESTS (Retrieve)
 
 const garage_get_all = (req, res) => {
-    Garage.find({ deleted: false }).sort({ createdAt: -1 })
-        .then((result) => {
-          console.log(`get of all garages!`);
-            res.status(200).json(result)
-        })
-        .catch((err) => {
-            console.warn(`An error occured in garage_get_all`)
-            res.status(400).json({
-              message: 'An error occured!',
-              error: err.message
-            })
-        })
+  Garage.find({ deleted: false })
+    .sort({ createdAt: -1 })
+    .then((result) => {
+      console.log(`get of all garages!`)
+      res.status(200).json(result)
+    })
+    .catch((err) => {
+      console.warn(`An error occured in garage_get_all`)
+      res.status(400).json({
+        message: 'An error occured!',
+        error: err.message,
+      })
+    })
 }
 
 const garage_get_by_name = (req, res) => {
   Garage.find({
     name: req.query.name,
-    deleted: false
+    deleted: false,
   })
     .then((result) => {
-      console.log(`get of garage by name!`);
+      console.log(`get of garage by name!`)
       res.status(200).json(result)
     })
     .catch((err) => {
-      console.warn(`An error occured in: garage_get_by_name`);
+      console.warn(`An error occured in: garage_get_by_name`)
       res.status(400).json({
         message: 'An error occured!',
-        error: err.message
+        error: err.message,
       })
     })
 }
@@ -201,8 +202,10 @@ const garage_create = async (req, res) => {
 //END: ENDPOINTS FOR DELETE REQUESTS
 
 module.exports = {
-    garage_create,
-    garage_get_all,
-    garage_get_by_name,
-    garage_get_by_owner
+  garage_create,
+  garage_get_all,
+  garage_get_by_name,
+  garage_get_by_owner,
+  garage_get_valet_queue_first_item,
+  garage_complete_item_from_valet_queue,
 }

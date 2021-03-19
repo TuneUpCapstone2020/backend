@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const Employee = require('./employee')
+const Vehicle = require('./vehicle')
+const Appointment = require('./appointment')
 const { isEmail } = require('validator')
 const Schema = mongoose.Schema
 
@@ -48,7 +50,27 @@ const garageSchema = new Schema(
     },
     employees: [
       {
-        employee: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee' },
+        employee: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Employee',
+        },
+      },
+    ],
+    valet_pickup_queue: [
+      {
+        vehicle: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Vehicle',
+        },
+        appointment: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Appointment',
+        },
+        pickup_time: Date,
+        completed: {
+          type: Boolean,
+          default: false,
+        },
       },
     ],
     deleted: {

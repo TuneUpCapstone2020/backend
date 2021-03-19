@@ -23,6 +23,9 @@ require('dotenv').config() //makes process.env access the .env file which allows
 
 //express app
 const app = express()
+//socket.io setup
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -190,4 +193,12 @@ app.get('/today', (req, res) => {
     dateMinute: date.getMinutes(),
     dateMinuteUTC: date.getUTCMinutes(),
   })
+})
+
+io.on('connection', (socket) => {
+  console.log('a user has connected')
+  socket.on('disconnect', () => {
+    console.log('a user has disconnected')
+  })
+  socket.on('new location')
 })

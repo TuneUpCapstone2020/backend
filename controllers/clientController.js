@@ -196,9 +196,13 @@ const login_post = async (req, res) => {
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
     // client.password = ""
     // client.deviceId = ""
-    const retVal = client
-    retVal.password = ''
-    retVal.deviceId = ''
+    const retVal = {
+      first_name: client.first_name,
+      last_name: client.last_name,
+      email: client.email,
+      profile_image_url: client.profile_image_url,
+    }
+
     res.status(200).json(retVal)
   } catch (err) {
     console.warn(`An error occured in login_post`)

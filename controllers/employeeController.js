@@ -1,5 +1,6 @@
 const Employee = require('../models/employee')
 const Client = require('../models/client')
+const Vehicle = require('../models/vehicle')
 const Garage = require('../models/garage')
 const jwt = require('jsonwebtoken')
 const helpers = require('../helpers')

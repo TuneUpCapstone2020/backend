@@ -3,6 +3,7 @@
 const express = require('express') //nodejs framework. check it out at: https://expressjs.com/
 const mongoose = require('mongoose') //helps with database. Check it out at: https://mongoosejs.com/
 const cookieParser = require('cookie-parser')
+const util = require('util')
 const employeeRoutes = require('./routes/employeeRoutes')
 const clientRoutes = require('./routes/clientRoutes')
 const vehicleRoutes = require('./routes/vehicleRoutes')
@@ -21,22 +22,24 @@ const { requireAuth, checkClient } = require('./middleware/clientMiddleware')
 
 require('dotenv').config() //makes process.env access the .env file which allows us to do provess.env.DB_PASS
 
-//express app
-const app = express()
-//socket.io setup
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
-
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
-app.use(cookieParser())
-
 // Constants
 const LOCAL_PORT = process.env.LOCALPORT
 const LOCAL_HOST = process.env.LOCALHOST
 const CLOUD_HOST = process.env.CLOUD_HOST
 const CLOUD_PORT = process.env.CLOUD_PORT
 const ALLOWED_LISTEN = process.env.ALLOWED_LISTEN
+
+//express app
+const app = express()
+//socket.io setup
+const server = require('http').createServer(app)
+const io = require('socket.io')(server)
+const ioClient = require('socket.io-client')
+//let server
+
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(cookieParser())
 
 //0 for local deploy, 1 for cloud
 if (process.env.NODE_LOCAL_DEPLOY == 1) {
@@ -97,8 +100,10 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       console.log(
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
-      app.listen(LOCAL_PORT, LOCAL_HOST)
-      console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
+      //app.listen(LOCAL_PORT, LOCAL_HOST)
+      server.listen(LOCAL_PORT, LOCAL_HOST, () => {
+        console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
+      })
 
       //check if default list of vehicles exists. If not, add it.
       mongoose.connection.db.listCollections().toArray(function (err, names) {
@@ -127,7 +132,6 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       throw err
     })
 }
-
 mongoose.Promise = global.Promise
 mongoose.set('useFindAndModify', false)
 
@@ -182,10 +186,12 @@ app.get('/ping/', (req, res) => {
   res.send('PONG')
 })
 
+//test api route
 app.get('/api/', (req, res) => {
   res.send('You have reached the api of this server')
 })
 
+//get current server time
 app.get('/today', (req, res) => {
   const date = new Date()
   res.status(200).json({
@@ -195,10 +201,26 @@ app.get('/today', (req, res) => {
   })
 })
 
+//test socket.io
+app.get('/socket', (req, res) => {
+  const socket = ioClient('https://0.0.0.0:3000')
+  socket.on('hello', (args) => {
+    console.log(args)
+  })
+  socket.on('connect', (args) => {
+    console.log(socket.connected)
+  })
+  //console.log(socket)
+  //res.send(`testing socket:\n ${util.inspect(socket, { depth: null })}`)
+  res.send(socket.connected)
+})
+
 io.on('connection', (socket) => {
   console.log('a user has connected')
-  socket.on('disconnect', () => {
-    console.log('a user has disconnected')
-  })
+  socket.emit('hello', 'world')
   socket.on('new location')
 })
+io.on('hello', (socket) => {
+  console.log(`connected in hello`)
+})
+//http.listen(3000)

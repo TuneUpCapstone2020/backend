@@ -203,8 +203,8 @@ const employee_login = async (req, res) => {
   try {
     const employee = await Employee.login(req.body.employee_number)
     const client = await Client.findOne({
-      first_name: 'Garage',
-      last_name: 'Client',
+      first_name: 'garage',
+      last_name: 'client',
     })
     const vehicle = await Vehicle.findOne({ license: '000000' })
     console.log(`Logged in employee ${employee.employee_number}`)

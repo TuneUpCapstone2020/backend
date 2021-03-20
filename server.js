@@ -33,7 +33,9 @@ const ALLOWED_LISTEN = process.env.ALLOWED_LISTEN
 const app = express()
 //socket.io setup
 const server = require('http').createServer(app)
-const io = require('socket.io')(server)
+const io = require('socket.io')(server, {
+  path: '/socket.io',
+})
 const ioClient = require('socket.io-client')
 //let server
 
@@ -202,8 +204,10 @@ app.get('/today', (req, res) => {
 })
 
 //test socket.io
-app.get('/socket', (req, res) => {
-  const socket = ioClient('http://0.0.0.0:3000')
+app.get('/socket.io', (req, res) => {
+  const socket = ioClient('http://0.0.0.0:3000', {
+    path: '/socket.io',
+  })
   // const socket = io.connect('http://0.0.0.0:3000')
   socket.on('hello', (args) => {
     console.log(args)

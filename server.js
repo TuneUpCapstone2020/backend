@@ -203,12 +203,13 @@ app.get('/today', (req, res) => {
 
 //test socket.io
 app.get('/socket', (req, res) => {
-  const socket = ioClient('https://0.0.0.0:3000')
+  const socket = ioClient('http://0.0.0.0:3000')
+  // const socket = io.connect('http://0.0.0.0:3000')
   socket.on('hello', (args) => {
     console.log(args)
   })
   socket.on('connect', (args) => {
-    console.log(socket.connected)
+    console.log(`connected:${socket.connected}`)
   })
   //console.log(socket)
   //res.send(`testing socket:\n ${util.inspect(socket, { depth: null })}`)
@@ -218,7 +219,7 @@ app.get('/socket', (req, res) => {
 io.on('connection', (socket) => {
   console.log('a user has connected')
   socket.emit('hello', 'world')
-  socket.on('new location')
+  //socket.on('new location')
 })
 io.on('hello', (socket) => {
   console.log(`connected in hello`)

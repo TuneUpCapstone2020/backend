@@ -1276,13 +1276,12 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
         //console.log(`appointment: ${JSON.stringify(appointment, null, 2)}`)
         //console.log(`client: ${JSON.stringify(appointment.client)}`)
         //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)
-        if (!client) {
-          client['full_name'] = 'Walk in'
-        }
+
+        const full_name = client ? client.full_name : 'Walk in'
         appointment.description =
           appointment.description +
           ';' +
-          client.full_name +
+          full_name +
           ';' +
           employee.first_name +
           ' ' +

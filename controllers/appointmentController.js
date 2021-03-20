@@ -190,9 +190,10 @@ const appoints_create_walk_in = async (req, res) => {
       quantity: package.services[i].quantity,
     })
   }
-  let newAppointment = _omitBy(req.body, _.isNil)
+  let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.date = new Date(newAppointment.date)
-  newAppointment['garageId'] = await Garage.findById(package.garage)
+  const garage = await Garage.findById(package.garage)
+  newAppointment['garageId'] = garage._id
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level

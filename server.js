@@ -210,14 +210,15 @@ app.get('/socket.io', (req, res) => {
   })
   // const socket = io.connect('http://0.0.0.0:3000')
   socket.on('hello', (args) => {
-    console.log(args)
+    console.log(`args: ${args}`)
   })
   socket.on('connect', (args) => {
     console.log(`connected:${socket.connected}`)
+    res.send(socket.connected)
   })
   //console.log(socket)
   //res.send(`testing socket:\n ${util.inspect(socket, { depth: null })}`)
-  res.send(socket.connected)
+  // res.send(`/socket: ${socket.connected}`)
 })
 
 io.on('connection', (socket) => {

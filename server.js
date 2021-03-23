@@ -33,11 +33,13 @@ const ALLOWED_LISTEN = process.env.ALLOWED_LISTEN
 const app = express()
 //socket.io setup
 const server = require('http').createServer(app)
-const io = require('socket.io')(server, {
+ const io = require('socket.io')(server, {
   path: '/gps/socket.io',
   // path: '/socket.io',
 })
 const ioClient = require('socket.io-client')
+server.listen(3001, LOCAL_HOST)
+io.listen(server)
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -103,7 +105,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
       //app.listen(LOCAL_PORT, LOCAL_HOST)
-      server.listen(LOCAL_PORT, LOCAL_HOST, () => {
+      app.listen(LOCAL_PORT, LOCAL_HOST, () => {
         console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
       })
 
@@ -204,24 +206,23 @@ app.get('/today', (req, res) => {
 })
 
 //test socket.io
-app.get('/gps/socket.io', (req, res) => {
-  const socket = ioClient('http://0.0.0.0:3000', {
-    path: '/gps/socket.io',
-  })
-  // const socket = io.connect('http://0.0.0.0:3000')
-  socket.on('hello', (args) => {
-    console.log(`args: ${args}`)
-    socket.send('hello')
-    console.log('Sent hello!')
-  })
-  socket.on('connect', (args) => {
-    console.log(`connected:${socket.connected}`)
-    res.send(socket.connected)
-  })
-  //console.log(socket)
-  //res.send(`testing socket:\n ${util.inspect(socket, { depth: null })}`)
-  // res.send(`/socket: ${socket.connected}`)
-})
+// app.get('/gps/socket.io', (req, res) => {
+//   // const socket = ioClient('http://0.0.0.0:3001', {
+//   //   path: '/gps/socket.io',
+//   // })
+//   // //const socket = io.connect('http://0.0.0.0:3000')
+//   // socket.on('hello', (args) => {
+//   //   console.log(`args: ${args}`)
+//   //   console.log('Sent hello!')
+//   // })
+//   // socket.on('connect', (args) => {
+//   //   console.log(`connected:${socket.connected}`)
+//   //   res.send(socket.connected)
+//   // })
+//   //console.log(socket)
+//   //res.send(`testing socket:\n ${util.inspect(socket, { depth: null })}`)
+//   res.send(`hello`)
+// })
 
 io.on('connection', (socket) => {
   socket.send('Hello there!')

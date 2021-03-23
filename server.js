@@ -41,6 +41,8 @@ const ioClient = require('socket.io-client')
 server.listen(3001, LOCAL_HOST)
 io.listen(server)
 
+server.listen(3001, LOCAL_HOST)
+
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())

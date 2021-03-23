@@ -34,10 +34,10 @@ const app = express()
 //socket.io setup
 const server = require('http').createServer(app)
 const io = require('socket.io')(server, {
-  path: '/socket.io',
+  path: '/gps/socket.io',
+  // path: '/socket.io',
 })
 const ioClient = require('socket.io-client')
-//let server
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -204,13 +204,15 @@ app.get('/today', (req, res) => {
 })
 
 //test socket.io
-app.get('/socket.io', (req, res) => {
+app.get('/gps/socket.io', (req, res) => {
   const socket = ioClient('http://0.0.0.0:3000', {
-    path: '/socket.io',
+    path: '/gps/socket.io',
   })
   // const socket = io.connect('http://0.0.0.0:3000')
   socket.on('hello', (args) => {
     console.log(`args: ${args}`)
+    socket.send('hello')
+    console.log('Sent hello!')
   })
   socket.on('connect', (args) => {
     console.log(`connected:${socket.connected}`)
@@ -222,6 +224,7 @@ app.get('/socket.io', (req, res) => {
 })
 
 io.on('connection', (socket) => {
+  socket.send('Hello there!')
   console.log('a user has connected')
   socket.emit('hello', 'world')
   //socket.on('new location')

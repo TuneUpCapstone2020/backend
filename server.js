@@ -39,6 +39,8 @@ const io = require('socket.io')(server, {
 })
 const ioClient = require('socket.io-client')
 
+server.listen(3001, LOCAL_HOST)
+
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(cookieParser())
@@ -103,7 +105,7 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
       //app.listen(LOCAL_PORT, LOCAL_HOST)
-      server.listen(LOCAL_PORT, LOCAL_HOST, () => {
+      app.listen(LOCAL_PORT, LOCAL_HOST, () => {
         console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
       })
 
@@ -205,7 +207,7 @@ app.get('/today', (req, res) => {
 
 //test socket.io
 app.get('/gps/socket.io', (req, res) => {
-  const socket = ioClient('http://0.0.0.0:3000', {
+  const socket = ioClient('http://0.0.0.0:3001', {
     path: '/gps/socket.io',
   })
   // const socket = io.connect('http://0.0.0.0:3000')

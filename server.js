@@ -236,7 +236,7 @@ io.on('connection', (socket) => {
     message = JSON.parse(message)
     socket
       .to(message.room)
-      .emit('newLocationForClient', { latLng: message.latLng })
+      .emit('newLocationForClient', { latLng: message.latLng, bearing: message.bearing })
   })
 
   socket.on('disconnect', () => {

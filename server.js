@@ -33,7 +33,7 @@ const ALLOWED_LISTEN = process.env.ALLOWED_LISTEN
 const app = express()
 //socket.io setup
 const server = require('http').createServer(app)
- const io = require('socket.io')(server, {
+const io = require('socket.io')(server, {
   path: '/gps/socket.io',
   // path: '/socket.io',
 })
@@ -226,17 +226,20 @@ app.get('/today', (req, res) => {
 // })
 
 io.on('connection', (socket) => {
-  socket.send('Hello there!')
-  console.log('a user has connected')
-  socket.emit('hello', 'world')
-  
-  socket.on('location', (message) => {
-    console.log(`location ${helpers.printJson(message)}`);
-    socket.emit('location', message)
+  console.log(`User with socketId ${socket.id} has connected!`)
+
+  socket.on('joinLiveViewRoom', (appointmentId) => {
+    socket.join(appointmentId)
+  })
+  socket.on('newValetLocation', (message) => {
+    console.log(`newValetLocation: ${helpers.printJson(message)}`)
+    socket
+      .to(message.room)
+      .emit('newLocationForClient', { location: message.location })
   })
 
   socket.on('disconnect', () => {
-    console.log('user disconnected');
+    console.log('user disconnected')
   })
 })
 io.on('hello', (socket) => {

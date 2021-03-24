@@ -233,12 +233,10 @@ io.on('connection', (socket) => {
     socket.join(appointmentId)
   })
   socket.on('newValetLocation', (message) => {
-    console.log(`newValetLocation: ${helpers.printJson(message)}`)
-    message = message.replace(/\\/g, '')
-    console.log(`message: ${helpers.printJson(message)}`)
+    message = JSON.parse(message)
     socket
       .to(message.room)
-      .emit('newLocationForClient', { location: message.location })
+      .emit('newLocationForClient', { latLng: message.latLng })
   })
 
   socket.on('disconnect', () => {

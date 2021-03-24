@@ -233,6 +233,10 @@ io.on('connection', (socket) => {
   socket.on('location', (message) => {
     console.log(`location ${helpers.printJson(message)}`);
   })
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  })
 })
 io.on('hello', (socket) => {
   console.log(`connected in hello`)

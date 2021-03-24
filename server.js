@@ -236,9 +236,10 @@ io.on('connection', (socket) => {
   })
   socket.on('newValetLocation', (message) => {
     message = JSON.parse(message)
-    socket
-      .to(message.room)
-      .emit('newLocationForClient', { latLng: message.latLng, bearing: message.bearing })
+    socket.to(message.room).emit('newLocationForClient', {
+      latLng: message.latLng,
+      bearing: message.bearing,
+    })
   })
 
   socket.on('disconnect', () => {

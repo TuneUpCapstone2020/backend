@@ -232,6 +232,7 @@ io.on('connection', (socket) => {
   
   socket.on('location', (message) => {
     console.log(`location ${helpers.printJson(message)}`);
+    socket.emit('location', message)
   })
 
   socket.on('disconnect', () => {

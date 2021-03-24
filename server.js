@@ -38,8 +38,8 @@ const server = require('http').createServer(app)
   // path: '/socket.io',
 })
 const ioClient = require('socket.io-client')
-server.listen(3001, LOCAL_HOST)
-io.listen(server)
+//server.listen(3001, LOCAL_HOST)
+//io.listen(server)
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
@@ -105,7 +105,8 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
         `Successfully connected to the ${process.env.DB_NAME_LOCAL} database`
       )
       //app.listen(LOCAL_PORT, LOCAL_HOST)
-      app.listen(LOCAL_PORT, LOCAL_HOST, () => {
+      server.listen(LOCAL_PORT, LOCAL_HOST, () => {
+        //io.listen(server)
         console.log(`Running on http://${LOCAL_HOST}:${LOCAL_PORT}`)
       })
 
@@ -228,7 +229,10 @@ io.on('connection', (socket) => {
   socket.send('Hello there!')
   console.log('a user has connected')
   socket.emit('hello', 'world')
-  //socket.on('new location')
+  
+  socket.on('location', (message) => {
+    console.log(`location ${helpers.printJson(message)}`);
+  })
 })
 io.on('hello', (socket) => {
   console.log(`connected in hello`)

@@ -47,7 +47,7 @@ app.use(cookieParser())
 
 //0 for local deploy, 1 for cloud
 if (process.env.NODE_LOCAL_DEPLOY == 1) {
-  //This is to connect to the atlast version of the DB. TODO: Figure out a way to properly handle the env vars and setup the connection
+  //This is to connect to the atlast version of the DB.
   const dbURI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@tuneup-dev.pcwc5.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`
   mongoose
     .connect(dbURI, {
@@ -72,7 +72,6 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
           //console.log(`Collections: ${JSON.stringify(names, null, 2)}`)
           let vehiclesExist = false
           for (let i = 0; i < names.length; i++) {
-            //console.log(`name${i}: ${JSON.stringify(names[i])}`)
             if (names[i]['name'].includes('vehiclemakes')) {
               console.log(`Vehilce Makes and models already exists.`)
               vehiclesExist = true

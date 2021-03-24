@@ -159,7 +159,8 @@ const appoints_create = async (req, res) => {
  *  packageId: the package the client chooses
  *  employee_num: employee which the appoint is assigned to
  *  customer_note: the user's description of the issue
- *  client_phone_number: client's phone number
+ *  default_vehicle_id: id of the default garage vehicle
+ *  default_client_id: id of the default garage client (walk-in)
  * Query params:
  *
  */
@@ -197,6 +198,7 @@ const appoints_create_walk_in = async (req, res) => {
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
+  newAppointment['client'] = req.body.default_client_id
   newAppointment['description'] =
     newAppointment.date.toISOString() +
     ';' +
@@ -215,6 +217,15 @@ const appoints_create_walk_in = async (req, res) => {
         appointment.date
       } @ time: ${helpers.getTimeStamp()}`
     )
+    await Vehicle.addAppointment(req.body.default_vehicle_id, appointment)
+    if (newAppointment.valet_required) {
+      await Garage.addVehicleToValetPickupQueue(
+        package.garage,
+        req.body.default_vehicle_id,
+        appointment._id,
+        newAppointment.date
+      )
+    }
     res.status(201).json(appointment)
   } catch (err) {
     const errors = handleErrors(err)

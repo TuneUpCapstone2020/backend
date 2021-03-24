@@ -234,6 +234,8 @@ io.on('connection', (socket) => {
   })
   socket.on('newValetLocation', (message) => {
     console.log(`newValetLocation: ${helpers.printJson(message)}`)
+    message = message.replace('\\', '')
+    console.log(`message: ${helpers.printJson(message)}`)
     socket
       .to(message.room)
       .emit('newLocationForClient', { location: message.location })

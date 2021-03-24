@@ -58,6 +58,7 @@ const garageSchema = new Schema(
     ],
     valet_pickup_queue: [
       {
+        _id: false,
         vehicle: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Vehicle',
@@ -104,7 +105,7 @@ garageSchema.statics.addVehicleToValetPickupQueue = async function (
   const garage = await this.findById(garageId)
   garage.valet_pickup_queue.push({
     vehicle: vehicle,
-    appoitnment: appointment,
+    appointment: appointment,
     pickup_time: time,
   })
   garage.save()

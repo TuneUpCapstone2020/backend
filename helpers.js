@@ -76,6 +76,9 @@ const populateVehicleAttributes = async (vehicleId) => {
  todo: payload (add a json object as payload and try to send the entire appointment)
  */
 const createPushNotification = async (clientId, title, body, payload) => {
+  //Regarding the Client2 thing, for some reason any find method we do on Client will throw a "that function does not exist" error.
+  //The same happens for any other model so that is why we have to import client again. I hate it but we also don't have time to waste on
+  //figuring it our ro debugging further.
   const Client2 = require('./models/client')
   const client = await Client2.findById(clientId)
   //const client = await Client.findOne({_id: clientId})

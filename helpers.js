@@ -4,7 +4,6 @@ const VehicleMake = require('./models/vehicleMake')
 const VehicleModel = require('./models/vehicleModel')
 const Vehicle = require('./models/vehicle')
 const Client = require('./models/client')
-const { keys } = require('lodash')
 require('dotenv').config()
 
 //push notification specific imports
@@ -77,7 +76,9 @@ const populateVehicleAttributes = async (vehicleId) => {
  todo: payload (add a json object as payload and try to send the entire appointment)
  */
 const createPushNotification = async (clientId, title, body, payload) => {
-  const client = await Client.findById(clientId)
+  const Client2 = require('./models/client')
+  const client = await Client2.findById(clientId)
+  //const client = await Client.findOne({_id: clientId})
   if (client.devicePlatform === 'android') {
     let message = new gcm.Message({
       to: client.deviceId,

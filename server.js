@@ -59,8 +59,10 @@ if (process.env.NODE_LOCAL_DEPLOY == 1) {
       console.log(
         `Successfully conencted to the ${process.env.DB_NAME} database`
       )
-      app.listen(CLOUD_PORT, ALLOWED_LISTEN)
-      console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
+      server.listen(CLOUD_PORT, ALLOWED_LISTEN, () => {
+        //io.listen(server)
+        console.log(`Running on http://${CLOUD_HOST}:${CLOUD_PORT}`)
+      })
 
       //check if default list of vehicles exists. If not, add it.
       mongoose.connection.db.listCollections().toArray(function (err, names) {

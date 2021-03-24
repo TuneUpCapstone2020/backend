@@ -228,7 +228,8 @@ app.get('/today', (req, res) => {
 io.on('connection', (socket) => {
   console.log(`User with socketId ${socket.id} has connected!`)
 
-  socket.on('joinLiveViewRoom', (appointmentId) => {
+  socket.on('joinLiveLocationRoom', (appointmentId) => {
+    console.log(`socket ${socket.id} just joined room ${appointmentId}`)
     socket.join(appointmentId)
   })
   socket.on('newValetLocation', (message) => {
@@ -242,7 +243,3 @@ io.on('connection', (socket) => {
     console.log('user disconnected')
   })
 })
-io.on('hello', (socket) => {
-  console.log(`connected in hello`)
-})
-//http.listen(3000)

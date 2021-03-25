@@ -119,7 +119,7 @@ const garage_get_valet_queue_first_item = async (req, res) => {
       const queue_item = queue[0]
       const appointment = Appointment.findById(queue_item.appointment)
       queue_item.appointment = appointment
-      res.status(200).json(queue[0])
+      res.status(200).json(queue_item)
     }
   })
 }

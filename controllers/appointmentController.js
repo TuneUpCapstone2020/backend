@@ -161,6 +161,7 @@ const appoints_create = async (req, res) => {
  *  customer_note: the user's description of the issue
  *  default_vehicle_id: id of the default garage vehicle
  *  default_client_id: id of the default garage client (walk-in)
+ *  client_phone_number: the client's phone number
  * Query params:
  *
  */
@@ -199,6 +200,7 @@ const appoints_create_walk_in = async (req, res) => {
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
   newAppointment['client'] = req.body.default_client_id
+  newAppointment['client_phone_number'] = req.body.client_phone_number
   newAppointment['description'] =
     newAppointment.date.toISOString() +
     ';' +

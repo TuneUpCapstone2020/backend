@@ -15,6 +15,7 @@ var s3 = new aws.S3()
 const image_upload = async (req, res) => {
   singleUpload(req, res, function (err) {
     if (err) {
+      helpers.printError(err, 'image_upload')
       return res.status(422).json({
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })
@@ -32,6 +33,7 @@ const image_upload_inspection_image = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.vehicleId)
   singleUpload(req, res, function (err) {
     if (err) {
+      helpers.printError(err, 'image_upload_inspection_image')
       return res.status(422).json({
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })
@@ -54,6 +56,7 @@ const image_upload_inspection_image = async (req, res) => {
 const image_upload_make_logo = async (req, res) => {
   singleUpload(req, res, function (err) {
     if (err) {
+      helpers.printError(err, 'image_upload_make_logo')
       return res.status(422).json({
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })

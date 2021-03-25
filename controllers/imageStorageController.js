@@ -114,13 +114,15 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === 'image/jpeg' ||
     file.mimetype === 'image/jpg' ||
     file.mimetype === 'image/png' ||
+    file.mimetype === 'image/heif' ||
+    file.mimetype === 'image/heic' ||
     file.mimetype === 'image/webp'
   ) {
     cb(null, true)
   } else {
     cb(
       new Error(
-        'Invalid file type, only JPG/JPEG, PNG, and WebP files are allowed!'
+        `Invalid file type, only JPG/JPEG, PNG, HEIF/HEIC and WebP files are allowed! You sent: ${file.mimetype}`
       ),
       false
     )

@@ -75,7 +75,7 @@ const vehicle_get_by_licence = (req, res) => {
     deleted: false,
   })
     .then((result) => {
-      console.log(`Found license: ${result.license}`)
+      // console.log(`Found license: ${result.license}`)
       res.status(200).json({
         message: 'Vehicle found!',
         vehicle: result._id,
@@ -329,7 +329,7 @@ const getVehiclesFromIds = async (listOfIds) => {
         returnList.push(vehicle)
       }
     }
-    console.log(`return list: ${returnList}`)
+    // console.log(`return list: ${returnList}`)
     return returnList
   } catch (err) {
     console.log(err)

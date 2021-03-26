@@ -110,7 +110,10 @@ const appointmentSchema = new Schema(
     customer_note: {
       type: String,
     },
-    customer_image_urls: [{ type: String, default: [] }],
+    customer_image_url: {
+      type: String,
+      default: '',
+    },
     archived: {
       type: Boolean,
       default: false,

@@ -88,7 +88,7 @@
           "MakeName": "LINCOLN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737952969"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616738680519"
      },
      {
           "MakeId": 465,
@@ -270,7 +270,7 @@
           "MakeName": "MAYBACH",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737964462"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616738807569"
      },
      {
           "MakeId": 536,
@@ -333,14 +333,14 @@
           "MakeName": "SATURN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737969277"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616739169411"
      },
      {
           "MakeId": 2236,
           "MakeName": "MCLAREN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737970667"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616738363192"
      },
      {
           "MakeId": 2409,
@@ -354,7 +354,7 @@
           "MakeName": "OLDSMOBILE",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737971260"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616739388872"
      },
      {
           "MakeId": 5083,

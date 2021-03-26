@@ -64,12 +64,12 @@ const vehicle_models_get_by_make_id = (req, res) => {
 //send make in query params
 const vehicle_make_get_make_logo_url_by_make = async (req, res) => {
   const make = await VehicleMake.findOne({ MakeName: req.query.make })
-    .then(
+    .then((result) => {
       res.status(200).json({
-        url: make.VehicleMakeLogoUrl,
+        url: result.VehicleMakeLogoUrl,
         make: req.query.make,
       })
-    )
+    })
     .catch((err) => {
       helpers.printError(err, 'vehicle_make_get_make_logo_url_by_make')
       res.status(400).json({

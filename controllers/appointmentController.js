@@ -1713,9 +1713,59 @@ const appoints_update_status = async (req, res) => {
         )
 
         //Create Push notification
-        const title = 'Vehicle appointment update'
-        const body =
+        const title = 'Vehicle appointment updated!'
+        let body =
           'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+
+        switch (result.appointment_status) {
+          case 0:
+            body = 'Your appointment has been Scheduled!'
+            break
+          case 1:
+            body = 'Your valet is on its way!'
+            break
+          case 2:
+            body = 'Your vehicle is headed to the garage!'
+            break
+          case 3:
+            body = 'Your vehicle is waiting for the mechanic!'
+            break
+          case 4:
+            body = 'A mechanic has started working on your vehicle!'
+            break
+          case 5:
+            body = 'The mechanic has completed their inspection'
+            break
+          case 6:
+            body = 'Your appointment estimate has been sent'
+            break
+          case 7:
+            body = 'The mechanic will resume work on your vehicle shortly'
+            break
+          case 8:
+            body = 'The mechanic has started servicing your vehicle'
+            break
+          case 9:
+            body = 'The mechanic is awaiting the necessary parts to arrive'
+            break
+          case 10:
+            body =
+              'Your car is ready for pickup! Come and get it whenever you can!'
+            break
+          case 11:
+            body =
+              'Maintenance complete, waiting for valet to return your vehicle!'
+            break
+          case 12:
+            body = 'The valet is delivering your vehicle!'
+            break
+          case 13:
+            body = 'Your appointment is complete!'
+            break
+          default:
+            body =
+              'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        }
         const response = helpers.createPushNotification(
           result.client,
           title,

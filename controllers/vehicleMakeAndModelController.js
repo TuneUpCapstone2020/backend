@@ -62,8 +62,8 @@ const vehicle_models_get_by_make_id = (req, res) => {
 }
 
 //send make in query params
-const vehicle_make_get_make_logo_url_by_make = (req, res) => {
-  const make = VehicleMake.findOne({ MakeName: req.query.make })
+const vehicle_make_get_make_logo_url_by_make = async (req, res) => {
+  const make = await VehicleMake.findOne({ MakeName: req.query.make })
     .then(
       res.status(200).json({
         url: make.VehicleMakeLogoUrl,

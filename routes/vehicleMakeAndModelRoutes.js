@@ -6,10 +6,8 @@ const router = express.Router()
 //Retrieve
 router.get('/make', vehicleMakeAndModelController.vehicle_make_get_all)
 router.get('/', vehicleMakeAndModelController.vehicle_models_get_all)
-router.get(
-  '/model',
-  vehicleMakeAndModelController.vehicle_models_get_by_make_id
-)
+router.get('/model',vehicleMakeAndModelController.vehicle_models_get_by_make_id)
+router.get('/url', vehicleMakeAndModelController.vehicle_make_get_make_logo_url_by_make)
 //Update - none required
 //Delete - none required
 

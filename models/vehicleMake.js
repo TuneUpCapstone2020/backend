@@ -13,6 +13,7 @@ const vehicleMakeSchema = new Schema(
     MakeName: {
       type: String,
       required: true,
+      index: true,
     },
     VehicleTypeId: {
       type: Number,

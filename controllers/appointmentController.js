@@ -92,7 +92,6 @@ const appoints_create = async (req, res) => {
 
   //now, we want to get an array of all the services which are included in the package.
   const package = await Package.findById(req.body.packageId)
-  //console.log(`package.garage: ${JSON.stringify(package.garage, null, 2)}`)
   let services = []
   for (let i = 0; i < package.services.length; i++) {
     services.push({
@@ -100,9 +99,7 @@ const appoints_create = async (req, res) => {
       quantity: package.services[i].quantity,
     })
   }
-  //console.log(`services: ${JSON.stringify(services)}`)
 
-  //console.log(`body: ${JSON.stringify(req.body)}`)
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
@@ -121,13 +118,9 @@ const appoints_create = async (req, res) => {
     package.starting_price +
     ';' +
     package.total_estimated_time
-  //console.log(`desc: ${newAppointment.description}`)
-  //console.log(`package ${package}`)
-  //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
   try {
     const appointment = await Appointment.create(newAppointment)
-    //console.log(`Appointment: ${JSON.stringify(appointment, null, 2)}`)
     console.log(
       `New appointment created for: ${
         appointment.date

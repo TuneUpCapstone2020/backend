@@ -135,11 +135,13 @@ const appoints_create = async (req, res) => {
     )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     if (newAppointment.valet_required) {
+      let date = Date(newAppointment.date)
+      date.setHours(date.getHours() - 1)
       await Garage.addVehicleToValetPickupQueue(
         package.garage,
         req.query.vehicleId,
         appointment._id,
-        newAppointment.date
+        date
       )
     }
     //add to response:

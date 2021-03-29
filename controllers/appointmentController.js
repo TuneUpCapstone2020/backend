@@ -1694,7 +1694,7 @@ const appoints_update_status = async (req, res) => {
       appointment_status: req.body.newValue,
     },
     { new: true },
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_update_status @ time: ${helpers.getTimeStamp()}`
@@ -1755,14 +1755,21 @@ const appoints_update_status = async (req, res) => {
           case 11:
             body =
               'Maintenance complete, waiting for valet to return your vehicle!'
-              const vehicle = await Vehicle.findOne({'appointments.appointment': result._id})
-              console.log(`In case 11! \n`);
-              console.log(`garage: ${result.garageId}`);
-              console.log(`vehicle: ${vehicle._id}`);
-              console.log(`appointmentId: ${result._id}`);
-              console.log(`date: ${Date.now()}`);
+            const vehicle = await Vehicle.findOne({
+              'appointments.appointment': result._id,
+            })
+            console.log(`In case 11! \n`)
+            console.log(`garage: ${result.garageId}`)
+            console.log(`vehicle: ${vehicle._id}`)
+            console.log(`appointmentId: ${result._id}`)
+            console.log(`date: ${Date.now()}`)
 
-               Garage.addVehicleToValetPickupQueue(result.garageId, vehicle._id, result._id, Date.now() )
+            Garage.addVehicleToValetPickupQueue(
+              result.garageId,
+              vehicle._id,
+              result._id,
+              Date.now()
+            )
 
             break
           case 12:

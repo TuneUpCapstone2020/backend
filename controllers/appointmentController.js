@@ -1756,7 +1756,7 @@ const appoints_update_status = async (req, res) => {
             body =
               'Maintenance complete, waiting for valet to return your vehicle!'
             const vehicle = await Vehicle.findOne({
-              'appointments.appointment': result._id,
+              'appointments._id': result._id,
             })
             console.log(`In case 11! \n`)
             console.log(`garage: ${result.garageId}`)

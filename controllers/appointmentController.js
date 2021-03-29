@@ -1756,6 +1756,12 @@ const appoints_update_status = async (req, res) => {
             body =
               'Maintenance complete, waiting for valet to return your vehicle!'
               const vehicle = await Vehicle.findOne({'appointments.appointment': result._id})
+              console.log(`In case 11! \n`);
+              console.log(`garage: ${result.garageId}`);
+              console.log(`vehicle: ${vehicle._id}`);
+              console.log(`appointmentId: ${result._id}`);
+              console.log(`date: ${Date.now()}`);
+
                Garage.addVehicleToValetPickupQueue(result.garageId, vehicle._id, result._id, Date.now() )
 
             break

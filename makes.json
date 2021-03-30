@@ -4,377 +4,377 @@
           "MakeName": "ASTON MARTIN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737947842"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071448586"
      },
      {
           "MakeId": 441,
           "MakeName": "TESLA",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737948139"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071456034"
      },
      {
           "MakeId": 442,
           "MakeName": "JAGUAR",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737948372"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071456493"
      },
      {
           "MakeId": 443,
           "MakeName": "MASERATI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737948727"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071456933"
      },
      {
           "MakeId": 444,
           "MakeName": "LAND ROVER",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737948926"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071457369"
      },
      {
           "MakeId": 445,
           "MakeName": "ROLLS ROYCE",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737949471"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071457897"
      },
      {
           "MakeId": 448,
           "MakeName": "TOYOTA",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737950822"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071458297"
      },
      {
           "MakeId": 449,
           "MakeName": "MERCEDES-BENZ",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737951265"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071458613"
      },
      {
           "MakeId": 452,
           "MakeName": "BMW",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737951581"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071459085"
      },
      {
           "MakeId": 454,
           "MakeName": "BUGATTI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737952118"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071459473"
      },
      {
           "MakeId": 456,
           "MakeName": "MINI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737952331"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071460274"
      },
      {
           "MakeId": 460,
           "MakeName": "FORD",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737952678"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071460522"
      },
      {
           "MakeId": 464,
           "MakeName": "LINCOLN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616738680519"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071460817"
      },
      {
           "MakeId": 465,
           "MakeName": "MERCURY",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737953313"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071461208"
      },
      {
           "MakeId": 466,
           "MakeName": "LOTUS",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737954273"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071461711"
      },
      {
           "MakeId": 467,
           "MakeName": "CHEVROLET",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737955447"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071462344"
      },
      {
           "MakeId": 468,
           "MakeName": "BUICK",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737955649"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071462611"
      },
      {
           "MakeId": 469,
           "MakeName": "CADILLAC",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737956034"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071462999"
      },
      {
           "MakeId": 472,
           "MakeName": "GMC",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737956426"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071463357"
      },
      {
           "MakeId": 473,
           "MakeName": "MAZDA",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737956657"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071463740"
      },
      {
           "MakeId": 474,
           "MakeName": "HONDA",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737956896"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071464034"
      },
      {
           "MakeId": 475,
           "MakeName": "ACURA",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737957347"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071464594"
      },
      {
           "MakeId": 476,
           "MakeName": "DODGE",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737957599"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071464980"
      },
      {
           "MakeId": 477,
           "MakeName": "CHRYSLER",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737957955"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071465214"
      },
      {
           "MakeId": 478,
           "MakeName": "NISSAN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737958218"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071465509"
      },
      {
           "MakeId": 480,
           "MakeName": "INFINITI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737958560"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071465826"
      },
      {
           "MakeId": 481,
           "MakeName": "MITSUBISHI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737959020"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071466134"
      },
      {
           "MakeId": 482,
           "MakeName": "VOLKSWAGEN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737959225"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071466420"
      },
      {
           "MakeId": 485,
           "MakeName": "VOLVO",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737959570"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071466703"
      },
      {
           "MakeId": 492,
           "MakeName": "FIAT",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737959879"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071467017"
      },
      {
           "MakeId": 493,
           "MakeName": "ALFA ROMEO",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737960499"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071467340"
      },
      {
           "MakeId": 498,
           "MakeName": "HYUNDAI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737961055"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071467730"
      },
      {
           "MakeId": 499,
           "MakeName": "KIA",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737961392"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071468084"
      },
      {
           "MakeId": 502,
           "MakeName": "LAMBORGHINI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737961889"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071468385"
      },
      {
           "MakeId": 504,
           "MakeName": "SMART",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737962294"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071468690"
      },
      {
           "MakeId": 509,
           "MakeName": "SUZUKI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737963319"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071468973"
      },
      {
           "MakeId": 515,
           "MakeName": "LEXUS",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737963560"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071469293"
      },
      {
           "MakeId": 523,
           "MakeName": "SUBARU",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737963910"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071469589"
      },
      {
           "MakeId": 533,
           "MakeName": "MAYBACH",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616738807569"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071469889"
      },
      {
           "MakeId": 536,
           "MakeName": "PONTIAC",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737964826"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071470179"
      },
      {
           "MakeId": 542,
           "MakeName": "ISUZU",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737965102"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071470494"
      },
      {
           "MakeId": 572,
           "MakeName": "SAAB",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737965522"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071470751"
      },
      {
           "MakeId": 582,
           "MakeName": "AUDI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737966807"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071471061"
      },
      {
           "MakeId": 583,
           "MakeName": "BENTLEY",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737967147"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071471353"
      },
      {
           "MakeId": 584,
           "MakeName": "PORSCHE",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737967484"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071471759"
      },
      {
           "MakeId": 603,
           "MakeName": "FERRARI",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737967953"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071472505"
      },
      {
           "MakeId": 1033,
           "MakeName": "FISKER AUTOMOTIVE",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737968195"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071472747"
      },
      {
           "MakeId": 1056,
           "MakeName": "SATURN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616739169411"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071473013"
      },
      {
           "MakeId": 2236,
           "MakeName": "MCLAREN",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616738363192"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071473298"
      },
      {
           "MakeId": 2409,
           "MakeName": "PLYMOUTH",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737970930"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071473544"
      },
      {
           "MakeId": 4162,
           "MakeName": "OLDSMOBILE",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616739388872"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071473818"
      },
      {
           "MakeId": 5083,
           "MakeName": "GENESIS",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737971620"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071474091"
      },
      {
           "MakeId": 10224,
           "MakeName": "POLESTAR",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737971952"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071474371"
      },
      {
           "MakeId": 10638,
           "MakeName": "KARMA AUTOMOTIVE LLC",
           "VehicleTypeId": 2,
           "VehicleTypeName": "Passenger Car",
-          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1616737972193"
+          "VehicleMakeLogoUrl": "https://tune-up-vehicle-health-attribute-image-bucket.s3.us-east-2.amazonaws.com/1617071474573"
      }
 ]

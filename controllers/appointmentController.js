@@ -1547,7 +1547,7 @@ const appoints_complete_service = async (req, res) => {
  * In query params:
  * - id: appoint id to be marked as complete
  * body:
- * - labour_time: man hours spent on appointment
+ * - labour_time: man hours spent on appointment (in minutes)
  */
 const appoints_complete = async (req, res) => {
   const appointment = await Appointment.findByIdAndUpdate(
@@ -1617,7 +1617,8 @@ const appoints_complete = async (req, res) => {
             }
             final_price =
               final_price +
-              garage.standard_hourly_rate * (appointment.labour_time / 3600)
+              garage.standard_hourly_rate *
+                (appointment.total_estimated_time / 60)
 
             await Appointment.findByIdAndUpdate(
               appointment._id,
@@ -1776,7 +1777,7 @@ const appoints_update_status = async (req, res) => {
             body = 'The valet is delivering your vehicle!'
             break
           case 13:
-            body = 'Your appointment is complete!'
+            body = 'Your appointment is complete! Thank you for your service!'
             break
           default:
             body =

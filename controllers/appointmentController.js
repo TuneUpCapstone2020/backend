@@ -120,15 +120,9 @@ const appoints_create = async (req, res) => {
     package.total_estimated_time
 
   try {
-    const appointment = await Appointment.create(newAppointment)
-    console.log(
-      `New appointment created for: ${
-        appointment.date
-      } @ time: ${helpers.getTimeStamp()}`
-    )
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
     if (newAppointment.valet_required) {
-      let date = Date(newAppointment.date)
+      let date = new Date(newAppointment.date)
       date.setHours(date.getHours() - 1)
       await Garage.addVehicleToValetPickupQueue(
         package.garage,
@@ -137,6 +131,12 @@ const appoints_create = async (req, res) => {
         date
       )
     }
+    const appointment = await Appointment.create(newAppointment)
+    console.log(
+      `New appointment created for: ${
+        appointment.date
+      } @ time: ${helpers.getTimeStamp()}`
+    )
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
     res.status(201).json(appointment)

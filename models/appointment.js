@@ -78,7 +78,7 @@ const appointmentSchema = new Schema(
     ],
     labour_time: {
       //!check for this before marking as complete
-      type: Number, //stored in seconds
+      type: Number, //stored in minutes
       default: 0,
     },
     client: {

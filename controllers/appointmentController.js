@@ -1744,7 +1744,7 @@ const appoints_update_status = async (req, res) => {
             body = 'The mechanic will resume work on your vehicle shortly'
             break
           case 8:
-            body = 'The mechanic has started servicing your vehicle'
+            body = 'The mechanic has completed a service on your vehicle'
             break
           case 9:
             body = 'The mechanic is awaiting the necessary parts to arrive'

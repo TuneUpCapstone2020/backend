@@ -132,7 +132,7 @@ const vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier = asy
   const vehicle = await Vehicle.findById(req.query.vehicleId)
   const allAttributes = vehicle.health_attributes
   const filteredAttributes = allAttributes.filter(
-    (attribute) => attribute.inspection_tier == vehicle.latest_insepction_tier
+    (attribute) => attribute.inspection_tier <= vehicle.latest_insepction_tier
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,
@@ -245,6 +245,7 @@ const vehicle_update_health_attributes = async (req, res) => {
     else return attribute
   })
   vehicle.health_attributes = health_attributes
+  vehicle.latest_insepction_tier = body.latest_insepction_tier
   vehicle.save()
   console.log(
     `vehicle health attributes: ${JSON.stringify(vehicle.health_attributes)}`

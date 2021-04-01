@@ -1512,7 +1512,7 @@ const appoints_update = async (req, res) => {
 //in query params:
 // * - appointId: id of appointment that we need to update the service for
 // * - serviceId: id of service we want to mark as complete
-// !note this does not mark the appoint as complete, it'll toggle it.
+// !note this does not mark the service as complete, it'll toggle it.
 const appoints_complete_service = async (req, res) => {
   Appointment.findById(req.query.appointId)
     .then((appointment) => {
@@ -1637,6 +1637,12 @@ const appoints_complete = async (req, res) => {
                   console.log(
                     `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
                   )
+                  //create a notification with the vehicle added to the payload
+                  const vehicle = await Vehicle.findOne({'appointment._id': appointment._id})
+                  const title = 'Vehicle appointment updated!'
+                  const body = 'Your appointment is complete! Thank you for your service!'
+                  helpers.createPushNotification(result.client, title, body, result)
+
                   res.status(200).json({
                     message: 'Appointment marked as complete!',
                     id: result._id,

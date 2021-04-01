@@ -80,7 +80,7 @@ const vehicleSchema = new Schema(
     },
     latest_insepction_tier: {
       type: Number,
-      default: 0,
+      default: 2,
     },
   },
   { timestamps: true }

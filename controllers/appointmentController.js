@@ -121,6 +121,7 @@ const appoints_create = async (req, res) => {
 
   try {
     await Vehicle.addAppointment(req.query.vehicleId, appointment)
+    const appointment = await Appointment.create(newAppointment)
     if (newAppointment.valet_required) {
       let date = new Date(newAppointment.date)
       date.setHours(date.getHours() - 1)
@@ -131,7 +132,6 @@ const appoints_create = async (req, res) => {
         date
       )
     }
-    const appointment = await Appointment.create(newAppointment)
     console.log(
       `New appointment created for: ${
         appointment.date

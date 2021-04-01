@@ -120,8 +120,8 @@ const appoints_create = async (req, res) => {
     package.total_estimated_time
 
   try {
-    await Vehicle.addAppointment(req.query.vehicleId, appointment)
     const appointment = await Appointment.create(newAppointment)
+    await Vehicle.addAppointment(req.query.vehicleId, appointment)
     if (newAppointment.valet_required) {
       let date = new Date(newAppointment.date)
       date.setHours(date.getHours() - 1)

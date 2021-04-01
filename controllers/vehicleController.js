@@ -114,7 +114,7 @@ const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
   const allAttributes = vehicle.health_attributes
   const filteredAttributes = allAttributes.filter(
-    (attribute) => attribute.inspection_tier == req.query.inspection_tier
+    (attribute) => attribute.inspection_tier <= req.query.inspection_tier
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,

@@ -1723,7 +1723,7 @@ const appoints_update_status = async (req, res) => {
         const title = 'Vehicle appointment updated!'
         let body =
           'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
-
+          let payload = result
         switch (result.appointment_status) {
           case 0:
             body = 'Your appointment has been Scheduled!'
@@ -1742,6 +1742,13 @@ const appoints_update_status = async (req, res) => {
             break
           case 5:
             body = 'The mechanic has completed their inspection'
+            const vehicle = await Vehicle.findOne({
+              'appointments._id': result._id,
+            })
+          payload = {
+            result: {result},
+            vehicle: {vehicle}
+          }
             break
           case 6:
             body = 'Your appointment estimate has been sent'
@@ -1793,7 +1800,7 @@ const appoints_update_status = async (req, res) => {
           result.client,
           title,
           body,
-          result
+          payload
         )
 
         //Response

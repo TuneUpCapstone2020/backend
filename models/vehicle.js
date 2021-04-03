@@ -54,7 +54,7 @@ const vehicleSchema = new Schema(
         },
         status: {
           type: Number,
-          default: 2,
+          default: 3,
         },
         attribute_applicable_to_vehicle: {
           type: Boolean,

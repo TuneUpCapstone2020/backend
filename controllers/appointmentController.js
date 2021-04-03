@@ -1626,7 +1626,7 @@ const appoints_complete = async (req, res) => {
                 final_price: final_price,
               },
               { new: true },
-              (err, result) => {
+              async (err, result) => {
                 if (err) {
                   helpers.printError(err, 'appoints_complete')
                   res.status(400).json({
@@ -1638,10 +1638,18 @@ const appoints_complete = async (req, res) => {
                     `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
                   )
                   //create a notification with the vehicle added to the payload
-                  const vehicle = await Vehicle.findOne({'appointment._id': appointment._id})
+                  const vehicle = await Vehicle.findOne({
+                    'appointment._id': appointment._id,
+                  })
                   const title = 'Vehicle appointment updated!'
-                  const body = 'Your appointment is complete! Thank you for your service!'
-                  helpers.createPushNotification(result.client, title, body, result)
+                  const body =
+                    'Your appointment is complete! Thank you for your service!'
+                  helpers.createPushNotification(
+                    result.client,
+                    title,
+                    body,
+                    result
+                  )
 
                   res.status(200).json({
                     message: 'Appointment marked as complete!',
@@ -1723,7 +1731,7 @@ const appoints_update_status = async (req, res) => {
         const title = 'Vehicle appointment updated!'
         let body =
           'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
-          let payload = result
+        let payload = result
         switch (result.appointment_status) {
           case 0:
             body = 'Your appointment has been Scheduled!'
@@ -1742,13 +1750,13 @@ const appoints_update_status = async (req, res) => {
             break
           case 5:
             body = 'The mechanic has completed their inspection'
-            const vehicle = await Vehicle.findOne({
+            const vehiclePayload = await Vehicle.findOne({
               'appointments._id': result._id,
             })
-          payload = {
-            result: {result},
-            vehicle: {vehicle}
-          }
+            payload = {
+              result: { result },
+              vehicle: { vehiclePayload },
+            }
             break
           case 6:
             body = 'Your appointment estimate has been sent'

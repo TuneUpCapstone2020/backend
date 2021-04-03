@@ -1756,9 +1756,18 @@ const appoints_update_status = async (req, res) => {
             })
             //0: green, 1: yellow, 2: red
             let lowestHealthValue = 0
-            for (let i = 0; i < vehiclePayload.health_attributes.lenth; i++) {
+            console.log(
+              `health array size: ${vehiclePayload.health_attributes.length}`
+            )
+            for (let i = 0; i < vehiclePayload.health_attributes.length; i++) {
+              console.log(`i: ${i}`)
+              console.log(
+                `status: ${vehiclePayload.health_attributes[i].status}`
+              )
               if (
-                vehiclePayload.health_attributes[i].status > lowestHealthValue
+                vehiclePayload.health_attributes[i].status >
+                  lowestHealthValue &&
+                vehiclePayload.health_attributes[i].status < 3
               ) {
                 lowestHealthValue = vehiclePayload.health_attributes[i].status
               }
@@ -1766,9 +1775,8 @@ const appoints_update_status = async (req, res) => {
                 break
               }
             }
-
             payload = {
-              result: { result },
+              appointment: { result },
               vehicle: {
                 id: vehiclePayload._id,
                 lowestHealthValue: lowestHealthValue,

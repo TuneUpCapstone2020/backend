@@ -108,6 +108,7 @@ const appoints_create = async (req, res) => {
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
+  newAppointment['appointment_status'] = req.body.valet_required ? 0 : 3
   newAppointment['description'] =
     newAppointment.date.toISOString() +
     ';' +

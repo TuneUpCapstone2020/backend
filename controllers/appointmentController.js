@@ -1754,9 +1754,25 @@ const appoints_update_status = async (req, res) => {
             const vehiclePayload = await Vehicle.findOne({
               'appointments._id': result._id,
             })
+            //0: green, 1: yellow, 2: red
+            let lowestHealthValue = 0
+            for (let i = 0; i < vehiclePayload.health_attributes.lenth; i++) {
+              if (
+                vehiclePayload.health_attributes[i].status > lowestHealthValue
+              ) {
+                lowestHealthValue = vehiclePayload.health_attributes[i].status
+              }
+              if (lowestHealthValue == 2) {
+                break
+              }
+            }
+
             payload = {
               result: { result },
-              vehicle: { vehiclePayload },
+              vehicle: {
+                id: vehiclePayload._id,
+                lowestHealthValue: lowestHealthValue,
+              },
             }
             break
           case 6:

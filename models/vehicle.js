@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const Appointment = require('./appointment')
-const helpers = require('../helpers').default
 
 const vehicleSchema = new Schema(
   {

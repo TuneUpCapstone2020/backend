@@ -1760,14 +1760,11 @@ const appoints_update_status = async (req, res) => {
               `health array size: ${vehiclePayload.health_attributes.length}`
             )
             for (let i = 0; i < vehiclePayload.health_attributes.length; i++) {
-              console.log(`i: ${i}`)
-              console.log(
-                `status: ${vehiclePayload.health_attributes[i].status}`
-              )
               if (
                 vehiclePayload.health_attributes[i].status >
                   lowestHealthValue &&
-                vehiclePayload.health_attributes[i].status < 3
+                vehiclePayload.health_attributes[i].status < 3 &&
+                vehiclePayload.health_attributes[i].inspection_tier == 2
               ) {
                 lowestHealthValue = vehiclePayload.health_attributes[i].status
               }

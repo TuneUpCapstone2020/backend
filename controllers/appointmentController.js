@@ -58,7 +58,7 @@ const handleErrors = (err) => {
  *  employee_num: employee which the appoint is assigned to
  *  valet_required: 0 for no, 1 for yes
  *  customer_note: the user's message describing the issue
- *  customer_image_urls: an array of strings of the urls for the images
+ *  customer_image_url: string of the image url
  //  skill level: highest int of highest service????
  //  total_esimated_time: int of estimated time in minutes
  //  garageId: String of garageid (just the characters, not the ObjectId(...))
@@ -92,7 +92,6 @@ const appoints_create = async (req, res) => {
 
   //now, we want to get an array of all the services which are included in the package.
   const package = await Package.findById(req.body.packageId)
-  //console.log(`package.garage: ${JSON.stringify(package.garage, null, 2)}`)
   let services = []
   for (let i = 0; i < package.services.length; i++) {
     services.push({
@@ -100,9 +99,7 @@ const appoints_create = async (req, res) => {
       quantity: package.services[i].quantity,
     })
   }
-  //console.log(`services: ${JSON.stringify(services)}`)
 
-  //console.log(`body: ${JSON.stringify(req.body)}`)
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
@@ -111,6 +108,7 @@ const appoints_create = async (req, res) => {
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
+  newAppointment['appointment_status'] = req.body.valet_required ? 0 : 3
   newAppointment['description'] =
     newAppointment.date.toISOString() +
     ';' +
@@ -121,27 +119,25 @@ const appoints_create = async (req, res) => {
     package.starting_price +
     ';' +
     package.total_estimated_time
-  //console.log(`desc: ${newAppointment.description}`)
-  //console.log(`package ${package}`)
-  //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
   try {
     const appointment = await Appointment.create(newAppointment)
-    //console.log(`Appointment: ${JSON.stringify(appointment, null, 2)}`)
+    await Vehicle.addAppointment(req.query.vehicleId, appointment)
+    if (newAppointment.valet_required) {
+      let date = new Date(newAppointment.date)
+      date.setHours(date.getHours() - 1)
+      await Garage.addVehicleToValetPickupQueue(
+        package.garage,
+        req.query.vehicleId,
+        appointment._id,
+        date
+      )
+    }
     console.log(
       `New appointment created for: ${
         appointment.date
       } @ time: ${helpers.getTimeStamp()}`
     )
-    await Vehicle.addAppointment(req.query.vehicleId, appointment)
-    if (newAppointment.valet_required) {
-      await Garage.addVehicleToValetPickupQueue(
-        package.garage,
-        req.query.vehicleId,
-        appointment._id,
-        newAppointment.date
-      )
-    }
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
     res.status(201).json(appointment)
@@ -161,6 +157,7 @@ const appoints_create = async (req, res) => {
  *  customer_note: the user's description of the issue
  *  default_vehicle_id: id of the default garage vehicle
  *  default_client_id: id of the default garage client (walk-in)
+ *  client_phone_number: the client's phone number
  * Query params:
  *
  */
@@ -199,6 +196,7 @@ const appoints_create_walk_in = async (req, res) => {
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
   newAppointment['client'] = req.body.default_client_id
+  newAppointment['client_phone_number'] = req.body.client_phone_number
   newAppointment['description'] =
     newAppointment.date.toISOString() +
     ';' +
@@ -1515,7 +1513,7 @@ const appoints_update = async (req, res) => {
 //in query params:
 // * - appointId: id of appointment that we need to update the service for
 // * - serviceId: id of service we want to mark as complete
-// !note this does not mark the appoint as complete, it'll toggle it.
+// !note this does not mark the service as complete, it'll toggle it.
 const appoints_complete_service = async (req, res) => {
   Appointment.findById(req.query.appointId)
     .then((appointment) => {
@@ -1550,7 +1548,7 @@ const appoints_complete_service = async (req, res) => {
  * In query params:
  * - id: appoint id to be marked as complete
  * body:
- * - labour_time: man hours spent on appointment
+ * - labour_time: man hours spent on appointment (in minutes)
  */
 const appoints_complete = async (req, res) => {
   const appointment = await Appointment.findByIdAndUpdate(
@@ -1620,7 +1618,8 @@ const appoints_complete = async (req, res) => {
             }
             final_price =
               final_price +
-              garage.standard_hourly_rate * (appointment.labour_time / 3600)
+              garage.standard_hourly_rate *
+                (appointment.total_estimated_time / 60)
 
             await Appointment.findByIdAndUpdate(
               appointment._id,
@@ -1628,7 +1627,7 @@ const appoints_complete = async (req, res) => {
                 final_price: final_price,
               },
               { new: true },
-              (err, result) => {
+              async (err, result) => {
                 if (err) {
                   helpers.printError(err, 'appoints_complete')
                   res.status(400).json({
@@ -1639,6 +1638,20 @@ const appoints_complete = async (req, res) => {
                   console.log(
                     `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
                   )
+                  //create a notification with the vehicle added to the payload
+                  const vehicle = await Vehicle.findOne({
+                    'appointment._id': appointment._id,
+                  })
+                  const title = 'Vehicle appointment updated!'
+                  const body =
+                    'Your appointment is complete! Thank you for your service!'
+                  helpers.createPushNotification(
+                    result.client,
+                    title,
+                    body,
+                    result
+                  )
+
                   res.status(200).json({
                     message: 'Appointment marked as complete!',
                     id: result._id,
@@ -1697,7 +1710,7 @@ const appoints_update_status = async (req, res) => {
       appointment_status: req.body.newValue,
     },
     { new: true },
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_update_status @ time: ${helpers.getTimeStamp()}`
@@ -1716,14 +1729,108 @@ const appoints_update_status = async (req, res) => {
         )
 
         //Create Push notification
-        const title = 'Vehicle appointment update'
-        const body =
+        const title = 'Vehicle appointment updated!'
+        let body =
           'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        let payload = result
+        switch (result.appointment_status) {
+          case 0:
+            body = 'Your appointment has been Scheduled!'
+            break
+          case 1:
+            body = 'Your valet is on its way!'
+            break
+          case 2:
+            body = 'Your vehicle is headed to the garage!'
+            break
+          case 3:
+            body = 'Your vehicle is waiting for the mechanic!'
+            break
+          case 4:
+            body = 'A mechanic has started working on your vehicle!'
+            break
+          case 5:
+            body = 'The mechanic has completed their inspection'
+            const vehiclePayload = await Vehicle.findOne({
+              'appointments._id': result._id,
+            })
+            //0: green, 1: yellow, 2: red
+            let lowestHealthValue = 0
+            console.log(
+              `health array size: ${vehiclePayload.health_attributes.length}`
+            )
+            for (let i = 0; i < vehiclePayload.health_attributes.length; i++) {
+              if (
+                vehiclePayload.health_attributes[i].status >
+                  lowestHealthValue &&
+                vehiclePayload.health_attributes[i].status < 3 &&
+                vehiclePayload.health_attributes[i].inspection_tier == 2
+              ) {
+                lowestHealthValue = vehiclePayload.health_attributes[i].status
+              }
+              if (lowestHealthValue == 2) {
+                break
+              }
+            }
+            payload = {
+              appointment: { result },
+              vehicle: {
+                id: vehiclePayload._id,
+                lowestHealthValue: lowestHealthValue,
+              },
+            }
+            break
+          case 6:
+            body = 'Your appointment estimate has been sent'
+            break
+          case 7:
+            body = 'The mechanic will resume work on your vehicle shortly'
+            break
+          case 8:
+            body = 'The mechanic has completed a service on your vehicle'
+            break
+          case 9:
+            body = 'The mechanic is awaiting the necessary parts to arrive'
+            break
+          case 10:
+            body =
+              'Your car is ready for pickup! Come and get it whenever you can!'
+            break
+          case 11:
+            body =
+              'Maintenance complete, waiting for valet to return your vehicle!'
+            const vehicle = await Vehicle.findOne({
+              'appointments._id': result._id,
+            })
+            console.log(`In case 11! \n`)
+            console.log(`garage: ${result.garageId}`)
+            console.log(`vehicle: ${vehicle._id}`)
+            console.log(`appointmentId: ${result._id}`)
+            console.log(`date: ${Date.now()}`)
+
+            Garage.addVehicleToValetPickupQueue(
+              result.garageId,
+              vehicle._id,
+              result._id,
+              Date.now()
+            )
+
+            break
+          case 12:
+            body = 'The valet is delivering your vehicle!'
+            break
+          case 13:
+            body = 'Your appointment is complete! Thank you for your service!'
+            break
+          default:
+            body =
+              'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        }
         const response = helpers.createPushNotification(
           result.client,
           title,
           body,
-          result
+          payload
         )
 
         //Response

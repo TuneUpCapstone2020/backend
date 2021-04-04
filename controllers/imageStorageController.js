@@ -15,6 +15,7 @@ var s3 = new aws.S3()
 const image_upload = async (req, res) => {
   singleUpload(req, res, function (err) {
     if (err) {
+      helpers.printError(err, 'image_upload')
       return res.status(422).json({
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })
@@ -32,6 +33,7 @@ const image_upload_inspection_image = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.vehicleId)
   singleUpload(req, res, function (err) {
     if (err) {
+      helpers.printError(err, 'image_upload_inspection_image')
       return res.status(422).json({
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })
@@ -54,6 +56,7 @@ const image_upload_inspection_image = async (req, res) => {
 const image_upload_make_logo = async (req, res) => {
   singleUpload(req, res, function (err) {
     if (err) {
+      helpers.printError(err, 'image_upload_make_logo')
       return res.status(422).json({
         errors: [{ title: 'Image Upload Error', detail: err.message }],
       })
@@ -111,13 +114,15 @@ const fileFilter = (req, file, cb) => {
     file.mimetype === 'image/jpeg' ||
     file.mimetype === 'image/jpg' ||
     file.mimetype === 'image/png' ||
+    file.mimetype === 'image/heif' ||
+    file.mimetype === 'image/heic' ||
     file.mimetype === 'image/webp'
   ) {
     cb(null, true)
   } else {
     cb(
       new Error(
-        'Invalid file type, only JPG/JPEG, PNG, and WebP files are allowed!'
+        `Invalid file type, only JPG/JPEG, PNG, HEIF/HEIC and WebP files are allowed! You sent: ${file.mimetype}`
       ),
       false
     )

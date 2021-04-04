@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const Appointment = require('./appointment')
-const helpers = require('../helpers').default
 
 const vehicleSchema = new Schema(
   {
@@ -54,7 +53,7 @@ const vehicleSchema = new Schema(
         },
         status: {
           type: Number,
-          default: 2,
+          default: 3,
         },
         attribute_applicable_to_vehicle: {
           type: Boolean,
@@ -80,7 +79,7 @@ const vehicleSchema = new Schema(
     },
     latest_insepction_tier: {
       type: Number,
-      default: 0,
+      default: 2,
     },
   },
   { timestamps: true }

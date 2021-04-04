@@ -78,7 +78,7 @@ const appointmentSchema = new Schema(
     ],
     labour_time: {
       //!check for this before marking as complete
-      type: Number, //stored in seconds
+      type: Number, //stored in minutes
       default: 0,
     },
     client: {
@@ -110,7 +110,10 @@ const appointmentSchema = new Schema(
     customer_note: {
       type: String,
     },
-    customer_image_urls: [{ type: String, default: [] }],
+    customer_image_url: {
+      type: String,
+      default: '',
+    },
     archived: {
       type: Boolean,
       default: false,

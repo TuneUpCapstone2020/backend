@@ -1,5 +1,11 @@
 const Garage = require('../models/garage')
+const Appointment = require('../models/appointment')
+const Employee = require('../models/employee')
+const Vehicle = require('../models/vehicle')
+const helpers = require('../helpers')
 const _ = require('lodash')
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 
 const handleErrors = (err) => {
   console.log(err.message, err.code)
@@ -82,7 +88,7 @@ const garage_get_by_owner = (req, res) => {
 
 //send garageId in query params
 const garage_get_valet_queue_first_item = async (req, res) => {
-  await Garage.aggredate([
+  await Garage.aggregate([
     {
       $match: {
         _id: new ObjectId(req.query.garageId),
@@ -116,7 +122,33 @@ const garage_get_valet_queue_first_item = async (req, res) => {
         error: err.message,
       })
     } else {
-      res.status(200).json(queue[0])
+      const queue_item = queue[0]
+      const appointment = await Appointment.findById(queue_item['_id'].appointment)
+      if(appointment){
+      const employee = await Employee.findOne({
+        employee_number: appointment.employee_num,
+      })
+      const vehicle = await Vehicle.findOne({
+        'appointments._id': appointment._id,
+      })
+      appointment.description =
+        appointment.description +
+        ';' +
+        employee.first_name +
+        ';' +
+        vehicle.year +
+        ' ' +
+        vehicle.make +
+        ' ' +
+        vehicle.model
+
+      queue_item.appointment = appointment
+      res.status(200).json(queue_item.appointment)
+    }else {
+      res.status(200).json({
+        message: 'No valet trip'
+      })
+    }
     }
   })
 }
@@ -126,8 +158,10 @@ const garage_complete_item_from_valet_queue = async (req, res) => {
     .then((garage) => {
       const valet_queue = garage.valet_pickup_queue
       for (item of valet_queue) {
-        if (item.appointment === req.query.appointmentId) {
-          item.complete = true
+        console.log(`item: ${item.appointment}`);
+        if (item.appointment == req.query.appointmentId) {
+          console.log(`inside item`);
+          item.completed = true
           break
         }
       }

@@ -10,7 +10,7 @@ require('dotenv').config()
 const admin = require('firebase-admin')
 const gcm = require('node-gcm')
 const sender = new gcm.Sender(process.env.FCMServerKey)
-const serviceAccount = require('./tuneup-3120a-firebase-adminsdk-l360f-a83c80b9c3.json')
+const serviceAccount = require('./tuneup-3120a-firebase-adminsdk-l360f-1fb2964f14.json')
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),

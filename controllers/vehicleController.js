@@ -64,6 +64,17 @@ const vehicle_get_all_of_client = async (req, res) => {
       })
     } else {
       console.log('Got all vehicles of client!')
+      //filter only the relevant health attrributes
+      for (vehicle of listOfVehicles) {
+        let attributes = vehicle.health_attributes
+        const filteredAttributes = []
+        for (attribute of attributes) {
+          if (attribute.inspection_tier == vehicle.latest_insepction_tier) {
+            filteredAttributes.push(attribute)
+          }
+        }
+        vehicle.health_attributes = filteredAttributes
+      }
       res.status(200).json(listOfVehicles)
     }
   })
@@ -75,7 +86,7 @@ const vehicle_get_by_licence = (req, res) => {
     deleted: false,
   })
     .then((result) => {
-      console.log(`Found license: ${result.license}`)
+      // console.log(`Found license: ${result.license}`)
       res.status(200).json({
         message: 'Vehicle found!',
         vehicle: result._id,
@@ -114,7 +125,7 @@ const vehicle_get_health_attributes_by_vehicle_id = async (req, res) => {
   const vehicle = await Vehicle.findById(req.query.id)
   const allAttributes = vehicle.health_attributes
   const filteredAttributes = allAttributes.filter(
-    (attribute) => attribute.inspection_tier == req.query.inspection_tier
+    (attribute) => attribute.inspection_tier <= req.query.inspection_tier
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,
@@ -132,7 +143,7 @@ const vehicle_get_health_attributes_by_vehicle_id_and_last_inspection_tier = asy
   const vehicle = await Vehicle.findById(req.query.vehicleId)
   const allAttributes = vehicle.health_attributes
   const filteredAttributes = allAttributes.filter(
-    (attribute) => attribute.inspection_tier == vehicle.latest_insepction_tier
+    (attribute) => attribute.inspection_tier <= vehicle.latest_insepction_tier
   )
   res.status(200).json({
     //attributes: vehicle.health_attributes,
@@ -245,6 +256,7 @@ const vehicle_update_health_attributes = async (req, res) => {
     else return attribute
   })
   vehicle.health_attributes = health_attributes
+  vehicle.latest_insepction_tier = body.latest_insepction_tier
   vehicle.save()
   console.log(
     `vehicle health attributes: ${JSON.stringify(vehicle.health_attributes)}`
@@ -329,7 +341,7 @@ const getVehiclesFromIds = async (listOfIds) => {
         returnList.push(vehicle)
       }
     }
-    console.log(`return list: ${returnList}`)
+    // console.log(`return list: ${returnList}`)
     return returnList
   } catch (err) {
     console.log(err)

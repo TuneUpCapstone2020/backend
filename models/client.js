@@ -36,6 +36,7 @@ const clientSchema = new Schema(
       unique: true,
       lowercase: true,
       validate: [isEmail, 'Please enter a valid email'],
+      index: true,
     },
     password: {
       type: String,
@@ -50,6 +51,16 @@ const clientSchema = new Schema(
     deleted: {
       type: Boolean,
       default: false,
+    },
+    deviceId: {
+      type: String,
+    },
+    devicePlatform: {
+      type: String,
+      default: 'android',
+    },
+    profile_image_url: {
+      type: String,
     },
   },
   { timestamps: true }
@@ -100,13 +111,21 @@ clientSchema.pre('update', async function (next) {
 // })
 
 //static method to login user
-clientSchema.statics.login = async function (email, password) {
+clientSchema.statics.login = async function (
+  email,
+  password,
+  deviceId,
+  devicePlatform
+) {
   const client = await this.findOne({ email, deleted: false })
   if (client) {
     //const auth = await bcrypt.compare(password, client.password)
     //const auth = (await password) === client.password //old bcrypt version -> this line is thus depricated
     const auth = await bcryptjs.compare(password, client.password)
     if (auth) {
+      client.deviceId = deviceId
+      client.devicePlatform = devicePlatform
+      client.save()
       return client
     }
     throw Error('Incorrect email or password')

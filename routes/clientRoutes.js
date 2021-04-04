@@ -6,6 +6,7 @@ const router = express.Router()
 //Create
 router.post('/register', clientController.register_post)
 router.post('/login', clientController.login_post)
+router.post('/profile_picture', clientController.upload_profile_pic_url)
 
 //Retrieve
 router.get('/', clientController.client_get_all)

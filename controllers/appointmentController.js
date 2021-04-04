@@ -10,7 +10,9 @@ const __ = require('underscore')
 const { forEach } = require('lodash')
 const minimumMechanicLevel = 4
 const timeBlockGranularity = 30
-const timeSlotsToReturn = 5
+const timeSlotsToReturn = 8
+const mongoose = require('mongoose')
+const ObjectId = mongoose.Types.ObjectId
 //START: Error Handlers
 const handleErrors = (err) => {
   console.warn(err.message, err.code)
@@ -56,6 +58,7 @@ const handleErrors = (err) => {
  *  employee_num: employee which the appoint is assigned to
  *  valet_required: 0 for no, 1 for yes
  *  customer_note: the user's message describing the issue
+ *  customer_image_url: string of the image url
  //  skill level: highest int of highest service????
  //  total_esimated_time: int of estimated time in minutes
  //  garageId: String of garageid (just the characters, not the ObjectId(...))
@@ -64,7 +67,6 @@ const handleErrors = (err) => {
  *  vehicleId: Id of the vehicle the appointment is for
  */
 const appoints_create = async (req, res) => {
-  //todo: check the entire duration of the appointment, not just the start time.
   //first, we want to make sure that the appointment doesn't already exist
   //for that date and time with the given mechanic.
   if (
@@ -90,7 +92,6 @@ const appoints_create = async (req, res) => {
 
   //now, we want to get an array of all the services which are included in the package.
   const package = await Package.findById(req.body.packageId)
-  //console.log(`package.garage: ${JSON.stringify(package.garage, null, 2)}`)
   let services = []
   for (let i = 0; i < package.services.length; i++) {
     services.push({
@@ -98,9 +99,7 @@ const appoints_create = async (req, res) => {
       quantity: package.services[i].quantity,
     })
   }
-  //console.log(`services: ${JSON.stringify(services)}`)
 
-  //console.log(`body: ${JSON.stringify(req.body)}`)
   let newAppointment = _.omitBy(req.body, _.isNil)
   newAppointment.client = await Client.findById(token.id)
   newAppointment.date = new Date(newAppointment.date)
@@ -109,6 +108,7 @@ const appoints_create = async (req, res) => {
   newAppointment['services'] = services
   newAppointment['total_estimated_time'] = package.total_estimated_time
   newAppointment['skill_level'] = package.skill_level
+  newAppointment['appointment_status'] = req.body.valet_required ? 0 : 3
   newAppointment['description'] =
     newAppointment.date.toISOString() +
     ';' +
@@ -119,21 +119,111 @@ const appoints_create = async (req, res) => {
     package.starting_price +
     ';' +
     package.total_estimated_time
-  console.log(`desc: ${newAppointment.description}`)
-  //console.log(`package ${package}`)
-  //console.log(`newAppointment: ${JSON.stringify(newAppointment, null, 2)}`)
 
   try {
     const appointment = await Appointment.create(newAppointment)
-    //console.log(`Appointment: ${JSON.stringify(appointment, null, 2)}`)
+    await Vehicle.addAppointment(req.query.vehicleId, appointment)
+    if (newAppointment.valet_required) {
+      let date = new Date(newAppointment.date)
+      date.setHours(date.getHours() - 1)
+      await Garage.addVehicleToValetPickupQueue(
+        package.garage,
+        req.query.vehicleId,
+        appointment._id,
+        date
+      )
+    }
     console.log(
       `New appointment created for: ${
         appointment.date
       } @ time: ${helpers.getTimeStamp()}`
     )
-    await Vehicle.addAppointment(req.query.vehicleId, appointment)
     //add to response:
     //date, garage name, package name, estiated price, estimated time,
+    res.status(201).json(appointment)
+  } catch (err) {
+    const errors = handleErrors(err)
+    console.warn(
+      `An error occured in appointment_create @ time: ${helpers.getTimeStamp()}`
+    )
+    res.status(400).json({ errors })
+  }
+}
+/*
+ * body:
+ *  date: the date of the appointment
+ *  packageId: the package the client chooses
+ *  employee_num: employee which the appoint is assigned to
+ *  customer_note: the user's description of the issue
+ *  default_vehicle_id: id of the default garage vehicle
+ *  default_client_id: id of the default garage client (walk-in)
+ *  client_phone_number: the client's phone number
+ * Query params:
+ *
+ */
+const appoints_create_walk_in = async (req, res) => {
+  //check for duplicates
+  if (
+    (
+      await Appointment.find({
+        deleted: false,
+        date: new Date(req.body.date),
+        employee_num: req.body.employee_num,
+      })
+    ).length
+  ) {
+    console.log(
+      `Attempted duplicate appointment made @time: ${helpers.getTimeStamp()}`
+    )
+    return res.status(400).json({
+      message:
+        'Appointment already exists with that mechanic. Please chose another time.',
+    })
+  }
+  const package = await Package.findById(req.body.packageId)
+  let services = []
+  for (let i = 0; i < package.services.length; i++) {
+    services.push({
+      service: package.services[i].service,
+      quantity: package.services[i].quantity,
+    })
+  }
+  let newAppointment = _.omitBy(req.body, _.isNil)
+  newAppointment.date = new Date(newAppointment.date)
+  const garage = await Garage.findById(package.garage)
+  newAppointment['garageId'] = garage._id
+  newAppointment['services'] = services
+  newAppointment['total_estimated_time'] = package.total_estimated_time
+  newAppointment['skill_level'] = package.skill_level
+  newAppointment['client'] = req.body.default_client_id
+  newAppointment['client_phone_number'] = req.body.client_phone_number
+  newAppointment['description'] =
+    newAppointment.date.toISOString() +
+    ';' +
+    garage.name +
+    ';' +
+    package.name +
+    ';' +
+    package.starting_price +
+    ';' +
+    package.total_estimated_time
+
+  try {
+    const appointment = await Appointment.create(newAppointment)
+    console.log(
+      `New appointment created for: ${
+        appointment.date
+      } @ time: ${helpers.getTimeStamp()}`
+    )
+    await Vehicle.addAppointment(req.body.default_vehicle_id, appointment)
+    if (newAppointment.valet_required) {
+      await Garage.addVehicleToValetPickupQueue(
+        package.garage,
+        req.body.default_vehicle_id,
+        appointment._id,
+        newAppointment.date
+      )
+    }
     res.status(201).json(appointment)
   } catch (err) {
     const errors = handleErrors(err)
@@ -600,7 +690,6 @@ const appoints_get_availability_by_date = async (req, res) => {
     )
 
     //*Now we check if the array is empty. If it is, we recommend the closest appointment to the time
-    //todo: test how the sort actually works
     if (!timesThatWorkForClient.length) {
       totalAvailableTimes.sort((a, b) => b.date - a.date) //!confirm it works the way we think it works
       console.log(
@@ -941,11 +1030,15 @@ const appoints_get_by_employee = (req, res) => {
 
 //send employee_num in query params
 const appoints_get_nearest_appoint_by_employee = async (req, res) => {
+  const employee = await Employee.findOne({
+    employee_number: req.query.employee_num,
+  })
+  const appointment_status = req.query.employee_num ? 3 : 0
   await Appointment.find({
     employee_num: req.query.employee_num,
     deleted: false,
     archived: false,
-    appointment_status: 3,
+    appointment_status: appointment_status,
   })
     .sort({ date: 'ascending' })
     .then(async (appointments) => {
@@ -1192,10 +1285,12 @@ const appoints_get_by_date_and_appoint_status = async (req, res) => {
         //console.log(`appointment: ${JSON.stringify(appointment, null, 2)}`)
         //console.log(`client: ${JSON.stringify(appointment.client)}`)
         //console.log(`employee: ${JSON.stringify(appointment.employee_num)}`)
+
+        const full_name = client ? client.full_name : 'Walk in'
         appointment.description =
           appointment.description +
           ';' +
-          client.full_name +
+          full_name +
           ';' +
           employee.first_name +
           ' ' +
@@ -1292,9 +1387,10 @@ const archived_appoints_get_all = (req, res) => {
       })
     })
 }
-const archived_appoints_get_by_user = (req, res) => {
-  Appointment.find({
-    client: req.query.user_id,
+const archived_appoints_get_by_user = async (req, res) => {
+  const token = helpers.getDecodedToken(req)
+  await Appointment.find({
+    client: token.id,
     deleted: false,
     archived: true,
   })
@@ -1334,6 +1430,52 @@ const archived_appoints_get_by_id = (req, res) => {
     })
 }
 
+//send vehicleId in query params
+const archived_appoints_get_by_vehicle = async (req, res) => {
+  Vehicle.aggregate([
+    {
+      $lookup: {
+        from: 'appointments',
+        localField: 'appointments._id',
+        foreignField: '_id',
+        as: 'appointmentList',
+      },
+    },
+    {
+      $unwind: {
+        path: '$appointmentList',
+      },
+    },
+    {
+      $match: {
+        'appointmentList.deleted': false,
+        'appointmentList.archived': true,
+        _id: ObjectId(req.query.vehicleId),
+      },
+    },
+    {
+      $group: {
+        _id: '$appointmentList',
+      },
+    },
+  ]).exec((err, result) => {
+    if (err) {
+      helpers.printError(err, 'archived_appoints_get_by_vehicle')
+      res.status(400).json({
+        message: 'Unable to get archived appointments!',
+        error: err.message,
+      })
+    } else {
+      const retVal = []
+      for (appoint of result) {
+        retVal.push(appoint['_id'])
+      }
+      // console.log(`retVal ${helpers.printJson(retVal)}`)
+      res.status(200).json(retVal)
+    }
+  })
+}
+
 //END: ENDPOINTS FOR GET REQUESTS (Retrieve)
 //START: ENDPOINTS FOR PUT REQUESTS (Update)
 //todo: re-calculate estimated appointment time
@@ -1371,7 +1513,7 @@ const appoints_update = async (req, res) => {
 //in query params:
 // * - appointId: id of appointment that we need to update the service for
 // * - serviceId: id of service we want to mark as complete
-// !note this does not mark the appoint as complete, it'll toggle it.
+// !note this does not mark the service as complete, it'll toggle it.
 const appoints_complete_service = async (req, res) => {
   Appointment.findById(req.query.appointId)
     .then((appointment) => {
@@ -1406,18 +1548,18 @@ const appoints_complete_service = async (req, res) => {
  * In query params:
  * - id: appoint id to be marked as complete
  * body:
- * - labour_time: man hours spent on appointment
+ * - labour_time: man hours spent on appointment (in minutes)
  */
 const appoints_complete = async (req, res) => {
   const appointment = await Appointment.findByIdAndUpdate(
     req.query.id,
     {
       archived: true,
-      end_time: helpers.getTimeStamp(), //TODO: make sure this is the correct time format!!!!
+      end_time: helpers.getTimeStamp(),
       //labour_time: req.body.labour_time,
       appointment_status: 13,
     },
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_complete @ time: ${helpers.getTimeStamp()}`
@@ -1428,13 +1570,99 @@ const appoints_complete = async (req, res) => {
           error: err.message,
         })
       } else {
-        console.log(
-          `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
-        )
+        Appointment.aggregate([
+          {
+            $match: {
+              _id: ObjectId(result._id),
+            },
+          },
+          {
+            $lookup: {
+              from: 'catalogservices',
+              localField: 'services.service',
+              foreignField: '_id',
+              as: 'catalogServices',
+            },
+          },
+          {
+            $lookup: {
+              from: 'catalogproducts',
+              localField: 'products.product',
+              foreignField: '_id',
+              as: 'catalogProducts',
+            },
+          },
+        ]).exec(async (err, appointments) => {
+          if (err) {
+            helpers.printErrors(err)
+            res.status(400).json({
+              message: 'Unable to update appointments',
+              error: err.message,
+            })
+          } else {
+            const appointment = appointments.pop()
+            const garage = await Garage.findById(appointment.garageId)
+            let final_price = 0
+            let i = 0
+            for (service of appointment.catalogServices) {
+              final_price =
+                final_price + service.price * appointment.services[i].quantity
+              i++
+            }
+            i = 0
+            for (product of appointment.catalogProducts) {
+              final_price =
+                final_price +
+                product.sell_price * appointment.products[i].quantity
+              i++
+            }
+            final_price =
+              final_price +
+              garage.standard_hourly_rate *
+                (appointment.total_estimated_time / 60)
 
-        res.status(200).json({
-          message: 'Appointment marked as complete!',
-          id: result._id,
+            await Appointment.findByIdAndUpdate(
+              appointment._id,
+              {
+                final_price: final_price,
+              },
+              { new: true },
+              async (err, result) => {
+                if (err) {
+                  helpers.printError(err, 'appoints_complete')
+                  res.status(400).json({
+                    message: 'Unable to update appointments',
+                    error: err.message,
+                  })
+                } else {
+                  console.log(
+                    `Appointment marked as complete @ time: ${helpers.getTimeStamp()}`
+                  )
+                  //create a notification with the vehicle added to the payload
+                  const vehicle = await Vehicle.findOne({
+                    'appointment._id': appointment._id,
+                  })
+                  const title = 'Vehicle appointment updated!'
+                  const body =
+                    'Your appointment is complete! Thank you for your service!'
+                  helpers.createPushNotification(
+                    result.client,
+                    title,
+                    body,
+                    result
+                  )
+
+                  res.status(200).json({
+                    message: 'Appointment marked as complete!',
+                    id: result._id,
+                  })
+                }
+              }
+            )
+
+            // appointment['final_price'] = final_price
+            // appointment.save()
+          }
         })
       }
     }
@@ -1482,7 +1710,7 @@ const appoints_update_status = async (req, res) => {
       appointment_status: req.body.newValue,
     },
     { new: true },
-    (err, result) => {
+    async (err, result) => {
       if (err) {
         console.warn(
           `An error occured in appoints_update_status @ time: ${helpers.getTimeStamp()}`
@@ -1493,15 +1721,124 @@ const appoints_update_status = async (req, res) => {
           error: err.message,
         })
       } else {
+        //Logging
         console.log(
           `Updated status of appointment: ${
             result._id
           } @ time: ${helpers.getTimeStamp()}`
         )
+
+        //Create Push notification
+        const title = 'Vehicle appointment updated!'
+        let body =
+          'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        let payload = result
+        switch (result.appointment_status) {
+          case 0:
+            body = 'Your appointment has been Scheduled!'
+            break
+          case 1:
+            body = 'Your valet is on its way!'
+            break
+          case 2:
+            body = 'Your vehicle is headed to the garage!'
+            break
+          case 3:
+            body = 'Your vehicle is waiting for the mechanic!'
+            break
+          case 4:
+            body = 'A mechanic has started working on your vehicle!'
+            break
+          case 5:
+            body = 'The mechanic has completed their inspection'
+            const vehiclePayload = await Vehicle.findOne({
+              'appointments._id': result._id,
+            })
+            //0: green, 1: yellow, 2: red
+            let lowestHealthValue = 0
+            console.log(
+              `health array size: ${vehiclePayload.health_attributes.length}`
+            )
+            for (let i = 0; i < vehiclePayload.health_attributes.length; i++) {
+              if (
+                vehiclePayload.health_attributes[i].status >
+                  lowestHealthValue &&
+                vehiclePayload.health_attributes[i].status < 3 &&
+                vehiclePayload.health_attributes[i].inspection_tier == 2
+              ) {
+                lowestHealthValue = vehiclePayload.health_attributes[i].status
+              }
+              if (lowestHealthValue == 2) {
+                break
+              }
+            }
+            payload = {
+              appointment: { result },
+              vehicle: {
+                id: vehiclePayload._id,
+                lowestHealthValue: lowestHealthValue,
+              },
+            }
+            break
+          case 6:
+            body = 'Your appointment estimate has been sent'
+            break
+          case 7:
+            body = 'The mechanic will resume work on your vehicle shortly'
+            break
+          case 8:
+            body = 'The mechanic has completed a service on your vehicle'
+            break
+          case 9:
+            body = 'The mechanic is awaiting the necessary parts to arrive'
+            break
+          case 10:
+            body =
+              'Your car is ready for pickup! Come and get it whenever you can!'
+            break
+          case 11:
+            body =
+              'Maintenance complete, waiting for valet to return your vehicle!'
+            const vehicle = await Vehicle.findOne({
+              'appointments._id': result._id,
+            })
+            console.log(`In case 11! \n`)
+            console.log(`garage: ${result.garageId}`)
+            console.log(`vehicle: ${vehicle._id}`)
+            console.log(`appointmentId: ${result._id}`)
+            console.log(`date: ${Date.now()}`)
+
+            Garage.addVehicleToValetPickupQueue(
+              result.garageId,
+              vehicle._id,
+              result._id,
+              Date.now()
+            )
+
+            break
+          case 12:
+            body = 'The valet is delivering your vehicle!'
+            break
+          case 13:
+            body = 'Your appointment is complete! Thank you for your service!'
+            break
+          default:
+            body =
+              'An update has been made to your appointment! Open TuneUp to see the latest updates on your vehicle!'
+        }
+        const response = helpers.createPushNotification(
+          result.client,
+          title,
+          body,
+          payload
+        )
+
+        //Response
         res.status(200).json({
           message: 'Updated appointment status!',
           appointment: result._id,
           status: result.appointment_status,
+          push_notification_response: response,
         })
       }
     }
@@ -1551,6 +1888,7 @@ const appoints_delete = async (req, res) => {
 module.exports = {
   //C
   appoints_create,
+  appoints_create_walk_in,
   //R
   appoints_get_all,
   appoints_get_by_date,
@@ -1570,6 +1908,7 @@ module.exports = {
   archived_appoints_get_all,
   archived_appoints_get_by_user,
   archived_appoints_get_by_id,
+  archived_appoints_get_by_vehicle,
   appoints_get_appointment_service_progress_by_id,
   //U
   appoints_update,

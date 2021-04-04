@@ -1,4 +1,6 @@
 const Employee = require('../models/employee')
+const Client = require('../models/client')
+const Vehicle = require('../models/vehicle')
 const Garage = require('../models/garage')
 const jwt = require('jsonwebtoken')
 const helpers = require('../helpers')
@@ -202,10 +204,18 @@ const employee_create = async (req, res) => {
 const employee_login = async (req, res) => {
   try {
     const employee = await Employee.login(req.body.employee_number)
+    const client = await Client.findOne({
+      email: 'garage@tuneupcapstone.me',
+    })
+    const vehicle = await Vehicle.findOne({ license: '000000' })
     console.log(`Logged in employee ${employee.employee_number}`)
     const token = createToken(employee._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-    res.status(200).json(employee)
+    res.status(200).json({
+      employee: employee,
+      default_client: client._id,
+      default_vehicle: vehicle._id,
+    })
   } catch (err) {
     console.warn(`An error occured in employee_login`)
     const errors = handleErrors(err)

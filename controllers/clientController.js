@@ -106,10 +106,29 @@ const client_get_by_phone_number = (req, res) => {
     })
 }
 
-const logout_get = (req, res) => {
-  console.log(`Logged out client`)
-  res.cookie('jwt', '', { maxAge: 1 })
-  res.status(200).json({ message: 'Token deleted ' })
+//send clientId in the query params
+const logout_get = async (req, res) => {
+  const token = helpers.getDecodedToken(req)
+  await Client.findByIdAndUpdate(
+    token.id,
+    {
+      deviceId: '',
+      devicePlatform: '',
+    },
+    { new: true },
+    (err, result) => {
+      if (err) {
+        console.warn(
+          `An error occured in logout_get @ time: ${helpers.getTimeStamp()}`
+        )
+        console.log(`Error: ${err.message}`)
+      } else {
+        console.log(`Logged out client`)
+        res.cookie('jwt', '', { maxAge: 1 })
+        res.status(200).json({ message: 'Token deleted ' })
+      }
+    }
+  )
 }
 
 //END: ENDPOINTS FOR GET REQUESTS
@@ -139,10 +158,9 @@ const register_post = async (req, res) => {
             console.log(`Deleted client recreated: ${result._id}`)
             const token = createToken(result._id)
             res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-            res.status(200).json({
-              message: 'Client created!',
-              client: result._id,
-            })
+            result.password = ''
+            result.deviceId = ''
+            res.status(200).json(result)
           }
         }
       )
@@ -152,10 +170,9 @@ const register_post = async (req, res) => {
       console.log(`Created client ${client.email}`)
       const token = createToken(client._id)
       res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-      res.status(201).json({
-        message: 'New client created!',
-        client: client._id,
-      })
+      client.password = ''
+      client.deviceId = ''
+      res.status(201).json(client)
     }
   } catch (err) {
     console.warn(`An error occured in register_post`)
@@ -166,16 +183,27 @@ const register_post = async (req, res) => {
 
 const login_post = async (req, res) => {
   try {
-    const client = await Client.login(req.body.email, req.body.password)
+    const client = await Client.login(
+      req.body.email,
+      req.body.password,
+      req.body.deviceId,
+      req.body.devicePlatform
+    )
     console.log(
       `Logged in client ${client.email} @ time ${helpers.getTimeStamp()}`
     )
     const token = createToken(client._id)
     res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 })
-    res.status(200).json({
-      message: 'Client logged in!',
-      client: client._id,
-    })
+    // client.password = ""
+    // client.deviceId = ""
+    const retVal = {
+      first_name: client.first_name,
+      last_name: client.last_name,
+      email: client.email,
+      profile_image_url: client.profile_image_url,
+    }
+
+    res.status(200).json(retVal)
   } catch (err) {
     console.warn(`An error occured in login_post`)
     const errors = handleErrors(err)
@@ -183,6 +211,28 @@ const login_post = async (req, res) => {
   }
 }
 
+//Send url of the profile pic as profile_image_url in body
+const upload_profile_pic_url = async (req, res) => {
+  const token = helpers.getDecodedToken(req)
+  await Client.findByIdAndUpdate(
+    token.id,
+    {
+      profile_image_url: req.body.profile_image_url,
+    },
+    { new: true },
+    (err, profile) => {
+      if (err) {
+        helpers.printError(err, 'upload_profile_pic_url')
+        res.status(400).json({
+          message: 'Unable to set profile pic',
+          error: err.message,
+        })
+      } else {
+        res.status(200).json({ message: 'Profile picture sucessfully updated' })
+      }
+    }
+  )
+}
 //END: ENDPOINTS FOR POST REQUESTS
 
 //START: ENDPOINTS FOR PUT REQUESTS (Update)
@@ -258,6 +308,7 @@ module.exports = {
   client_get_by_phone_number,
   register_post,
   login_post,
+  upload_profile_pic_url,
   logout_get,
   client_update,
   client_delete,

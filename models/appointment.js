@@ -34,6 +34,7 @@ const appointmentSchema = new Schema(
     final_price: {
       //to be generated when appointment is complete
       type: Number, //stored in cents
+      // default: 0,
     },
     employee_num: {
       type: Number,
@@ -41,6 +42,7 @@ const appointmentSchema = new Schema(
     },
     services: [
       {
+        //_id: false,
         service: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'CatalogService',
@@ -62,6 +64,7 @@ const appointmentSchema = new Schema(
     },
     products: [
       {
+        //_id: false,
         product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'CatalogProduct',
@@ -75,13 +78,15 @@ const appointmentSchema = new Schema(
     ],
     labour_time: {
       //!check for this before marking as complete
-      type: Number, //stored in seconds
+      type: Number, //stored in minutes
       default: 0,
     },
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
-      required: true,
+    },
+    client_phone_number: {
+      type: String,
     },
     discount: {
       type: Number, //format: 10=10% off, 15=15% off, etc
@@ -98,8 +103,16 @@ const appointmentSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    valet_pickup_address: {
+      type: Array,
+      default: [],
+    },
     customer_note: {
       type: String,
+    },
+    customer_image_url: {
+      type: String,
+      default: '',
     },
     archived: {
       type: Boolean,

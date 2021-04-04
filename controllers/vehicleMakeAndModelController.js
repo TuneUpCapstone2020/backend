@@ -60,8 +60,27 @@ const vehicle_models_get_by_make_id = (req, res) => {
       })
     })
 }
+
+//send make in query params
+const vehicle_make_get_make_logo_url_by_make = async (req, res) => {
+  const make = await VehicleMake.findOne({ MakeName: req.query.make })
+    .then((result) => {
+      res.status(200).json({
+        url: result.VehicleMakeLogoUrl,
+        make: req.query.make,
+      })
+    })
+    .catch((err) => {
+      helpers.printError(err, 'vehicle_make_get_make_logo_url_by_make')
+      res.status(400).json({
+        message: 'Unable to get make logo url',
+        error: err.message,
+      })
+    })
+}
 module.exports = {
   vehicle_make_get_all,
   vehicle_models_get_all,
   vehicle_models_get_by_make_id,
+  vehicle_make_get_make_logo_url_by_make,
 }

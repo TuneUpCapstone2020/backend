@@ -64,6 +64,17 @@ const vehicle_get_all_of_client = async (req, res) => {
       })
     } else {
       console.log('Got all vehicles of client!')
+      //filter only the relevant health attrributes
+      for (vehicle of listOfVehicles) {
+        let attributes = vehicle.health_attributes
+        const filteredAttributes = []
+        for (attribute of attributes) {
+          if (attribute.inspection_tier == vehicle.latest_insepction_tier) {
+            filteredAttributes.push(attribute)
+          }
+        }
+        vehicle.health_attributes = filteredAttributes
+      }
       res.status(200).json(listOfVehicles)
     }
   })

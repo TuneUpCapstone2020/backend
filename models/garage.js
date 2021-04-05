@@ -58,7 +58,6 @@ const garageSchema = new Schema(
     ],
     valet_pickup_queue: [
       {
-        _id: false,
         vehicle: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Vehicle',

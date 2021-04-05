@@ -122,12 +122,12 @@ const garage_get_valet_queue_first_item = async (req, res) => {
         error: err.message,
       })
     } else {
-      if (queue) {
+      if (queue.lenth > 0) {
         const queue_item = queue[0]
         const appointment = await Appointment.findById(
           queue_item['_id'].appointment
         )
-        if (appointment) {
+        if (appointment.length > 0) {
           const employee = await Employee.findOne({
             employee_number: appointment.employee_num,
           })

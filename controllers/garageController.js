@@ -122,33 +122,41 @@ const garage_get_valet_queue_first_item = async (req, res) => {
         error: err.message,
       })
     } else {
-      const queue_item = queue[0]
-      const appointment = await Appointment.findById(queue_item['_id'].appointment)
-      if(appointment){
-      const employee = await Employee.findOne({
-        employee_number: appointment.employee_num,
-      })
-      const vehicle = await Vehicle.findOne({
-        'appointments._id': appointment._id,
-      })
-      appointment.description =
-        appointment.description +
-        ';' +
-        employee.first_name +
-        ';' +
-        vehicle.year +
-        ' ' +
-        vehicle.make +
-        ' ' +
-        vehicle.model
+      if (queue) {
+        const queue_item = queue[0]
+        const appointment = await Appointment.findById(
+          queue_item['_id'].appointment
+        )
+        if (appointment) {
+          const employee = await Employee.findOne({
+            employee_number: appointment.employee_num,
+          })
+          const vehicle = await Vehicle.findOne({
+            'appointments._id': appointment._id,
+          })
+          appointment.description =
+            appointment.description +
+            ';' +
+            employee.first_name +
+            ';' +
+            vehicle.year +
+            ' ' +
+            vehicle.make +
+            ' ' +
+            vehicle.model
 
-      queue_item.appointment = appointment
-      res.status(200).json(queue_item.appointment)
-    }else {
-      res.status(200).json({
-        message: 'No valet trip'
-      })
-    }
+          queue_item.appointment = appointment
+          res.status(200).json(queue_item.appointment)
+        } else {
+          res.status(200).json({
+            message: 'No valet trip',
+          })
+        }
+      } else {
+        res.status(200).json({
+          message: 'No valet trip',
+        })
+      }
     }
   })
 }
@@ -158,9 +166,9 @@ const garage_complete_item_from_valet_queue = async (req, res) => {
     .then((garage) => {
       const valet_queue = garage.valet_pickup_queue
       for (item of valet_queue) {
-        console.log(`item: ${item.appointment}`);
+        console.log(`item: ${item.appointment}`)
         if (item.appointment == req.query.appointmentId) {
-          console.log(`inside item`);
+          console.log(`inside item`)
           item.completed = true
           break
         }

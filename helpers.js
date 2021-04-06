@@ -72,7 +72,7 @@ const populateVehicleAttributes = async (vehicleId) => {
  *  clientId: id of client whom notif is to be sent to
  *  text: the title of the notification
  *  body: the body of the notification
- *  paylod: auxiliary data 
+ *  payload: auxiliary data 
  todo: payload (add a json object as payload and try to send the entire appointment)
  */
 const createPushNotification = async (clientId, title, body, payload) => {

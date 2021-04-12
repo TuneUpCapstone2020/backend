@@ -84,6 +84,7 @@ const appointmentSchema = new Schema(
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Client',
+      index: true,
     },
     client_phone_number: {
       type: String,
